@@ -47,6 +47,6 @@ style-test:
 deploy:
   stage: deploy
   script:
-    - deployer dyno replace $CI_PROJECT_NAME $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG gitlab-ci-token $REGISTRY_PWD
+    - deployer dyno replace $CI_PROJECT_NAME "SCI_REGISTRY_IMAGE:SCI_COMMIT_REF_SLUG" "SREGISTRY-USER" "SREGISTRY-PWD"
   only:
     - master
