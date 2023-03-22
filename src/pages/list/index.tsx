@@ -125,31 +125,31 @@ import { Layout, Menu, Breadcrumb, Card } from "antd";
 const { Header, Content, Footer } = Layout;
 
 function App() {
-  return (
-    <Layout className="layout">
-      <Header>
-        <div className="logo" />
-        <Menu theme="dark" mode="horizontal" defaultSelectedKeys={["1"]}>
-          <Menu.Item key="1">Home</Menu.Item>
-          <Menu.Item key="2">About</Menu.Item>
-          <Menu.Item key="3">Contact</Menu.Item>
-        </Menu>
-      </Header>
-      <Content style={{ padding: "0 50px" }}>
-        <Breadcrumb style={{ margin: "16px 0" }}>
-          <Breadcrumb.Item>Home</Breadcrumb.Item>
-        </Breadcrumb>
-        <div className="site-layout-content">
-          <Card title="Welcome to React+Antd" bordered={false}>
+    return (
+        <Layout className="layout">
+            <Header>
+                <div className="logo" />
+                <Menu theme="dark" mode="horizontal" defaultSelectedKeys={["1"]}>
+                    <Menu.Item key="1">Home</Menu.Item>
+                    <Menu.Item key="2">About</Menu.Item>
+                    <Menu.Item key="3">Contact</Menu.Item>
+                </Menu>
+            </Header>
+            <Content style={{ padding: "0 50px" }}>
+                <Breadcrumb style={{ margin: "16px 0" }}>
+                    <Breadcrumb.Item>Home</Breadcrumb.Item>
+                </Breadcrumb>
+                <div className="site-layout-content">
+                    <Card title="Welcome to React+Antd" bordered={false}>
             This is a simple page designed with react+antd.
-          </Card>
-        </div>
-      </Content>
-      <Footer style={{ textAlign: "center" }}>
+                    </Card>
+                </div>
+            </Content>
+            <Footer style={{ textAlign: "center" }}>
         Ant Design ©2018 Created by Ant UED
-      </Footer>
-    </Layout>
-  );
+            </Footer>
+        </Layout>
+    );
 }
 
 export default App;
