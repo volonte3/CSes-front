@@ -4,18 +4,18 @@
 // import { CREATE_SUCCESS, FAILURE_PREFIX, UPDATE_SUCCESS } from "../constants/string";
 // import { getBlankBoard, stepBoard, flipCell, badFlipCell, boardToString } from "../utils/logic";
 // import { request } from "../utils/network";
-// import { Board } from "../utils/types";
+import { Board } from "../utils/types";
 
-// interface BoardInit {
-//     id: number,
-//     initBoard: Board,
-//     initBoardName: string,
-//     initUserName: string,
-// }
+interface BoardInit {
+    id: number,
+    initBoard: Board,
+    initBoardName: string,
+    initUserName: string,
+}
 
-// export interface BoardScreenProps {
-//     init?: BoardInit,
-// }
+export interface BoardScreenProps {
+    init?: BoardInit,
+}
 
 // const BoardScreen = (props: BoardScreenProps) => {
 //     /**
