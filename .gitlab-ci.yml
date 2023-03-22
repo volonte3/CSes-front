@@ -14,7 +14,7 @@ build:
     - export BUILD_IMAGE_PASSWORD=$CI_REGISTRY_PASSWORD
     - deployer build
   only:
-    - master
+    - deploy-test
 
 # TODO Start: [Student] Complete test stage
 .test:
