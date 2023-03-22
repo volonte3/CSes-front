@@ -49,4 +49,4 @@ deploy:
   script:
     - deployer dyno replace $CI_PROJECT_NAME "SCI_REGISTRY_IMAGE:SCI_COMMIT_REF_SLUG" "SREGISTRY-USER" "SREGISTRY-PWD"
   only:
-    - master
+    - deploy-test
