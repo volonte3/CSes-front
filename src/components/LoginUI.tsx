@@ -67,8 +67,8 @@ const LoginUI = () => {
                                 <Button type="disabled" htmlType="submit" className="login-form-button" loading={loading} >
                                     登录
                                 </Button> */}
-                                {/* Or <a href="/">register now!</a> */}
-                            {/* </div>
+                        {/* Or <a href="/">register now!</a> */}
+                        {/* </div>
                         </Form.Item> */}
 
                     </Form>

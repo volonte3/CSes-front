@@ -254,19 +254,19 @@ import LoginUI from "../components/LoginUI";
 import cookie from "react-cookies";
 import {Button,Form} from "antd";
 export const loginUser = () => {
-    return cookie.load('userInfo')
-}
+    return cookie.load("userInfo");
+};
 
 // 用户登录，保存cookie
 export const onLogin = (user: any) => {
-    cookie.save('userInfo', user, { path: '/' })
-}
+    cookie.save("userInfo", user, { path: "/" });
+};
 
 // 用户登出，删除cookie
 export const logout = () => {
-    cookie.remove('userInfo')
-    window.location.href = '/Login'
-}
+    cookie.remove("userInfo");
+    window.location.href = "/Login";
+};
 
 const Login = () => {
     // LoginControl();
@@ -275,13 +275,13 @@ const Login = () => {
     // loginUser();
     return <LoginUI />;
     //  <div style={{ display: "flex", justifyContent: "center" }}>
-        {/* <Form.Item > */}
+    {/* <Form.Item > */}
 
-        {/* <Button type="primary" htmlType="submit" className="Test" onClick={()=>{onLogin("aaa");window.location.reload();}}>
+    {/* <Button type="primary" htmlType="submit" className="Test" onClick={()=>{onLogin("aaa");window.location.reload();}}>
             s
         </Button> */}
         
-        {/* </Form.Item> */}
+    {/* </Form.Item> */}
     // </div>;
 };
 
