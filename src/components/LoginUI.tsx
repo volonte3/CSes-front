@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Form, Input, Button, Checkbox, Image } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import BackGround from "public/LoginBackground.png";
+import { FAILURE_PREFIX } from "../constants/string";
 import { useRouter } from "next/router";
 import cookie from "react-cookies";
 import { request } from "../utils/network";
@@ -42,9 +43,9 @@ const LoginUI = (props: LoginScreenProps) => {
                 UserName: UserName,
                 Password: CryptoJS.MD5(Password).toString(),
             }
-        );
-        // .then(() => { alert(DELETE_USER_BOARD_SUCCESS); router.push("/list"); })
-        // .catch((err) => { alert(FAILURE_PREFIX + err); setRefreshing(true); });
+        )
+        .then(() => { router.push("/login_test");})
+        .catch((err) => { alert(FAILURE_PREFIX + err)});
         // Step 6 END
     };
     const onFinish = (values: any) => {
@@ -119,7 +120,7 @@ const LoginUI = (props: LoginScreenProps) => {
                         <Form.Item >
                             <div style={{ display: "flex", justifyContent: "center" }}>
                                 <Button type="primary" htmlType="submit" className="login-form-button" loading={loading} 
-                                    onClick={() => {onLogin();loginSendMessage(); router.push("/login_test");}}>
+                                    onClick={() => {onLogin();loginSendMessage();}}>
                                     登录
                                 </Button>
                             </div>
