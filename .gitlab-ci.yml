@@ -14,7 +14,7 @@ build:
     - export BUILD_IMAGE_PASSWORD=$CI_REGISTRY_PASSWORD
     - deployer build
   only:
-    - deploy-test
+    - master dev
 
 # TODO Start: [Student] Complete test stage
 .test:
@@ -49,4 +49,4 @@ deploy:
   script:
     - deployer dyno replace $CI_PROJECT_NAME $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG gitlab-ci-token $REGISTRY_PWD
   only:
-    - deploy-test
+    - master dev

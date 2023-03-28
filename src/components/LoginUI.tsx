@@ -3,6 +3,29 @@ import { Form, Input, Button, Checkbox, Image } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import BackGround from "public/LoginBackground.png";
 import { useRouter } from "next/router";
+import cookie from "react-cookies";
+import { request } from "../utils/network";
+
+export const loginUser = () => {
+    return cookie.load("userInfo");
+};
+const loginSendMessage = () => {
+    // Step 6 BEGIN
+    request("/api/User/login", "POST");
+    // .then(() => { alert(DELETE_USER_BOARD_SUCCESS); router.push("/list"); })
+    // .catch((err) => { alert(FAILURE_PREFIX + err); setRefreshing(true); });
+    // Step 6 END
+};
+// 用户登录，保存cookie
+export const onLogin = (user: any) => {
+    cookie.save("userInfo", user, { path: "/" });
+};
+
+// 用户登出，删除cookie
+export const logout = () => {
+    cookie.remove("userInfo");
+    window.location.href = "/Login";
+};
 
 const LoginUI = () => {
     const [loading, setLoading] = useState(false);
@@ -62,14 +85,13 @@ const LoginUI = () => {
                             </a> */}
                         </Form.Item>
 
-                        {/* <Form.Item >
+                        <Form.Item >
                             <div style={{ display: "flex", justifyContent: "center" }}>
-                                <Button type="disabled" htmlType="submit" className="login-form-button" loading={loading} >
+                                <Button type="primary" htmlType="submit" className="login-form-button" loading={loading} onClick={()=>{onLogin("aaa");loginSendMessage();}}>
                                     登录
-                                </Button> */}
-                                {/* Or <a href="/">register now!</a> */}
-                            {/* </div>
-                        </Form.Item> */}
+                                </Button>
+                            </div>
+                        </Form.Item>
 
                     </Form>
                 </div>
