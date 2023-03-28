@@ -44,8 +44,8 @@ const LoginUI = (props: LoginScreenProps) => {
                 Password: CryptoJS.MD5(Password).toString(),
             }
         )
-        .then(() => { router.push("/login_test");})
-        .catch((err) => { alert(FAILURE_PREFIX + err)});
+            .then(() => router.push("/login_test"))
+            .catch((err) => alert(FAILURE_PREFIX + err));
         // Step 6 END
     };
     const onFinish = (values: any) => {
