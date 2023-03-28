@@ -19,8 +19,8 @@ function App() {
         request(
             "/api/User/logout",
             "POST"
-        );
-        // .then(() => { alert(DELETE_USER_BOARD_SUCCESS); router.push("/list"); })
+        )
+            .then(() => { router.push("/"); });
         // .catch((err) => { alert(FAILURE_PREFIX + err); setRefreshing(true); });
         // Step 6 END
     };
@@ -30,7 +30,7 @@ function App() {
             <Form.Item >
                 <div style={{ display: "flex", justifyContent: "center" }}>
                     <Button type="primary" htmlType="submit" className="login-form-button"
-                        onClick={() => { logoutSendMessage();logout(); router.push("/"); }}>
+                        onClick={() => { logoutSendMessage();logout(); }}>
                         登出
                     </Button>
                 </div>

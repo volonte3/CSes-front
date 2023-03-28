@@ -42,9 +42,9 @@ const LoginUI = (props: LoginScreenProps) => {
                 UserName: UserName,
                 Password: CryptoJS.MD5(Password).toString(),
             }
-        );
+        )
         // .then(() => { alert(DELETE_USER_BOARD_SUCCESS); router.push("/list"); })
-        // .catch((err) => { alert(FAILURE_PREFIX + err); setRefreshing(true); });
+            .catch((err) => { alert("用户名或密码错误"); });
         // Step 6 END
     };
     const onFinish = (values: any) => {
