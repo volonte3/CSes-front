@@ -9,27 +9,38 @@ import { request } from "../utils/network";
 export const loginUser = () => {
     return cookie.load("userInfo");
 };
-const loginSendMessage = () => {
-    // Step 6 BEGIN
-    request("/api/User/login", "POST");
-    // .then(() => { alert(DELETE_USER_BOARD_SUCCESS); router.push("/list"); })
-    // .catch((err) => { alert(FAILURE_PREFIX + err); setRefreshing(true); });
-    // Step 6 END
-};
-// 用户登录，保存cookie
-export const onLogin = (user: any) => {
-    cookie.save("userInfo", user, { path: "/" });
-};
+interface LoginInit {
+    initUserName: string,
+    initPassword: string,
+}
+export interface LoginScreenProps {
+    init?: LoginInit,
+}
 
-// 用户登出，删除cookie
-export const logout = () => {
-    cookie.remove("userInfo");
-    window.location.href = "/Login";
-};
 
-const LoginUI = () => {
+const LoginUI = (props: LoginScreenProps) => {
+    const [UserName, setUserName] = useState<string>(props.init?.initUserName ?? "");
+    const [Password, setPassword] = useState<string>(props.init?.initPassword ?? "");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const loginUser = () => {
+        return cookie.load("userInfo");
+    };
+    const loginSendMessage = () => {
+        // Step 6 BEGIN
+
+        request(
+            "/api/User/login",
+            "POST",
+            {
+                UserName: UserName,
+                Password: Password,
+            }
+        );
+        // .then(() => { alert(DELETE_USER_BOARD_SUCCESS); router.push("/list"); })
+        // .catch((err) => { alert(FAILURE_PREFIX + err); setRefreshing(true); });
+        // Step 6 END
+    };
     const onFinish = (values: any) => {
         setLoading(true);
         setTimeout(() => {
@@ -37,7 +48,16 @@ const LoginUI = () => {
             console.log("Received values of form: ", values);
         }, 2000);
     };
+    // 用户登录，保存cookie
+    const onLogin = (user: any) => {
+        cookie.save("userInfo", user, { path: "/" });
+    };
 
+    // 用户登出，删除cookie
+    const logout = () => {
+        cookie.remove("userInfo");
+        window.location.href = "/";
+    };
     return (
         <div style={{
             display: "flex", justifyContent: "center", alignItems: "center", height: "100vh",
@@ -58,7 +78,9 @@ const LoginUI = () => {
                             name="username"
                             rules={[{ required: true, message: "用户名不能为空!" }]}
                         >
-                            <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Username" />
+                            <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Username"
+                                onChange={(e) => setUserName(e.target.value)}
+                            />
                         </Form.Item>
 
                         <Form.Item
@@ -69,6 +91,7 @@ const LoginUI = () => {
                                 prefix={<LockOutlined className="site-form-item-icon" />}
                                 type="password"
                                 placeholder="Password"
+                                onChange={(e) => setPassword(e.target.value)}
                             />
                         </Form.Item>
                         {/* <img
@@ -87,7 +110,7 @@ const LoginUI = () => {
 
                         <Form.Item >
                             <div style={{ display: "flex", justifyContent: "center" }}>
-                                <Button type="primary" htmlType="submit" className="login-form-button" loading={loading} onClick={()=>{onLogin("aaa");loginSendMessage();}}>
+                                <Button type="primary" htmlType="submit" className="login-form-button" loading={loading} onClick={() => { onLogin("zhyggyyds"), loginSendMessage(); }}>
                                     登录
                                 </Button>
                             </div>
