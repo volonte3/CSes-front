@@ -5,6 +5,7 @@ import BackGround from "public/LoginBackground.png";
 import { useRouter } from "next/router";
 import cookie from "react-cookies";
 import { request } from "../utils/network";
+import CryptoJS from "crypto-js";
 import {
     generateRandomString,
     getCookie,
@@ -39,7 +40,7 @@ const LoginUI = (props: LoginScreenProps) => {
             "POST",
             {
                 UserName: UserName,
-                Password: Password,
+                Password: CryptoJS.MD5(Password).toString(),
             }
         );
         // .then(() => { alert(DELETE_USER_BOARD_SUCCESS); router.push("/list"); })
@@ -117,7 +118,8 @@ const LoginUI = (props: LoginScreenProps) => {
 
                         <Form.Item >
                             <div style={{ display: "flex", justifyContent: "center" }}>
-                                <Button type="primary" htmlType="submit" className="login-form-button" loading={loading} onClick={() => { logout();onLogin(), loginSendMessage(); }}>
+                                <Button type="primary" htmlType="submit" className="login-form-button" loading={loading} 
+                                    onClick={() => {onLogin();loginSendMessage(); router.push("/login_test");}}>
                                     登录
                                 </Button>
                             </div>
