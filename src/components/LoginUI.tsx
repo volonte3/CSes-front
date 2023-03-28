@@ -5,6 +5,11 @@ import BackGround from "public/LoginBackground.png";
 import { useRouter } from "next/router";
 import cookie from "react-cookies";
 import { request } from "../utils/network";
+import {
+    generateRandomString,
+    getCookie,
+    setCookie,
+} from "../utils/CookieOperation";
 
 export const loginUser = () => {
     return cookie.load("userInfo");
@@ -49,14 +54,16 @@ const LoginUI = (props: LoginScreenProps) => {
         }, 2000);
     };
     // 用户登录，保存cookie
-    const onLogin = (user: any) => {
-        cookie.save("userInfo", user, { path: "/" });
+    const onLogin = () => {
+        let SessionID = generateRandomString(32);
+        console.log("SessionID is",SessionID);
+        cookie.save("SessionID", SessionID, { path: "/" });
     };
 
     // 用户登出，删除cookie
     const logout = () => {
         cookie.remove("userInfo");
-        window.location.href = "/";
+        // window.location.href = "/";
     };
     return (
         <div style={{
@@ -110,7 +117,7 @@ const LoginUI = (props: LoginScreenProps) => {
 
                         <Form.Item >
                             <div style={{ display: "flex", justifyContent: "center" }}>
-                                <Button type="primary" htmlType="submit" className="login-form-button" loading={loading} onClick={() => { onLogin("zhyggyyds"), loginSendMessage(); }}>
+                                <Button type="primary" htmlType="submit" className="login-form-button" loading={loading} onClick={() => { logout();onLogin(), loginSendMessage(); }}>
                                     登录
                                 </Button>
                             </div>
