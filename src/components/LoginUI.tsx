@@ -45,7 +45,8 @@ const LoginUI = (props: LoginScreenProps) => {
             }
         )
             .then(() => router.push("/login_test"))
-            .catch((err) => alert(FAILURE_PREFIX + err));
+            // .catch((err) => alert(FAILURE_PREFIX + err));
+            .catch((err)=>alert("用户名或密码错误"));
         // Step 6 END
     };
     const onFinish = (values: any) => {
