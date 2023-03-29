@@ -119,43 +119,43 @@
 // };
 
 // export default ListScreen;
-import React from 'react';
-import { Layout, Menu, Dropdown, Button, Divider, Space } from 'antd';
-import AssetQueryCard from '../../components/UserPageUI/AssetQueryUI';
-import UserManageCard from '../../components/UserPageUI/UserManageUI';
-import GetAssetCard from '../../components/UserPageUI/GetAssetUI';
+import React from "react";
+import { Layout, Menu, Dropdown, Button, Divider, Space } from "antd";
+import AssetQueryCard from "../../components/UserPageUI/AssetQueryUI";
+import UserManageCard from "../../components/UserPageUI/UserManageUI";
+import GetAssetCard from "../../components/UserPageUI/GetAssetUI";
 const { Header, Content } = Layout;
 
 const DropdownMenu = (
-  <Menu>
-    <Menu.Item key="1">待办事项</Menu.Item>
-    <Menu.Item key="2">已完成事项</Menu.Item>
-  </Menu>
+    <Menu>
+        <Menu.Item key="1">待办事项</Menu.Item>
+        <Menu.Item key="2">已完成事项</Menu.Item>
+    </Menu>
 );
 
 const App = () => {
-  return (
-    <Layout style={{
-        display: "flex", justifyContent: "center", alignItems: "center", height: "100vh",
-        backgroundImage: "url(\"LoginBackground.png\")", backgroundSize: "cover", backgroundPosition: "center"
-    }}>
-      <Header style={{background: "transparent", display: 'flex', flexDirection: 'row', justifyContent: 'flex-end'}}>
-        <Button>用户姓名</Button>
-        <Dropdown overlay={DropdownMenu}>
-          <Button>待办事项</Button>
-        </Dropdown>
-        <Button>登出</Button>
-      </Header>
-      <Content style={{ padding: '50px' }}>
-        <Space size='large'>
-          <AssetQueryCard/>
-          <UserManageCard/>
-          <GetAssetCard/>
-        </Space>
-      </Content>
-    </Layout>
+    return (
+        <Layout style={{
+            display: "flex", justifyContent: "center", alignItems: "center", height: "100vh",
+            backgroundImage: "url(\"LoginBackground.png\")", backgroundSize: "cover", backgroundPosition: "center"
+        }}>
+            <Header style={{background: "transparent", display: "flex", flexDirection: "row", justifyContent: "flex-end"}}>
+                <Button>用户姓名</Button>
+                <Dropdown overlay={DropdownMenu}>
+                    <Button>待办事项</Button>
+                </Dropdown>
+                <Button>登出</Button>
+            </Header>
+            <Content style={{ padding: "50px" }}>
+                <Space size='large'>
+                    <AssetQueryCard/>
+                    <UserManageCard/>
+                    <GetAssetCard/>
+                </Space>
+            </Content>
+        </Layout>
     
-  );
+    );
 };
 
 export default App;
