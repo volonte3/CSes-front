@@ -124,6 +124,9 @@ import { Layout, Menu, Dropdown, Button, Divider, Space } from "antd";
 import AssetQueryCard from "../../components/UserPageUI/AssetQueryUI";
 import UserManageCard from "../../components/UserPageUI/UserManageUI";
 import GetAssetCard from "../../components/UserPageUI/GetAssetUI";
+import { useRouter } from "next/router";
+import cookie from "react-cookies";
+import { request } from "../../utils/network";
 const { Header, Content } = Layout;
 
 const DropdownMenu = (
@@ -134,6 +137,20 @@ const DropdownMenu = (
 );
 
 const App = () => {
+    // 用户登出，删除cookie
+    const logout = () => {
+        cookie.remove("SessionID");
+        // window.location.href = "/";
+    };
+    const logoutSendMessage = () => {
+        request(
+            "/api/User/logout",
+            "POST"
+        )
+            .then(() => { router.push("/"); });
+        // .catch((err) => { alert(FAILURE_PREFIX + err); setRefreshing(true); });
+    };
+    const router = useRouter();
     return (
         <Layout style={{
             display: "flex", justifyContent: "center", alignItems: "center", height: "100vh",
@@ -144,7 +161,7 @@ const App = () => {
                 <Dropdown overlay={DropdownMenu}>
                     <Button>待办事项</Button>
                 </Dropdown>
-                <Button>登出</Button>
+                <Button onClick={() => { logoutSendMessage();logout(); }}>登出</Button>
             </Header>
             <Content style={{ padding: "50px" }}>
                 <Space size='large'>
