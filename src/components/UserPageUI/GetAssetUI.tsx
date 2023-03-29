@@ -13,19 +13,13 @@ const GetAssetCard = () => {
     };
     return (
         <>
-            <Card
-                style={{ width: 160, height: 160 }}
+            <Card className="card"
                 cover={
-                    <img
-                        alt="example"
-                        src="GetAsset.png"
-                        // width="25"
-                        height="100"
-                    />
+                    <img className="card__icon" src="GetAsset.png"/>
                 }
-                title='资产领用'
                 onClick={handle_click}
             >
+                <h1 className="card__title">资产领用</h1>
             </Card>
             <Modal
                 title="抱歉，该功能正在开发中"
