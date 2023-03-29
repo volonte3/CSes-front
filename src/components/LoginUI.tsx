@@ -44,7 +44,7 @@ const LoginUI = (props: LoginScreenProps) => {
                 Password: CryptoJS.MD5(Password).toString(),
             }
         )
-            .then(() => router.push("/login_test"))
+            .then(() => router.push("/main_page"))
             // .catch((err) => alert(FAILURE_PREFIX + err));
             .catch((err)=>alert("用户名或密码错误"));
         // Step 6 END
