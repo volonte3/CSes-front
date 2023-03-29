@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Form, Input, Button, Checkbox, Image } from "antd";
+import { Form, Input, Button, Checkbox, Image, Modal } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import BackGround from "public/LoginBackground.png";
 import { FAILURE_PREFIX } from "../constants/string";
@@ -46,7 +46,7 @@ const LoginUI = (props: LoginScreenProps) => {
         )
             .then(() => router.push("/main_page"))
             // .catch((err) => alert(FAILURE_PREFIX + err));
-            .catch((err)=>alert("用户名或密码错误"));
+            .catch((err) => ErrorInfo(err));
         // Step 6 END
     };
     const onFinish = (values: any) => {
@@ -61,6 +61,13 @@ const LoginUI = (props: LoginScreenProps) => {
         let SessionID = generateRandomString(32);
         console.log("SessionID is",SessionID);
         cookie.save("SessionID", SessionID, { path: "/" });
+    };
+
+    const ErrorInfo = (errinfo: string) => {
+        Modal.error({
+          title: "登录失败",
+          content: errinfo.toString().substring(5),
+        });
     };
 
     // 用户登出，删除cookie
