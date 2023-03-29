@@ -65,8 +65,8 @@ const LoginUI = (props: LoginScreenProps) => {
 
     const ErrorInfo = (errinfo: string) => {
         Modal.error({
-          title: "登录失败",
-          content: errinfo.toString().substring(5),
+            title: "登录失败",
+            content: errinfo.toString().substring(5),
         });
     };
 
