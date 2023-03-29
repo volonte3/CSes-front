@@ -1,6 +1,6 @@
 // export default Login;
 import LoginUI from "../components/LoginUI";
-import { withRouter, Prompt } from "react-router-dom"; // 从react-router-dom中引出Prompt组件
+// import { withRouter, Prompt } from "react-router-dom"; // 从react-router-dom中引出Prompt组件
 // import { useCookies } from "react-cookies";
 // import cookie from "react-cookies";
 import {Button,Form} from "antd";
