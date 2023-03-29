@@ -120,36 +120,42 @@
 
 // export default ListScreen;
 import React from "react";
-import { Layout, Menu, Breadcrumb, Card } from "antd";
+import { Layout, Menu, Dropdown, Button, Divider, Space } from "antd";
+import AssetQueryCard from "../../components/UserPageUI/AssetQueryUI";
+import UserManageCard from "../../components/UserPageUI/UserManageUI";
+import GetAssetCard from "../../components/UserPageUI/GetAssetUI";
+const { Header, Content } = Layout;
 
-const { Header, Content, Footer } = Layout;
+const DropdownMenu = (
+    <Menu>
+        <Menu.Item key="1">待办事项</Menu.Item>
+        <Menu.Item key="2">已完成事项</Menu.Item>
+    </Menu>
+);
 
-function App() {
+const App = () => {
     return (
-        <Layout className="layout">
-            <Header>
-                <div className="logo" />
-                <Menu theme="dark" mode="horizontal" defaultSelectedKeys={["1"]}>
-                    <Menu.Item key="1">Home</Menu.Item>
-                    <Menu.Item key="2">About</Menu.Item>
-                    <Menu.Item key="3">Contact</Menu.Item>
-                </Menu>
+        <Layout style={{
+            display: "flex", justifyContent: "center", alignItems: "center", height: "100vh",
+            backgroundImage: "url(\"LoginBackground.png\")", backgroundSize: "cover", backgroundPosition: "center"
+        }}>
+            <Header style={{background: "transparent", display: "flex", flexDirection: "row", justifyContent: "flex-end"}}>
+                <Button>用户姓名</Button>
+                <Dropdown overlay={DropdownMenu}>
+                    <Button>待办事项</Button>
+                </Dropdown>
+                <Button>登出</Button>
             </Header>
-            <Content style={{ padding: "0 50px" }}>
-                <Breadcrumb style={{ margin: "16px 0" }}>
-                    <Breadcrumb.Item>Home</Breadcrumb.Item>
-                </Breadcrumb>
-                <div className="site-layout-content">
-                    <Card title="Welcome to React+Antd" bordered={false}>
-            This is a simple page designed with react+antd.
-                    </Card>
-                </div>
+            <Content style={{ padding: "50px" }}>
+                <Space size='large'>
+                    <AssetQueryCard/>
+                    <UserManageCard/>
+                    <GetAssetCard/>
+                </Space>
             </Content>
-            <Footer style={{ textAlign: "center" }}>
-        Ant Design ©2018 Created by Ant UED
-            </Footer>
         </Layout>
+    
     );
-}
+};
 
 export default App;
