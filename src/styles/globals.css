@@ -14,3 +14,22 @@ a {
 * {
   box-sizing: border-box;
 }
+.card {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.card__icon {
+  width: 80px;
+  height: 80px;
+  margin-right: 0px;
+}
+
+.card__title {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0;
+}
