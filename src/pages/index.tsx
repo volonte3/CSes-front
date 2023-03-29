@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 const Login = () => {
     const router = useRouter();
     const isRoot = router.pathname === "/";
+    console.log(router.pathname);
     return !isRoot ? (
         <p>mistake</p>
     )
