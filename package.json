@@ -12,14 +12,21 @@
     "test": "jest"
   },
   "dependencies": {
+    "@types/crypto-js": "^4.1.1",
+    "@types/react-cookies": "^0.1.0",
+    "@types/react-router-dom": "^5.3.3",
     "antd": "^5.3.1",
     "axios": "^1.2.0",
+    "crypto-js": "^4.1.1",
     "jest-sonar-reporter": "^2.0.0",
     "jsdom": "^21.1.1",
     "next": "13.0.4",
     "react": "18.2.0",
     "react-cookies": "^0.1.1",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "react-router-dom": "^6.9.0",
+    "type": "^2.7.2",
+    "types": "^0.1.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.14.1",
