@@ -15,6 +15,7 @@ build:
     - deployer build
   only:
     - master
+    - dev
 
 # TODO Start: [Student] Complete test stage
 .test:
@@ -50,3 +51,4 @@ deploy:
     - deployer dyno replace $CI_PROJECT_NAME $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG gitlab-ci-token $REGISTRY_PWD
   only:
     - master
+    - dev
