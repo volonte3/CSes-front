@@ -1,3 +1,4 @@
+import cookie from "react-cookies";
 const getCookie = (key: string, default_value: string): string => {
     const rgx = new RegExp("(?:^|(?:; ))" + key + "=([^;]*)");
     const result = document.cookie.match(rgx);
@@ -24,5 +25,19 @@ const generateRandomString = (num: number) => {
 
     return result1;
 };
+//
+const LoadSessionID= () => {
+    return cookie.load("SessionID");
+};
+//用户登出，删除cookie
+const logout = () => {
+    cookie.remove("SessionID");
+};
+// 用户登录，保存cookie
+const CreateCookie = (key:string) => {
+    let SessionID = generateRandomString(32);
+    console.log(`${key} is`,SessionID);
+    cookie.save(key, SessionID, { path: "/" });
+};
 
-export { getCookie, setCookie, generateRandomString };
+export { getCookie, setCookie, generateRandomString,LoadSessionID, logout, CreateCookie, };
