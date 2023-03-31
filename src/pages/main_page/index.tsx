@@ -35,9 +35,8 @@ const App = () => {
             return;
         }
         request(
-            "api/User/info",
-            "GET",
-            { SessionID: LoadSessionID(), }
+            `api/User/info/${LoadSessionID()}`,
+            "GET"
         )
             .then(()=>setState(true))
             .catch((err) => {
