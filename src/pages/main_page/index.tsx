@@ -1,8 +1,8 @@
 import React from "react";
 import { Layout, Menu, Dropdown, Button, Divider, Space, Modal } from "antd";
-import AssetQueryCard from "../../components/UserPageUI/AssetQueryUI";
-import UserManageCard from "../../components/UserPageUI/UserManageUI";
-import GetAssetCard from "../../components/UserPageUI/GetAssetUI";
+import {AssetQueryCard,GetAssetCard, AssetReturnCard, AssetDefineCard} from "../../components/UserPageUI/AssetManageUI";
+import {DepartmentTreeCard, RoleControlCard} from "../../components/UserPageUI/UserManageUI";
+import { UserOutlined, BellOutlined, DownOutlined, PoweroffOutlined } from "@ant-design/icons";
 import { logout, LoadSessionID } from "../../utils/CookieOperation";
 import { useRouter } from "next/router";
 import cookie from "react-cookies";
@@ -56,22 +56,39 @@ const App = () => {
                 display: "flex", justifyContent: "center", alignItems: "center", height: "100vh",
                 backgroundImage: "url(\"LoginBackground.png\")", backgroundSize: "cover", backgroundPosition: "center"
             }}>
-                <Header style={{ background: "transparent", display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
-                    <Button>用户姓名</Button>
-                    <Dropdown overlay={DropdownMenu}>
-                        <Button>待办事项</Button>
-                    </Dropdown>
-                    <Button onClick={() => { logoutSendMessage(); logout(); }}>登出</Button>
+                <Header style = {{background : "transparent"}}>
+                    <div className="logo">CSCompany资产管理系统</div>
+                    <div className="right-menu">
+                        <Button type = "text" className="header_button" color="#fff" icon={<UserOutlined /> }>个人信息</Button>
+                        <Dropdown overlay={DropdownMenu} trigger={["click"]}>
+                            <Button type = "text" className="header_button" icon={<BellOutlined />}>待办事项<DownOutlined /></Button>
+                        </Dropdown>
+                        <Button type = "text" className="header_button" icon={<PoweroffOutlined />} onClick={() => { logoutSendMessage();logout(); }}>退出登录</Button>
+                    </div>
                 </Header>
-                <Content style={{ padding: "50px" }}>
-                    <Space size='large'>
-                        <AssetQueryCard />
-                        <UserManageCard />
-                        <GetAssetCard />
-                    </Space>
+                <Content>
+                    <div className="site-layout-content">
+                        <div className="title">资产管理</div>
+                        <Space direction="vertical" size="middle" style={{ display: "flex" }}>
+                            <Space size="large" wrap>
+                                <AssetQueryCard/>
+                                <AssetReturnCard/>
+                                <GetAssetCard/>
+                            </Space>
+                            <Space size="large" wrap>
+                                <AssetDefineCard/>
+                                <AssetReturnCard/>
+                                <GetAssetCard/>
+                            </Space>
+                        </Space>
+                        <div className="title">用户管理</div>
+                        <Space size='large'>
+                            <DepartmentTreeCard/>
+                            <RoleControlCard/>
+                        </Space>
+                    </div>
                 </Content>
             </Layout>
-
         );
     }
 };
