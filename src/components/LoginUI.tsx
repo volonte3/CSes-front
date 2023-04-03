@@ -1,21 +1,11 @@
 import React, { useState } from "react";
 import { Form, Input, Button, Checkbox, Image, Modal } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
-import BackGround from "public/LoginBackground.png";
-import { FAILURE_PREFIX } from "../constants/string";
 import { useRouter } from "next/router";
-import cookie from "react-cookies";
+import { LoadSessionID,CreateCookie } from "../utils/CookieOperation";
 import { request } from "../utils/network";
 import CryptoJS from "crypto-js";
-import {
-    generateRandomString,
-    getCookie,
-    setCookie,
-} from "../utils/CookieOperation";
 
-export const loginUser = () => {
-    return cookie.load("userInfo");
-};
 interface LoginInit {
     initUserName: string,
     initPassword: string,
@@ -30,24 +20,20 @@ const LoginUI = (props: LoginScreenProps) => {
     const [Password, setPassword] = useState<string>(props.init?.initPassword ?? "");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
-    const loginUser = () => {
-        return cookie.load("userInfo");
-    };
     const loginSendMessage = () => {
-        // Step 6 BEGIN
 
         request(
             "/api/User/login",
             "POST",
             {
                 UserName: UserName,
+                SessionID: LoadSessionID(),
                 Password: CryptoJS.MD5(Password).toString(),
             }
         )
             .then(() => router.push("/main_page"))
             // .catch((err) => alert(FAILURE_PREFIX + err));
             .catch((err) => ErrorInfo(err));
-        // Step 6 END
     };
     const onFinish = (values: any) => {
         setLoading(true);
@@ -55,12 +41,6 @@ const LoginUI = (props: LoginScreenProps) => {
             setLoading(false);
             console.log("Received values of form: ", values);
         }, 2000);
-    };
-    // 用户登录，保存cookie
-    const onLogin = () => {
-        let SessionID = generateRandomString(32);
-        console.log("SessionID is",SessionID);
-        cookie.save("SessionID", SessionID, { path: "/" });
     };
 
     const ErrorInfo = (errinfo: string) => {
@@ -70,11 +50,6 @@ const LoginUI = (props: LoginScreenProps) => {
         });
     };
 
-    // 用户登出，删除cookie
-    const logout = () => {
-        cookie.remove("userInfo");
-        // window.location.href = "/";
-    };
     return (
         <div style={{
             display: "flex", justifyContent: "center", alignItems: "center", height: "100vh",
@@ -128,7 +103,7 @@ const LoginUI = (props: LoginScreenProps) => {
                         <Form.Item >
                             <div style={{ display: "flex", justifyContent: "center" }}>
                                 <Button type="primary" htmlType="submit" className="login-form-button" loading={loading} 
-                                    onClick={() => {onLogin();loginSendMessage();}}>
+                                    onClick={() => {CreateCookie("SessionID");loginSendMessage();}}>
                                     登录
                                 </Button>
                             </div>
