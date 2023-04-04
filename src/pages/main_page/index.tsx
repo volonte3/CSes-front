@@ -8,6 +8,7 @@ import { useRouter } from "next/router";
 import cookie from "react-cookies";
 import { request } from "../../utils/network";
 import { useState, useEffect } from "react";
+import CardUI from "../../components/UserPageUI/CardUI";
 const { Header, Content } = Layout;
 
 const DropdownMenu = (
@@ -37,7 +38,7 @@ const App = () => {
     const rolelist = ["超级管理员","系统管理员","资产管理员","员工"];
     const user_applist = ["资产查看","资产领用","资产退库","资产维保","资产转移"];
     const assetmanager_applist = ["资产审批","资产定义","资产录入","资产信息变更","资产查询","资产清退","资产调拨","资产统计","资产告警"];
-    const systemanager_applist = ["用户列表","角色权限管理","部门管理","应用管理","操作日志","导入导出管理"];
+    const systemmanager_applist = ["用户列表","角色权限管理","部门管理","应用管理","操作日志","导入导出管理"];
     const supermanager_applist = ["业务实体管理","系统管理员列表"];
     useEffect(() => {
         if (!router.isReady) {
@@ -63,7 +64,10 @@ const App = () => {
                 });
             });
     }, [router, query, state]);
-    const userItems = UserApp.split("").filter((item, index) => index >= 0 && index <= 4);
+    const user_apps = UserApp.split("").filter((item, index) => index >= 0 && index <= 4).map((char) => (char === "0" ? 0 : 1));
+    const am_apps = UserApp.split("").filter((item, index) => index >= 5 && index <= 13).map((char) => (char === "0" ? 0 : 1));
+    const sm_apps = UserApp.split("").filter((item, index) => index >= 14 && index <= 19).map((char) => (char === "0" ? 0 : 1));
+    const superm_apps = UserApp.split("").filter((item, index) => index >= 20).map((char) => (char === "0" ? 0 : 1));
     if (state) {
         return (
             <Layout style={{
@@ -83,24 +87,98 @@ const App = () => {
                 <Content>
                     <div className="site-layout-content">
                         <div className="title">您的权限：{rolelist[UserAuthority]}</div>
-
-                        <Space direction="vertical" size="middle" style={{ display: "flex" }}>
-                            <Space size="large" wrap>
-                                <AssetQueryCard/>
-                                <AssetReturnCard/>
-                                <GetAssetCard/>
-                            </Space>
-                            <Space size="large" wrap>
-                                <AssetDefineCard/>
-                                <AssetReturnCard/>
-                                <GetAssetCard/>
-                            </Space>
-                        </Space>
-                        <div className="title">用户管理</div>
-                        <Space size='large'>
-                            <DepartmentTreeCard state = {UserApp[0]} name = "部门管理"/>
-                            <RoleControlCard/>
-                        </Space> 
+                        <div className="title">应用导航</div>
+                        {UserAuthority == 0 && <Space size="large" wrap>{
+                            supermanager_applist.map((name, index) => (
+                                < CardUI 
+                                    key={index} 
+                                    state={superm_apps[index]} 
+                                    appname={name} img={name+".jpg"}
+                                />
+                            ))
+                        }</Space>}
+                        {UserAuthority == 1 && <Space direction="vertical" size="middle" style={{ display: "flex" }}>{
+                            <>
+                                <Space size="large" wrap>{
+                                    systemmanager_applist.filter((item, index) => index <= 2).map((name, index) => (
+                                        < CardUI 
+                                            key={index} 
+                                            state={sm_apps[index]} 
+                                            appname={name} 
+                                            img={name+".jpg"}
+                                        />
+                                    ))
+                                }</Space>
+                                <Space size="large" wrap>{
+                                    systemmanager_applist.filter((item, index) => 3 <= index).map((name, index) => (
+                                        < CardUI 
+                                            key={index} 
+                                            state={sm_apps[index+3]} 
+                                            appname={name} 
+                                            img={name+".jpg"}
+                                        />
+                                    ))
+                                }</Space>
+                            </>
+                        }</Space>}
+                        {UserAuthority == 2 && <Space direction="vertical" size="middle" style={{ display: "flex" }}>{
+                            <>
+                                <Space size="large" wrap>{
+                                    assetmanager_applist.filter((item, index) => index <= 2).map((name, index) => (
+                                        < CardUI 
+                                            key={index} 
+                                            state={am_apps[index]} 
+                                            appname={name} 
+                                            img={name+".jpg"}
+                                        />
+                                    ))
+                                }</Space>
+                                <Space size="large" wrap>{
+                                    assetmanager_applist.filter((item, index) => 3 <= index && index <= 5).map((name, index) => (
+                                        < CardUI 
+                                            key={index} 
+                                            state={am_apps[index+3]} 
+                                            appname={name} 
+                                            img={name+".jpg"}
+                                        />
+                                    ))
+                                }</Space>
+                                <Space size="large" wrap>{
+                                    systemmanager_applist.filter((item, index) => 6 <= index).map((name, index) => (
+                                        < CardUI 
+                                            key={index} 
+                                            state={am_apps[index+6]} 
+                                            appname={name} 
+                                            img={name+".jpg"}
+                                        />
+                                    ))
+                                }</Space>
+                            </>
+                        }</Space>}
+                        {UserAuthority == 1 && <Space direction="vertical" size="middle" style={{ display: "flex" }}>{
+                            <>
+                                <Space size="large" wrap>{
+                                    user_applist.filter((item, index) => index <= 2).map((name, index) => (
+                                        < CardUI 
+                                            key={index} 
+                                            state={user_apps[index]} 
+                                            appname={name} 
+                                            img={name+".jpg"}
+                                        />
+                                    ))
+                                }</Space>
+                                <Space size="large" wrap>{
+                                    user_applist.filter((item, index) => 3 <= index).map((name, index) => (
+                                        < CardUI 
+                                            key={index} 
+                                            state={user_apps[index+3]} 
+                                            appname={name} 
+                                            img={name+".jpg"}
+                                        />
+                                    ))
+                                }</Space>
+                            </>
+                        }</Space>}
                     </div>
                 </Content>
             </Layout>

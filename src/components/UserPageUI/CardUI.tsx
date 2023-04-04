@@ -2,7 +2,7 @@ import { Modal, Card, Button} from "antd";
 import { useRouter } from "next/router";
 import { useState } from "react";
 interface CardUIProps {
-    state: string;
+    state: number;
     appname: string;
     img: string
 }
@@ -18,7 +18,7 @@ const CardUI = (props: CardUIProps) => {
     };
     return (
         <>
-            {props.state == "1" && <Card className="card"
+            {props.state == 1 && <Card className="card"
                 cover={
                     <img alt = "" className="card__icon" src={props.img}/>
                 }
@@ -26,7 +26,7 @@ const CardUI = (props: CardUIProps) => {
             >
                 <h1 className="card__title">{props.appname}</h1>
             </Card>}
-            {props.state == "0" && <Card className="card"
+            {props.state == 0 && <Card className="card"
                 cover={
                     <img alt = "" className="card__icon" src={props.img}/>
                 }
@@ -35,7 +35,7 @@ const CardUI = (props: CardUIProps) => {
             >
                 <h1 className="card__title">{props.appname}</h1>
             </Card>}
-            {props.state == "1" && <Modal
+            {props.state == 1 && <Modal
                 title="抱歉，该功能正在开发中"
                 centered
                 open={open}
@@ -48,7 +48,7 @@ const CardUI = (props: CardUIProps) => {
             >
                 <p>请耐心等待我们的更新</p>
             </Modal>}
-            {props.state == "0" && <Modal
+            {props.state == 0 && <Modal
                 title="抱歉，该功能已被您的管理员禁用"
                 centered
                 open={open}
@@ -64,3 +64,4 @@ const CardUI = (props: CardUIProps) => {
         </>
     );
 };
+export default CardUI;
