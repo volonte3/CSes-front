@@ -4,9 +4,10 @@ import { useState } from "react";
 import Image from "next/image";
 interface CardUIProps {
     state: string;
-    name: string;
+    appname: string;
+    img: string
 }
-const DepartmentTreeCard = (props: CardUIProps) => {
+const CardUI = (props: CardUIProps) => {
     const [open, setOpen] = useState<boolean>(false);
     const router = useRouter();
     const query = router.query;
@@ -18,15 +19,24 @@ const DepartmentTreeCard = (props: CardUIProps) => {
     };
     return (
         <>
-            <Card className="card"
+            {props.state == "1" && <Card className="card"
                 cover={
-                    <Image alt = "" className="card__icon" src="组织架构.jpg"/>
+                    <Image alt = "" className="card__icon" src={props.img}/>
                 }
                 onClick={handle_click}
             >
-                <h1 className="card__title">组织架构</h1>
-            </Card>
-            <Modal
+                <h1 className="card__title">{props.appname}</h1>
+            </Card>}
+            {props.state == "0" && <Card className="card"
+                cover={
+                    <Image alt = "" className="card__icon" src={props.img}/>
+                }
+                onClick={handle_click}
+                color = "grey"
+            >
+                <h1 className="card__title">{props.appname}</h1>
+            </Card>}
+            {props.state == "1" && <Modal
                 title="抱歉，该功能正在开发中"
                 centered
                 open={open}
@@ -38,32 +48,9 @@ const DepartmentTreeCard = (props: CardUIProps) => {
                 ]}
             >
                 <p>请耐心等待我们的更新</p>
-            </Modal>
-        </>
-    );
-};
-const RoleControlCard = () => {
-    const [open, setOpen] = useState<boolean>(false);
-    const router = useRouter();
-    const query = router.query;
-    const handle_click = () => {
-        setOpen(true);
-    };
-    const handle_cancel = () => {
-        setOpen(false);
-    };
-    return (
-        <>
-            <Card className="card"
-                cover={
-                    <img className="card__icon" src="UserManage.jpg"/>
-                }
-                onClick={handle_click}
-            >
-                <h1 className="card__title">角色管理</h1>
-            </Card>
-            <Modal
-                title="抱歉，该功能正在开发中"
+            </Modal>}
+            {props.state == "0" && <Modal
+                title="抱歉，该功能已被您的管理员禁用"
                 centered
                 open={open}
                 onCancel={handle_cancel}
@@ -73,9 +60,8 @@ const RoleControlCard = () => {
                     </Button>,
                 ]}
             >
-                <p>请耐心等待我们的更新</p>
-            </Modal>
+                <p>请联系管理员申请解封</p>
+            </Modal>}
         </>
     );
 };
-export {DepartmentTreeCard, RoleControlCard};
