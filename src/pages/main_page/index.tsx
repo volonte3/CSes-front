@@ -63,7 +63,6 @@ const App = () => {
                 });
             });
     }, [router, query, state]);
-    // if (typeof document !== "undefined" && !document.cookie) { window.location.href = "/"; }
     if (state) {
         return (
             <Layout style={{
@@ -83,7 +82,7 @@ const App = () => {
                 <Content>
                     <div className="site-layout-content">
                         <div className="title">您的权限：{rolelist[UserAuthority]}</div>
-                        
+
                         <Space direction="vertical" size="middle" style={{ display: "flex" }}>
                             <Space size="large" wrap>
                                 <AssetQueryCard/>

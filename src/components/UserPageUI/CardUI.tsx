@@ -1,7 +1,6 @@
 import { Modal, Card, Button} from "antd";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import Image from "next/image";
 interface CardUIProps {
     state: string;
     appname: string;
@@ -21,7 +20,7 @@ const CardUI = (props: CardUIProps) => {
         <>
             {props.state == "1" && <Card className="card"
                 cover={
-                    <Image alt = "" className="card__icon" src={props.img}/>
+                    <img alt = "" className="card__icon" src={props.img}/>
                 }
                 onClick={handle_click}
             >
@@ -29,7 +28,7 @@ const CardUI = (props: CardUIProps) => {
             </Card>}
             {props.state == "0" && <Card className="card"
                 cover={
-                    <Image alt = "" className="card__icon" src={props.img}/>
+                    <img alt = "" className="card__icon" src={props.img}/>
                 }
                 onClick={handle_click}
                 color = "grey"
