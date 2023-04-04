@@ -1,7 +1,6 @@
 import { Modal, Card, Button} from "antd";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import Image from "next/image";
 interface CardUIProps {
     state: string;
     name: string;
@@ -20,7 +19,7 @@ const DepartmentTreeCard = (props: CardUIProps) => {
         <>
             <Card className="card"
                 cover={
-                    <Image alt = "" className="card__icon" src="组织架构.jpg"/>
+                    <img alt = "" className="card__icon" src="组织架构.jpg"/>
                 }
                 onClick={handle_click}
             >

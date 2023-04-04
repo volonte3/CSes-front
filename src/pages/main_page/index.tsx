@@ -63,6 +63,7 @@ const App = () => {
                 });
             });
     }, [router, query, state]);
+    const userItems = UserApp.split("").filter((item, index) => index >= 0 && index <= 4);
     if (state) {
         return (
             <Layout style={{
