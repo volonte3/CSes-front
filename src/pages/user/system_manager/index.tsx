@@ -181,6 +181,15 @@ const App = () => {
             .then((res) => {
                 // const Member = JSON.parse(res.jsonString) as MemberData;
                 setMember(res);
+            })
+            .catch((err) => {
+                console.log(err.message);
+                setState(false);
+                Modal.error({
+                    title: "无权获取用户列表",
+                    content: "请重新登录",
+                    onOk: () => { window.location.href = "/"; }
+                });
             });
     }, [router, query, state]);
     if (state) {
