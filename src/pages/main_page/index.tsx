@@ -45,7 +45,7 @@ const App = () => {
             return;
         }
         request(
-            `api/User/info/${LoadSessionID()}`,
+            `/api/User/info/${LoadSessionID()}`,
             "GET"
         )
             .then((res)=>{
