@@ -1,16 +1,12 @@
 import React from "react";
 import { Layout, Menu, Dropdown, Button, Divider, Space, Modal } from "antd";
-import {AssetQueryCard,GetAssetCard, AssetReturnCard, AssetDefineCard} from "../../components/UserPageUI/AssetManageUI";
-import {DepartmentTreeCard, RoleControlCard} from "../../components/UserPageUI/UserManageUI";
 import { UserOutlined, BellOutlined, DownOutlined, PoweroffOutlined } from "@ant-design/icons";
 import { logout, LoadSessionID } from "../../utils/CookieOperation";
 import { useRouter } from "next/router";
-import cookie from "react-cookies";
 import { request } from "../../utils/network";
 import { useState, useEffect } from "react";
 import CardUI from "../../components/UserPageUI/CardUI";
 const { Header, Content } = Layout;
-
 const DropdownMenu = (
     <Menu>
         <Menu.Item key="1">待办事项</Menu.Item>
@@ -40,6 +36,10 @@ const App = () => {
     const assetmanager_applist = ["资产审批","资产定义","资产录入","资产变更","资产查询","资产清退","资产调拨","资产统计","资产告警"];
     const systemmanager_applist = ["用户列表","角色管理","部门管理","应用管理","操作日志","导入导出管理"];
     const supermanager_applist = ["业务实体管理","系统管理员列表"];
+    const user_urllist = ["","","","",""];
+    const assetmanager_urllist = ["","","","","","","","",""];
+    const systemmanager_urllist = ["/user/system_manager","","","","",""];
+    const supermanager_urllist = ["","","","","",""];
     useEffect(() => {
         if (!router.isReady) {
             return;
@@ -94,6 +94,7 @@ const App = () => {
                                     key={index} 
                                     state={superm_apps[index]} 
                                     appname={name} img={name+".jpg"}
+                                    url={supermanager_urllist[index]}
                                 />
                             ))
                         }</Space>}
@@ -106,6 +107,7 @@ const App = () => {
                                             state={sm_apps[index]} 
                                             appname={name} 
                                             img={name+".jpg"}
+                                            url={systemmanager_urllist[index]}
                                         />
                                     ))
                                 }</Space>
@@ -116,6 +118,7 @@ const App = () => {
                                             state={sm_apps[index+3]} 
                                             appname={name} 
                                             img={name+".jpg"}
+                                            url={systemmanager_urllist[index+3]}
                                         />
                                     ))
                                 }</Space>
@@ -130,6 +133,7 @@ const App = () => {
                                             state={am_apps[index]} 
                                             appname={name} 
                                             img={name+".jpg"}
+                                            url={assetmanager_urllist[index]}
                                         />
                                     ))
                                 }</Space>
@@ -140,6 +144,7 @@ const App = () => {
                                             state={am_apps[index+3]} 
                                             appname={name} 
                                             img={name+".jpg"}
+                                            url={assetmanager_urllist[index+3]}
                                         />
                                     ))
                                 }</Space>
@@ -150,6 +155,7 @@ const App = () => {
                                             state={am_apps[index+6]} 
                                             appname={name} 
                                             img={name+".jpg"}
+                                            url={assetmanager_urllist[index+6]}
                                         />
                                     ))
                                 }</Space>
@@ -164,6 +170,7 @@ const App = () => {
                                             state={user_apps[index]} 
                                             appname={name} 
                                             img={name+".jpg"}
+                                            url={user_urllist[index]}
                                         />
                                     ))
                                 }</Space>
@@ -174,6 +181,7 @@ const App = () => {
                                             state={user_apps[index+3]} 
                                             appname={name} 
                                             img={name+".jpg"}
+                                            url={user_urllist[index+3]}
                                         />
                                     ))
                                 }</Space>

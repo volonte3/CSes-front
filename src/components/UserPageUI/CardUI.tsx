@@ -4,14 +4,16 @@ import { useState } from "react";
 interface CardUIProps {
     state: number;
     appname: string;
-    img: string
+    img: string;
+    url: string;
 }
 const CardUI = (props: CardUIProps) => {
     const [open, setOpen] = useState<boolean>(false);
     const router = useRouter();
     const query = router.query;
     const handle_click = () => {
-        setOpen(true);
+        if(props.url == "" || props.state == 0) setOpen(true);
+        else router.push(props.url);
     };
     const handle_cancel = () => {
         setOpen(false);
@@ -35,7 +37,7 @@ const CardUI = (props: CardUIProps) => {
             >
                 <h1 className="card__title">{props.appname}</h1>
             </Card>}
-            {props.state == 1 && <Modal
+            {props.state == 1 && props.url == "" && <Modal
                 title="抱歉，该功能正在开发中"
                 centered
                 open={open}
