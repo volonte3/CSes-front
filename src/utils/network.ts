@@ -6,7 +6,7 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
 
 const network = axios.create({
-    baseURL: "",
+    baseURL: "/",
 });
 
 enum NetworkErrorType {
