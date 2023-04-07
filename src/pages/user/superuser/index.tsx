@@ -50,11 +50,16 @@ const App = () => {
     const [open, setOpen] = useState(false);    //右侧注册新实体边栏是否开启
     const [EntityValue, setEntityValue] = useState(""); //注册新实体名
     const [UserValue, setUserValue] = useState(""); //注册新系统管理员名
+    const [System, setSystem] = useState<SystemData[]>(); // 存储所有系统管理员和其对应业务实体的信息
+    const [UserName, setUserName] = useState<string>(""); // 用户名
+    const [UserAuthority, setUserAuthority] = useState(0); // 用户的角色权限，0超级，1系统，2资产，3员工
+    const [UserApp, setUserApp] = useState<string>(""); // 用户显示的卡片，01串
+    const router = useRouter();
 
-    const handleEntityInputChange = (e:any) => {
+    const handleEntityInputChange = (e: any) => {
         setEntityValue(e.target.value);
     };
-    const handleUserInputChange = (e:any) => {
+    const handleUserInputChange = (e: any) => {
         setUserValue(e.target.value);
     };
     const {
@@ -114,11 +119,53 @@ const App = () => {
         console.log("Failed:", errorInfo);
     };
     useEffect(() => {
-        setState(true);
-    }, [state]);
-    if (!state) {
-        return null;
-    }
+        if (!router.isReady) {
+            return;
+        }
+        request(
+            `/api/User/info/${LoadSessionID()}`,
+            "GET"
+        )
+            .then((res) => {
+                setState(true);
+                setUserName(res.UserName);
+                setUserApp(res.UserApp);
+                setUserAuthority(res.Authority);
+            })
+            .catch((err) => {
+                console.log(err.message);
+                setState(false);
+                Modal.error({
+                    title: "登录失败",
+                    content: "请重新登录",
+                    onOk: () => { window.location.href = "/"; }
+                });
+            });
+        if (state) {
+
+            request(
+                `/api/SuperUser/info/${LoadSessionID()}`,
+                "GET"
+            )
+                .then((res) => {
+                    setState(true);
+                    setSystem(res.entity_manager);
+                })
+                .catch((err) => {
+                    console.log(err.message);
+                    setState(false);
+                    Modal.error({
+                        title: "无权获取系统管理员及实体信息",
+                        content: "请重新登录",
+                        onOk: () => { window.location.href = "/"; }
+                    });
+                });
+        }
+
+    }, [state, router]);
+    // if (!state) {
+    //     return null;
+    // }
     if (state) {
         return (
             <Layout style={{ minHeight: "100vh" }}>
@@ -153,7 +200,7 @@ const App = () => {
                                     name="Entity"
                                     rules={[{ required: true, message: "请输入业务实体名" }]}
                                 >
-                                    <Input onChange={handleEntityInputChange}/>
+                                    <Input onChange={handleEntityInputChange} />
                                 </Form.Item>
 
                                 <Form.Item
@@ -161,11 +208,11 @@ const App = () => {
                                     name="Manager"
                                     rules={[{ required: true, message: "请输入资产管理员用户名" }]}
                                 >
-                                    <Input onChange={handleUserInputChange}/>
+                                    <Input onChange={handleUserInputChange} />
                                 </Form.Item>
 
                                 <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                                    <Button type="primary" htmlType="submit" onClick={()=>CreateNew(UserValue,EntityValue)}>
+                                    <Button type="primary" htmlType="submit" onClick={() => CreateNew(UserValue, EntityValue)}>
                                         确认提交
                                     </Button>
                                 </Form.Item>
@@ -173,7 +220,7 @@ const App = () => {
                         </Drawer>
                         <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
 
-                            <Table dataSource={DataTest}>
+                            <Table dataSource={System}>
                                 <Column title="业务实体" dataIndex="Entity" key="Entity" />
                                 <Column title="系统管理员" dataIndex="Manager" key="Manager" />
                                 <Column
@@ -181,7 +228,7 @@ const App = () => {
                                     key="action"
                                     render={(_: any, record: SystemData) => (
                                         <Space size="middle">
-                                            <Button danger onClick={()=>Remove(record.Manager,record.Entity)}>移除</Button>
+                                            <Button danger onClick={() => Remove(record.Manager, record.Entity)}>移除</Button>
                                         </Space>
                                     )}
                                 />
