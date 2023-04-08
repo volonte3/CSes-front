@@ -88,9 +88,8 @@ const App = () => {
         )
             .then((res) => {
                 let answer: string = `成功创建业务实体 ${EntityName} 并委派系统管理员 ${UserName}, 初始密码为 yiqunchusheng`;
-                Modal.success({ title: "创建成功", content: answer });
+                Modal.success({ title: "创建成功", content: answer, afterClose: () => { window.location.reload(); } });
                 onClose();
-                window.location.reload();
             })
             .catch((err: string) => {
                 Modal.error({
@@ -98,7 +97,7 @@ const App = () => {
                     content: err.toString().substring(5),
                 });
             });
-        
+
     };
     //像后端发送删除用户和实体的请求，如果删除成功提示成功并关闭抽屉，否则向用户提示错误信息        const Delete = (UserName:string,
     const Remove = (UserName: string, EntityName: string) => {
@@ -108,8 +107,7 @@ const App = () => {
         )
             .then((res) => {
                 let answer: string = `成功注销业务实体 ${EntityName} 及系统管理员 ${UserName}`;
-                Modal.success({ title: "注销成功", content: answer });
-                window.location.reload();
+                Modal.success({ title: "注销成功", content: answer, afterClose: () => { window.location.reload(); } });
             })
             .catch((err: string) => {
                 Modal.error({
