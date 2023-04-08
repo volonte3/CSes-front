@@ -158,39 +158,42 @@ const App = () => {
         if (!router.isReady) {
             return;
         }
-        request(
-            `/api/User/info/${LoadSessionID()}`,
-            "GET"
-        )
-            .then((res) => {
-                setState(true);
-                setUserName(res.UserName);
-                setUserApp(res.UserApp);
-                setUserAuthority(res.Authority);
-            })
-            .catch((err) => {
-                console.log(err.message);
-                setState(false);
-                Modal.error({
-                    title: "登录失败",
-                    content: "请重新登录",
-                    onOk: () => { window.location.href = "/"; }
+        // request(
+        //     `/api/User/info/${LoadSessionID()}`,
+        //     "GET"
+        // )
+        //     .then((res) => {
+        //         setState(true);
+        //         setUserName(res.UserName);
+        //         setUserApp(res.UserApp);
+        //         setUserAuthority(res.Authority);
+        //     })
+        //     .catch((err) => {
+        //         console.log(err.message);
+        //         setState(false);
+        //         Modal.error({
+        //             title: "登录失败",
+        //             content: "请重新登录",
+        //             onOk: () => { window.location.href = "/"; }
+        //         });
+        //     });
+        setState(true);
+        if(state){
+            request(`api/User/member/${LoadSessionID()}`, "GET")
+                .then((res) => {
+                    // const Member = JSON.parse(res.jsonString) as MemberData;
+                    setMember(res);
+                })
+                .catch((err) => {
+                    console.log(err.message);
+                    setState(false);
+                    Modal.error({
+                        title: "无权获取用户列表",
+                        content: "请重新登录",
+                        onOk: () => { window.location.href = "/"; }
+                    });
                 });
-            });
-        request(`api/User/member/${LoadSessionID()}`, "GET")
-            .then((res) => {
-                // const Member = JSON.parse(res.jsonString) as MemberData;
-                setMember(res);
-            })
-            .catch((err) => {
-                console.log(err.message);
-                setState(false);
-                Modal.error({
-                    title: "无权获取用户列表",
-                    content: "请重新登录",
-                    onOk: () => { window.location.href = "/"; }
-                });
-            });
+        }
     }, [router, query, state]);
     if (state) {
 
@@ -208,7 +211,7 @@ const App = () => {
                             {/* <Breadcrumb.Item>Bill</Breadcrumb.Item> */}
                         </Breadcrumb>
                         <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
-                            <Table dataSource={MemberTest}>
+                            <Table dataSource={Member}>
                                 {/* <ColumnGroup title="Name"> */}
                                 <Column title="姓名" dataIndex="Name" key="Name" />
                                 {/* <Column title="Last Name" dataIndex="lastName" key="lastName" /> */}
