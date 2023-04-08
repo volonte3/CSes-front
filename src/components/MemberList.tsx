@@ -6,7 +6,6 @@ import type { MenuProps } from "antd";
 import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, Switch, Modal, Button } from "antd";
 const { Column } = Table;
 import { useRouter } from "next/router";
-const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { LoadSessionID } from "../utils/CookieOperation";
