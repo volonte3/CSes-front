@@ -15,6 +15,7 @@ import { useState, useEffect } from "react";
 import { request } from "../../../utils/network";
 import { logout, LoadSessionID } from "../../../utils/CookieOperation";
 import { renderAuthority } from "../../../utils/transformer";
+import MemberList from "../../../components/MemberList";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -33,15 +34,6 @@ function getItem(
 }
 
 const items: MenuItem[] = [
-    // getItem("Option 1", "1", <PieChartOutlined />),
-    // getItem("Option 2", "2", <DesktopOutlined />),
-    // getItem("User", "sub1", <UserOutlined />, [
-    //     getItem("Tom", "3"),
-    //     getItem("Bill", "4"),
-    //     getItem("Alex", "5"),
-    // ]),
-    // getItem("Team", "sub2", <TeamOutlined />, [getItem("Team 1", "6"), getItem("Team 2", "8")]),
-    // getItem("Files", "9", <FileOutlined />),
     getItem("用户管理", "1", <FileOutlined />),
     getItem("部门管理", "2", <FileOutlined />),
     getItem("操作日志", "3", <FileOutlined />),
@@ -105,55 +97,6 @@ const App = () => {
     const {
         token: { colorBgContainer },
     } = theme.useToken();
-    const RemakePassword = (username: string) => {
-        // 重置密码操作，将用户输入的旧密码重新生成到<一个固定值>
-        request(
-            "api/User/remakepassword",
-            "PUT",
-            {
-                SessionID: LoadSessionID(),
-                UserName: username,
-            }
-        )
-            .then(() => {
-                // Modal.success({
-                //         title: "成功",
-                //         content: "密码已重置为******",
-                //         
-                //     });
-            })
-            .catch();
-    };
-    const RemakeAuthority = (username: string)=>{
-        request(
-            "api/User/remakepassword",
-            "PUT",
-            {
-                SessionID: LoadSessionID(),
-                UserName: username,
-            }
-        )
-            .then(() => {
-                // Modal.success({
-                //         title: "成功",
-                //         content: "身份已变更为",
-                //         
-                //     });
-            })
-            .catch();
-    }; 
-    const lock = (username: string) => {
-        // 重置密码操作，将用户输入的旧密码重新生成到<一个固定值>
-        request(
-            "api/User/lock/${LoadSessionID()}",
-            "PUT",
-            {
-                SessionID: LoadSessionID(),
-                UserName: username,
-            }
-        )
-            .catch();
-    };
     useEffect(() => {
         if (!router.isReady) {
             return;
@@ -208,40 +151,10 @@ const App = () => {
                             {/* <Breadcrumb.Item>Bill</Breadcrumb.Item> */}
                         </Breadcrumb>
                         <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
-                            <Table dataSource={MemberTest}>
-                                {/* <ColumnGroup title="Name"> */}
-                                <Column title="姓名" dataIndex="Name" key="Name" />
-                                {/* <Column title="Last Name" dataIndex="lastName" key="lastName" /> */}
-                                {/* </ColumnGroup> */}
-                                <Column title="所属部门" dataIndex="Department" key="Department" />
-                                <Column
-                                    title="身份"
-                                    dataIndex="Authority"
-                                    key="Authority"
-                                    render={(Authority) => (
-                                        <>
-                                            {/* {tags.map((tag) => (
-                                                <Tag color="blue" key={tag}>
-                                                    {tag}
-                                                </Tag>
-                                            ))} */}
-                                            <Tag color="blue" key={Authority}>{renderAuthority(Authority)}</Tag>
-                                        </>
-                                    )}
-                                />
-                                <Column
-                                    title="管理"
-                                    key="action"
-                                    render={(_: any, record: MemberData) => (
-                                        <Space size="middle">
-                                            {/* <a>Invite {record.lastName}</a> */}
-                                            <Switch checkedChildren="解锁" unCheckedChildren="锁定" defaultChecked />
-                                            <Button danger onClick={() => { RemakePassword(record.Name); }}>重置密码</Button>
-                                            <Button type="primary" onClick={() => { RemakePassword(record.Name); }}>设置角色</Button>
-                                        </Space>
-                                    )}
-                                />
-                            </Table>
+                            <MemberList
+                                Members={Member}
+                                department_page={false}
+                            />
                         </div>
                     </Content>
                     <Footer style={{ textAlign: "center" }}>EAMS ©2023 Designed by CSes</Footer>
