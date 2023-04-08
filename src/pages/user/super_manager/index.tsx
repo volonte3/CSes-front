@@ -1,15 +1,15 @@
 import React from "react";
 import {
-    FileOutlined, PlusSquareOutlined
+    FileOutlined, PlusSquareOutlined, LogoutOutlined, UserOutlined, DownOutlined, SmileOutlined
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
-import { Layout, Menu, theme, Space, Table, Modal, Button, Input, Form, Drawer } from "antd";
+import { Layout, Menu, theme, Space, Table, Modal, Button, Input, Form, Drawer, Avatar, Dropdown, Row } from "antd";
 const { Column } = Table;
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
 import { request } from "../../../utils/network";
-import { LoadSessionID } from "../../../utils/CookieOperation";
+import { LoadSessionID, logout } from "../../../utils/CookieOperation";
 
 
 type MenuItem = Required<MenuProps>["items"][number];
@@ -40,9 +40,10 @@ function getItem(
         label,
     } as MenuItem;
 }
-const items: MenuItem[] = [
+const items_: MenuItem[] = [
     getItem("管理列表", "1", <FileOutlined />),
 ];
+
 
 const App = () => {
     const [collapsed, setCollapsed] = useState(false);  //左侧边栏是否可以收起
@@ -56,6 +57,33 @@ const App = () => {
     const [UserApp, setUserApp] = useState<string>(""); // 用户显示的卡片，01串
     const router = useRouter();
 
+    const items: MenuProps["items"] = [
+        {
+            key: "2",
+            label: (
+                <Button
+                    type="link"
+                    icon={<LogoutOutlined />}
+                    style={{ float: "right", margin: 10 }}
+                    danger
+                    onClick={() => { logoutSendMessage();logout(); }}
+                >
+                    退出登录
+                </Button>
+            ),
+            // icon: <SmileOutlined />,
+            // disabled: true,
+        },
+    ];
+    const logoutSendMessage = () => {
+        request(
+            "/api/User/logout",
+            "POST",
+            { SessionID: LoadSessionID(), }
+        )
+            .then(() => { router.push("/"); });
+        // .catch((err) => { alert(FAILURE_PREFIX + err); setRefreshing(true); });
+    };
     const handleEntityInputChange = (e: any) => {
         setEntityValue(e.target.value);
     };
@@ -75,6 +103,7 @@ const App = () => {
     const onFinish = (values: any) => {
         console.log("Success:", values);
     };
+    
     // 向后端发送创建用户和实体的请求，如果创建成功提示成功并关闭抽屉，否则向用户提示错误信息
     const CreateNew = (UserName: string, EntityName: string) => {
         request(
@@ -163,19 +192,28 @@ const App = () => {
                 });
         }
 
-    }, [state, router,]);
-    // if (!state) {
-    //     return null;
-    // }
+    }, [state, router]);
     if (state) {
         return (
             <Layout style={{ minHeight: "100vh" }}>
                 <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
                     <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }} />
-                    <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline" items={items} />
+                    <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline" items={items_} />
                 </Sider>
                 <Layout className="site-layout" >
-                    <Header style={{ padding: 0, background: colorBgContainer }} />
+                    <Header style={{ padding: 16, background: colorBgContainer }}>
+                        <Row justify="end">
+                            <Dropdown menu={{ items }} >
+                                <a onClick={(e) => e.preventDefault()}>
+                                    <Space>
+                                        {UserName}
+                                        <DownOutlined />
+                                    </Space>
+                                </a>
+                            </Dropdown>
+
+                        </Row>
+                    </Header>
                     <Content style={{ margin: "0 16px" }}>
                         <Button
                             type="primary"
