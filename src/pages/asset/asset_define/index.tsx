@@ -1,26 +1,98 @@
 import React from "react";
-import { Layout, Modal, Space, Button, Typography, TreeSelect } from "antd";
+import { Layout, Modal, Space, Button, Typography, TreeSelect, message, Drawer, Form, Input, Row, Select } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { LoadSessionID } from "../../../utils/CookieOperation";
 import { useRouter } from "next/router";
 import { request } from "../../../utils/network";
 import { useState, useEffect } from "react";
+import { ftruncate } from "fs";
 const { Header, Content } = Layout;
+const { Option } = Select;
 
 const App = () => {
     const router = useRouter();
     const query = router.query;
+    const [messageApi, contextHolder] = message.useMessage();
     const { Title } = Typography;
-    const [value, setValue] = useState<string>();
     const [state, setState] = useState(false); // 用户是否处在登录状态
     const [UserAuthority, setUserAuthority] = useState(0); // 用户的角色权限，0超级，1系统，2资产，3员工
     const [UserName, setUserName] = useState<string>(""); // 用户名
     const [Asset, setAsset] = useState<[]>(); // 储存资产列表树
+    const [value, setValue] = useState<string>();
+    const [ButtonDisable, setButtonDisable] = useState(true);
+    const [openAdd, setOpenAdd] = useState(false);
+    const [openDetail, setOpenDetail] = useState(true);
+    const [AssetName, setAssetName] = useState<string>("");
+    const [CategoryStyle, setCategoryStyle] = useState<number>(-1);
     const rolelist = ["超级管理员","系统管理员","资产管理员","员工"];
+
+    const submit = () => {
+        if (AssetName && CategoryStyle != -1) {
+            onClose(); 
+            request(
+                "/api/Asset/AddAssetClass",
+                "POST",
+                {
+                    SessionID: LoadSessionID(),
+                    ParentNodeValue: value,
+                    AssetClassName: AssetName,
+                    NaturalClass: CategoryStyle,
+                }
+            )
+                .then(() => {router.push("/asset/asset_define"); success_add();})
+                .catch((err) => console.log(err.message));
+        }
+        else {
+            error_add();
+        }
+    };
+        
 
     const onChange = (newValue: string) => {
         console.log(newValue);
+        setButtonDisable(false);
         setValue(newValue);
+    };
+
+    const handlechange1 = (value: string) => {
+        if (value == "yes") {
+            setOpenDetail(false);
+        }
+        if (value == "no") {
+            setOpenDetail(true);
+            setCategoryStyle(0);
+        }
+    };
+
+    const handlechange2 = (value: string) => {
+        if (value == "shuliang") {
+            setCategoryStyle(1);
+        }
+        if (value == "tiaomu") {
+            setCategoryStyle(2);
+        }
+    };
+
+    const success_add = () => {
+        messageApi.open({
+            type: "success",
+            content: "成功增加资产",
+        });
+    };
+
+    const error_add = () => {
+        messageApi.open({
+            type: "error",
+            content: "请填入完整信息",
+        });
+    };
+
+    const showDrawer = () => {
+        setOpenAdd(true);
+    };
+    
+    const onClose = () => {
+        setOpenAdd(false);
     };
 
     useEffect(() => {
@@ -73,6 +145,7 @@ const App = () => {
                 display: "flex", justifyContent: "center", alignItems: "center", height: "100vh",
                 backgroundImage: "url(\"../../LoginBackground.png\")", backgroundSize: "cover", backgroundPosition: "center"
             }}>
+                {contextHolder}
                 <Header style = {{background : "transparent"}}>
                     <div className="logo">CSCompany资产管理系统</div>
                     <div className="right-menu">
@@ -109,14 +182,66 @@ const App = () => {
                                     onChange={onChange}
                                 />
                                 <Space direction="vertical" style={{ display: "flex" }} size={20}>
-                                    <Button type="primary" block>在其下创建</Button>
-                                    <Button type="primary" block>重命名</Button>
-                                    <Button type="primary" danger block>删除</Button>
+                                    <Button type="primary" disabled={ButtonDisable} block onClick={() => setOpenAdd(true)}>在其下创建</Button>
+                                    <Button type="primary" disabled={ButtonDisable} block>重命名</Button>
+                                    <Button type="primary" disabled={ButtonDisable} danger block>删除</Button>
                                 </Space>
                             </Space>
                         </div>
                     </Space>
                 </Content>
+                <Drawer
+                    title="增加资产"
+                    width={420}
+                    onClose={onClose}
+                    open={openAdd}
+                    bodyStyle={{ paddingBottom: 80 }}
+                    extra={
+                        <Space>
+                            <Button onClick={onClose}>取消</Button>
+                            <Button onClick={() => {submit();}} type="primary" >
+                                提交
+                            </Button>
+                        </Space>
+                    }
+                >
+                    <Form layout="vertical">
+                        <Row>
+                            <Form.Item
+                                name="assetname"
+                                label="资产名称"
+                                rules={[{ required: true, message: "必填项" }]}
+                            >
+                                <Input placeholder="请输入要增加的资产名称" onChange={(e) => setAssetName(e.target.value)}/>
+                            </Form.Item>
+                        </Row>
+                        <Row>
+                            <Form.Item
+                                name="owner"
+                                label="是否为品类"
+                                rules={[{ required: true, message: "必选项" }]}
+                            >
+                                <Select placeholder="请选择该资产是否为品类" onChange={handlechange1}>
+                                    <Option value="yes">是</Option>
+                                    <Option value="no">否</Option>
+                                </Select>
+                            </Form.Item>
+                        </Row>
+                        <Row>
+                            <Form.Item
+                                name="style"
+                                label="具体类型"
+                                hidden={openDetail}
+                                rules={[{ required: true, message: "必选项" }]}
+                            >
+                                <Select placeholder="请选择品类的具体类型" onChange={handlechange2} defaultValue={"shuliang"}>
+                                    <Option value="shuliang">数量型品类</Option>
+                                    <Option value="tiaomu">条目型品类</Option>
+                                </Select>
+                            </Form.Item>
+                        </Row>
+                    </Form>
+                </Drawer>
             </Layout>
         );
     }

@@ -5,7 +5,7 @@ import { logout, LoadSessionID } from "../../utils/CookieOperation";
 import { useRouter } from "next/router";
 import { request } from "../../utils/network";
 import { useState, useEffect } from "react";
-import CardUI from "../../components/UserPageUI/CardUI";
+import CardUI from "../../components/CardUI";
 const { Header, Content } = Layout;
 const DropdownMenu = (
     <Menu>
