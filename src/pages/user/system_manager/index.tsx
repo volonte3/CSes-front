@@ -120,7 +120,7 @@ const App = () => {
                     onOk: () => { window.location.href = "/"; }
                 });
             });
-        setState(true);
+        // setState(true);
         if(state){
             request(`/api/User/member/${LoadSessionID()}`, "GET")
                 .then((res) => {
