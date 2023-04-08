@@ -17,16 +17,16 @@ type SystemData = {
     Entity: string;
     Manager: string;
 };
-const DataTest: SystemData[] = [
-    {
-        Entity: "大象金融",
-        Manager: "张三",
-    },
-    {
-        Entity: "小明搜题",
-        Manager: "李四",
-    },
-];
+// const DataTest: SystemData[] = [
+//     {
+//         Entity: "大象金融",
+//         Manager: "张三",
+//     },
+//     {
+//         Entity: "小明搜题",
+//         Manager: "李四",
+//     },
+// ];
 function getItem(
     label: React.ReactNode,
     key: React.Key,
@@ -90,6 +90,7 @@ const App = () => {
                 let answer: string = `成功创建业务实体 ${EntityName} 并委派系统管理员 ${UserName}, 初始密码为 yiqunchusheng`;
                 Modal.success({ title: "创建成功", content: answer });
                 onClose();
+                window.location.reload();
             })
             .catch((err: string) => {
                 Modal.error({
@@ -97,6 +98,7 @@ const App = () => {
                     content: err.toString().substring(5),
                 });
             });
+        
     };
     //像后端发送删除用户和实体的请求，如果删除成功提示成功并关闭抽屉，否则向用户提示错误信息        const Delete = (UserName:string,
     const Remove = (UserName: string, EntityName: string) => {
@@ -107,6 +109,7 @@ const App = () => {
             .then((res) => {
                 let answer: string = `成功注销业务实体 ${EntityName} 及系统管理员 ${UserName}`;
                 Modal.success({ title: "注销成功", content: answer });
+                window.location.reload();
             })
             .catch((err: string) => {
                 Modal.error({
@@ -162,7 +165,7 @@ const App = () => {
                 });
         }
 
-    }, [state, router]);
+    }, [state, router,]);
     // if (!state) {
     //     return null;
     // }
@@ -204,7 +207,7 @@ const App = () => {
                                 </Form.Item>
 
                                 <Form.Item
-                                    label="资产管理员姓名"
+                                    label="系统管理员"
                                     name="Manager"
                                     rules={[{ required: true, message: "请输入资产管理员用户名" }]}
                                 >
