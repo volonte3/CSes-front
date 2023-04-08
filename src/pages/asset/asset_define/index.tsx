@@ -45,7 +45,7 @@ const App = () => {
         else {
             error_add();
         }
-    }
+    };
         
 
     const onChange = (newValue: string) => {
@@ -75,15 +75,15 @@ const App = () => {
 
     const success_add = () => {
         messageApi.open({
-          type: 'success',
-          content: '成功增加资产',
+            type: "success",
+            content: "成功增加资产",
         });
     };
 
     const error_add = () => {
         messageApi.open({
-          type: 'error',
-          content: '请填入完整信息',
+            type: "error",
+            content: "请填入完整信息",
         });
     };
 
@@ -207,38 +207,38 @@ const App = () => {
                 >
                     <Form layout="vertical">
                         <Row>
-                                <Form.Item
-                                    name="assetname"
-                                    label="资产名称"
-                                    rules={[{ required: true, message: "必填项" }]}
-                                >
-                                    <Input placeholder="请输入要增加的资产名称" onChange={(e) => setAssetName(e.target.value)}/>
-                                </Form.Item>
+                            <Form.Item
+                                name="assetname"
+                                label="资产名称"
+                                rules={[{ required: true, message: "必填项" }]}
+                            >
+                                <Input placeholder="请输入要增加的资产名称" onChange={(e) => setAssetName(e.target.value)}/>
+                            </Form.Item>
                         </Row>
                         <Row>
-                                <Form.Item
-                                    name="owner"
-                                    label="是否为品类"
-                                    rules={[{ required: true, message: "必选项" }]}
-                                >
-                                    <Select placeholder="请选择该资产是否为品类" onChange={handlechange1}>
-                                        <Option value="yes">是</Option>
-                                        <Option value="no">否</Option>
-                                    </Select>
-                                </Form.Item>
+                            <Form.Item
+                                name="owner"
+                                label="是否为品类"
+                                rules={[{ required: true, message: "必选项" }]}
+                            >
+                                <Select placeholder="请选择该资产是否为品类" onChange={handlechange1}>
+                                    <Option value="yes">是</Option>
+                                    <Option value="no">否</Option>
+                                </Select>
+                            </Form.Item>
                         </Row>
                         <Row>
-                                <Form.Item
-                                    name="style"
-                                    label="具体类型"
-                                    hidden={openDetail}
-                                    rules={[{ required: true, message: "必选项" }]}
-                                >
-                                    <Select placeholder="请选择品类的具体类型" onChange={handlechange2} defaultValue={"shuliang"}>
-                                        <Option value="shuliang">数量型品类</Option>
-                                        <Option value="tiaomu">条目型品类</Option>
-                                    </Select>
-                                </Form.Item>
+                            <Form.Item
+                                name="style"
+                                label="具体类型"
+                                hidden={openDetail}
+                                rules={[{ required: true, message: "必选项" }]}
+                            >
+                                <Select placeholder="请选择品类的具体类型" onChange={handlechange2} defaultValue={"shuliang"}>
+                                    <Option value="shuliang">数量型品类</Option>
+                                    <Option value="tiaomu">条目型品类</Option>
+                                </Select>
+                            </Form.Item>
                         </Row>
                     </Form>
                 </Drawer>
