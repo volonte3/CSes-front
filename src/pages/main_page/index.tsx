@@ -37,7 +37,7 @@ const App = () => {
     const systemmanager_applist = ["用户列表","角色管理","部门管理","应用管理","操作日志","导入导出管理"];
     const supermanager_applist = ["业务实体管理","系统管理员列表"];
     const user_urllist = ["","","","",""];
-    const assetmanager_urllist = ["","","","","","","","",""];
+    const assetmanager_urllist = ["","/asset/asset_define","","","","","","",""];
     const systemmanager_urllist = ["/user/system_manager","/user/system_manager","","","",""];
     const supermanager_urllist = ["/user/super_manager","/user/super_manager"];
     useEffect(() => {
