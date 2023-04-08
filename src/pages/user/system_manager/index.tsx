@@ -101,25 +101,25 @@ const App = () => {
         if (!router.isReady) {
             return;
         }
-        // request(
-        //     `/api/User/info/${LoadSessionID()}`,
-        //     "GET"
-        // )
-        //     .then((res) => {
-        //         setState(true);
-        //         setUserName(res.UserName);
-        //         setUserApp(res.UserApp);
-        //         setUserAuthority(res.Authority);
-        //     })
-        //     .catch((err) => {
-        //         console.log(err.message);
-        //         setState(false);
-        //         Modal.error({
-        //             title: "登录失败",
-        //             content: "请重新登录",
-        //             onOk: () => { window.location.href = "/"; }
-        //         });
-        //     });
+        request(
+            `/api/User/info/${LoadSessionID()}`,
+            "GET"
+        )
+            .then((res) => {
+                setState(true);
+                setUserName(res.UserName);
+                setUserApp(res.UserApp);
+                setUserAuthority(res.Authority);
+            })
+            .catch((err) => {
+                console.log(err.message);
+                setState(false);
+                Modal.error({
+                    title: "登录失败",
+                    content: "请重新登录",
+                    onOk: () => { window.location.href = "/"; }
+                });
+            });
         setState(true);
         if(state){
             request(`/api/User/member/${LoadSessionID()}`, "GET")
