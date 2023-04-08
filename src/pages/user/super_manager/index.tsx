@@ -66,7 +66,7 @@ const App = () => {
                     icon={<LogoutOutlined />}
                     style={{ float: "right", margin: 10 }}
                     danger
-                    onClick={() => { logoutSendMessage();logout(); }}
+                    onClick={() => { logoutSendMessage(); logout(); }}
                 >
                     退出登录
                 </Button>
@@ -103,7 +103,7 @@ const App = () => {
     const onFinish = (values: any) => {
         console.log("Success:", values);
     };
-    
+
     // 向后端发送创建用户和实体的请求，如果创建成功提示成功并关闭抽屉，否则向用户提示错误信息
     const CreateNew = (UserName: string, EntityName: string) => {
         request(
@@ -251,7 +251,7 @@ const App = () => {
                                 </Form.Item>
 
                                 <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                                    <Button type="primary" htmlType="submit" onClick={() => CreateNew(UserValue, EntityValue)}>
+                                    <Button type="primary" htmlType="submit" onClick={() => { if (UserValue && EntityValue) { CreateNew(UserValue, EntityValue); } }}>
                                         确认提交
                                     </Button>
                                 </Form.Item>
