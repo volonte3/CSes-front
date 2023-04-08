@@ -122,7 +122,7 @@ const App = () => {
         //     });
         setState(true);
         if(state){
-            request(`api/User/member/${LoadSessionID()}`, "GET")
+            request(`/api/User/member/${LoadSessionID()}`, "GET")
                 .then((res) => {
                     // const Member = JSON.parse(res.jsonString) as MemberData;
                     setMember(res);
