@@ -38,7 +38,7 @@ const App = () => {
     const supermanager_applist = ["业务实体管理","系统管理员列表"];
     const user_urllist = ["","","","",""];
     const assetmanager_urllist = ["","/asset/asset_define","","","","","","",""];
-    const systemmanager_urllist = ["/user/system_manager","/user/system_manager","","","",""];
+    const systemmanager_urllist = ["/user/system_manager","/user/system_manager","/user/system_manager/department","","",""];
     const supermanager_urllist = ["/user/super_manager","/user/super_manager"];
     useEffect(() => {
         if (!router.isReady) {

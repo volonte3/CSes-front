@@ -36,7 +36,7 @@ const MemberList = (props: MemberListProps) => {
     const RemakePassword = (username: string) => {
         // 重置密码操作，将用户输入的旧密码重新生成到<一个固定值>
         request(
-            "api/User/remakepassword",
+            "/api/User/remakepassword",
             "PUT",
             {
                 SessionID: LoadSessionID(),
@@ -54,7 +54,7 @@ const MemberList = (props: MemberListProps) => {
     };
     const RemakeAuthority = (username: string)=>{
         request(
-            "api/User/remakepassword",
+            "/api/User/remakepassword",
             "PUT",
             {
                 SessionID: LoadSessionID(),
@@ -73,7 +73,7 @@ const MemberList = (props: MemberListProps) => {
     const lock = (username: string) => {
         // 重置密码操作，将用户输入的旧密码重新生成到<一个固定值>
         request(
-            "api/User/lock/${LoadSessionID()}",
+            "/api/User/lock/${LoadSessionID()}",
             "PUT",
             {
                 SessionID: LoadSessionID(),
