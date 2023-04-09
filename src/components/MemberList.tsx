@@ -154,12 +154,12 @@ const MemberList = (props: MemberListProps) => {
     };
     const router = useRouter();
     const query = router.query;
-    // useEffect(() => {
-    //     if (!router.isReady) {
-    //         return;
-    //     }
-    //     // FetchMemberList();
-    // }, [router, query]);
+    useEffect(() => {
+        if (!router.isReady) {
+            return;
+        }
+        FetchMemberList();
+    }, [router, query]);
     return (
         <div>
             <Table rowSelection={props.department_page ? rowSelection : undefined} dataSource={Member}>
