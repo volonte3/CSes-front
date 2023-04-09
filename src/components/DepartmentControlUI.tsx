@@ -77,7 +77,8 @@ const DepartmentUI = (props: DepartmentUIProps) => {
                     setMemberList(res.member);
                 }
                 else {
-                    setDepartmentList(res.department);
+                    setDepartmentList(res.Department);
+                    console.log(DepartmentList);
                 }
             })
             .catch((err) => {
