@@ -27,6 +27,7 @@ interface DepartmentUIProps {
 }
 
 const DepartmentUI = (props: DepartmentUIProps) => {
+    const [refreshing, setRefreshing] = useState(false);
     const [open1, setOpen1] = useState(false);    //添加部门侧边栏的显示
     const [open2, setOpen2] = useState(false);    //创建员工侧边栏的显示
     const [DepartmentName, setDepartmentName] = useState(""); //注册新部门名
@@ -36,6 +37,7 @@ const DepartmentUI = (props: DepartmentUIProps) => {
     const [UserName, setUserName] = useState("");// 储存新建用户的名称
     const [DepartmentPath, setDepartmentPath] = useState("000000000"); //储存当前的部门路径
     const router = useRouter();
+    const query = router.query;
     const handleDepartmentAdd = (e: any) => {
         setDepartmentName(e.target.value);
     };
@@ -62,6 +64,32 @@ const DepartmentUI = (props: DepartmentUIProps) => {
     const onFinish = (values: any) => {
         console.log("Success:", values);
     };
+    const fetchList = () => {
+        setRefreshing(true);
+        request(
+            `/api/User/department/${LoadSessionID()}/${DepartmentPath}`,
+            "GET"
+        )
+            .then((res) => {
+                setRefreshing(false);
+                setLeafDepartment(res.is_leaf);
+                if (res.is_leaf == true) {
+                    setMemberList(res.member);
+                }
+                else {
+                    setDepartmentList(res.department);
+                }
+            })
+            .catch((err) => {
+                setRefreshing(false);
+                console.log(err.message);
+                Modal.error({
+                    title: "无权获取对应部门信息",
+                    content: "请重新登录",
+                    onOk: () => { window.location.href = "/"; }
+                });
+            });
+    };
     const GoUp = (NowPath: string) => {
         let new_path = "000000000";
         let i = 0;
@@ -72,6 +100,7 @@ const DepartmentUI = (props: DepartmentUIProps) => {
         }
         let newstr = i>1 ? NowPath.substring(0, i-2)+new_path.substring(i-1): new_path;
         setDepartmentPath(newstr);
+        fetchList();
     };
     // 向后端发送创建部门的请求
     const CreateNewDepartment = (DepartmentPath: string, DepartmentName: string) => {
@@ -95,6 +124,7 @@ const DepartmentUI = (props: DepartmentUIProps) => {
                     content: err.toString().substring(5),
                 });
             });
+        fetchList();
     };
     // 在特定部门下创建新员工
     const CreateNewUser = (DeparmentPath: string, UserName: string) => {
@@ -118,6 +148,7 @@ const DepartmentUI = (props: DepartmentUIProps) => {
                     content: err.toString().substring(5),
                 });
             });
+        fetchList();
     };
     const RemoveDepartment = (DepartmentPath: string, DepartmentName: string) => {
         request(
@@ -134,6 +165,7 @@ const DepartmentUI = (props: DepartmentUIProps) => {
                     content: err.toString().substring(5),
                 });
             });
+        fetchList();
     };
     const onFinishFailed = (errorInfo: any) => {
         console.log("Failed:", errorInfo);
@@ -142,29 +174,12 @@ const DepartmentUI = (props: DepartmentUIProps) => {
         if (!router.isReady) {
             return;
         }
-        request(
-            `/api/User/department/${LoadSessionID()}/${DepartmentPath}`,
-            "GET"
-        )
-            .then((res) => {
-                setLeafDepartment(res.is_leaf);
-                if (res.has_member == true) {
-                    setMemberList(res.member);
-                }
-                else {
-                    setDepartmentList(res.department);
-                }
-            })
-            .catch((err) => {
-                console.log(err.message);
-                Modal.error({
-                    title: "无权获取对应部门信息",
-                    content: "请重新登录",
-                    onOk: () => { window.location.href = "/"; }
-                });
-            });
-    }, [router, DepartmentPath]);
-    return (
+        fetchList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [router, query]);
+    return  refreshing ? (
+        <p> Loading... </p>
+    ) : (
         <Content style={{ margin: "0 16px" }}>
             {DepartmentPath != "000000000" && <Button
                 type="primary"
@@ -245,7 +260,7 @@ const DepartmentUI = (props: DepartmentUIProps) => {
                         key="action"
                         render={(_: any, record: DepartmentData) => (
                             <>
-                                <a type="primary" onClick={() => { setDepartmentPath(record.DepartmentPath);}}>{record.DepartmentName}</a>
+                                <a type="primary" onClick={() => { setDepartmentPath(record.DepartmentPath);fetchList();}}>{record.DepartmentName}</a>
                             </>
                         )}
                     />
