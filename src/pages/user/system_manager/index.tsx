@@ -68,7 +68,7 @@ const App = () => {
         token: { colorBgContainer },
     } = theme.useToken();
     const SiderMenu = (
-        <Menu theme="dark" defaultSelectedKeys={["2"]} mode="inline">
+        <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
             <Menu.Item key="1" onClick={() => router.push("/user/system_manager")}>用户管理</Menu.Item>
             <Menu.Item key="2" onClick={() => router.push("/user/system_manager/department")}>部门管理</Menu.Item>
             <Menu.Item key="3">操作日志</Menu.Item>

@@ -24,7 +24,6 @@ interface DepartmentData {
 }
 const DepartmentUI = () => {
     const [refreshing, setRefreshing] = useState(false);
-    const [fetch, setFetch] = useState(false);
     const [open1, setOpen1] = useState(false);    //添加部门侧边栏的显示
     const [open2, setOpen2] = useState(false);    //创建员工侧边栏的显示
     const [DepartmentName, setDepartmentName] = useState(""); //注册新部门名
@@ -87,7 +86,7 @@ const DepartmentUI = () => {
                     onOk: () => { window.location.href = "/"; }
                 });
             });
-        setFetch(false);
+
     };
     const GoUp = (NowPath: string) => {
         let new_path = "000000000";
@@ -117,7 +116,7 @@ const DepartmentUI = () => {
                 let answer: string = `成功创建部门 ${DepartmentName}`;
                 Modal.success({ title: "创建成功", content: answer });
                 onClose1();
-                setFetch(true);
+                fetchList(DepartmentPath);
             })
             .catch((err: string) => {
                 setOpen1(false);
@@ -126,17 +125,16 @@ const DepartmentUI = () => {
                     content: err.toString().substring(5),
                 });
             });
-        if (fetch) fetchList(DepartmentPath);
     };
     // 在特定部门下创建新员工
-    const CreateNewUser = (DeparmentPath: string, UserName: string) => {
+    const CreateNewUser = (DepartmentPath: string, UserName: string) => {
         request(
             "/api/User/add",
             "POST",
             {
                 "SessionID": LoadSessionID(),
                 "UserName": UserName,
-                "Department": DeparmentPath
+                "Department": DepartmentPath
             }
         )
             .then((res) => {
@@ -144,7 +142,7 @@ const DepartmentUI = () => {
                 let answer: string = `成功创建员工 ${DepartmentName}`;
                 Modal.success({ title: "创建成功", content: answer });
                 onClose1();
-                setFetch(true);
+                fetchList(DepartmentPath);
             })
             .catch((err: string) => {
                 setOpen2(false);
@@ -153,7 +151,7 @@ const DepartmentUI = () => {
                     content: err.toString().substring(5),
                 });
             });
-        if (fetch) fetchList(DeparmentPath);
+        
     };
     const RemoveDepartment = (DepartmentPath: string, DepartmentName: string) => {
         request(
@@ -163,7 +161,7 @@ const DepartmentUI = () => {
             .then((res) => {
                 let answer: string = `成功删除部门 ${DepartmentName}`;
                 Modal.success({ title: "删除成功", content: answer });
-                setFetch(true);
+                fetchList(DepartmentPath);
             })
             .catch((err: string) => {
                 Modal.error({
@@ -171,7 +169,7 @@ const DepartmentUI = () => {
                     content: err.toString().substring(5),
                 });
             });
-        if(fetch) fetchList(DepartmentPath);
+        
     };
     const onFinishFailed = (errorInfo: any) => {
         console.log("Failed:", errorInfo);

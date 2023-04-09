@@ -162,7 +162,7 @@ const MemberList = (props: MemberListProps) => {
                     key="action"
                     render={(_: any, record: MemberData) => (
                         <Space size="middle">
-                            <Switch checkedChildren="解锁" unCheckedChildren="锁定" onChange={()=>{ChangeLock(record.Name);}} checked= {record.lock} loading={LockLoading}/>
+                            <Switch checkedChildren="解锁" unCheckedChildren="锁定" onChange={()=>{ChangeLock(record.Name);}} checked= {!record.lock} loading={LockLoading}/>
                             <Button danger onClick={()=>{showRemakeModal(record.Name,record.Authority);}}>重置密码</Button>
                             <Modal title="重置密码" open={isRemakeModalOpen} onOk={()=>{RemakePassword(record.Name);}} onCancel={handleRemakeCancel}>
                                 将 {NowAuthority} {NowUser} 密码重置为 yiqunchusheng
