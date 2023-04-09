@@ -13,7 +13,6 @@ import { LoadSessionID } from "../../../../utils/CookieOperation";
 import MenuItem from "antd/es/menu/MenuItem";
 import MemberList from "../../../../components/MemberList";
 import DepartmentUI from "../../../../components/DepartmentControlUI";
-type MenuItem = Required<MenuProps>["items"][number];
 interface MemberData {
     Name: string;
     Department: string;
@@ -62,9 +61,11 @@ const App = () => {
             });
     }, [state, router]);
     const SiderMenu = (
-        <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
+        <Menu theme="dark" defaultSelectedKeys={["2"]} mode="inline">
             <Menu.Item key="1" onClick={() => router.push("/user/system_manager")}>用户管理</Menu.Item>
             <Menu.Item key="2" onClick={() => router.push("/user/system_manager/department")}>部门管理</Menu.Item>
+            <Menu.Item key="3">操作日志</Menu.Item>
+            <Menu.Item key="4">导入导出管理</Menu.Item>
         </Menu>
     );
     if (state) {

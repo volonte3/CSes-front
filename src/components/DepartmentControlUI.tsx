@@ -2,7 +2,6 @@ import React from "react";
 import {
     FileOutlined, PlusSquareOutlined
 } from "@ant-design/icons";
-import type { MenuProps } from "antd";
 import { Layout, Menu, theme, Space, Table, Modal, Button, Input, Form, Drawer } from "antd";
 const { Column } = Table;
 import { useRouter } from "next/router";
@@ -10,10 +9,8 @@ const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { LoadSessionID } from "../utils/CookieOperation";
-import MenuItem from "antd/es/menu/MenuItem";
 import MemberList from "../components/MemberList";
 
-// type MenuItem = Required<MenuProps>["items"][number];
 interface MemberData {
     Name: string;
     Department: string;
@@ -73,10 +70,10 @@ const DepartmentUI = (props: DepartmentUIProps) => {
                 break;
             }
         }
-        let newstr = i>1 ? NowPath.substring(0, i-2)+new_path.substring(i): new_path;
+        let newstr = i>1 ? NowPath.substring(0, i-2)+new_path.substring(i-1): new_path;
         setDepartmentPath(newstr);
     };
-    // 向后端发送创建用户和实体的请求，如果创建成功提示成功并关闭抽屉，否则向用户提示错误信息
+    // 向后端发送创建部门的请求
     const CreateNewDepartment = (DepartmentPath: string, DepartmentName: string) => {
         request(
             "/api/User/department/add",
@@ -99,6 +96,7 @@ const DepartmentUI = (props: DepartmentUIProps) => {
                 });
             });
     };
+    // 在特定部门下创建新员工
     const CreateNewUser = (DeparmentPath: string, UserName: string) => {
         request(
             "/api/User/add",
@@ -130,31 +128,11 @@ const DepartmentUI = (props: DepartmentUIProps) => {
                 let answer: string = `成功删除部门 ${DepartmentName}`;
                 Modal.success({ title: "删除成功", content: answer });
             })
-            .catch((err) => {
-                if (err.code == 1) {
-                    Modal.error({
-                        title: "删除失败",
-                        content: "该部门不存在或部门路径无效"
-                    });
-                }
-                if (err.code == 2) {
-                    Modal.error({
-                        title: "删除失败",
-                        content: "该部门有子部门或员工，请先删除子部门或部门员工"
-                    });
-                }
-                if (err.code == 3) {
-                    Modal.error({
-                        title: "删除失败",
-                        content: "无权限删除"
-                    });
-                }
-                if (err.code == 4) {
-                    Modal.error({
-                        title: "删除失败",
-                        content: "身份无效"
-                    });
-                }
+            .catch((err: string) => {
+                Modal.error({
+                    title: "创建失败",
+                    content: err.toString().substring(5),
+                });
             });
     };
     const onFinishFailed = (errorInfo: any) => {
@@ -165,7 +143,7 @@ const DepartmentUI = (props: DepartmentUIProps) => {
             return;
         }
         request(
-            `/api/User/member/${LoadSessionID()}/${DepartmentPath}`,
+            `/api/User/department/${LoadSessionID()}/${DepartmentPath}`,
             "GET"
         )
             .then((res) => {
