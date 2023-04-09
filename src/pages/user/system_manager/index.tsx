@@ -1,12 +1,4 @@
 import React from "react";
-import {
-    DesktopOutlined,
-    FileOutlined,
-    PieChartOutlined,
-    TeamOutlined,
-    UserOutlined, CheckOutlined, CloseOutlined
-} from "@ant-design/icons";
-import type { MenuProps } from "antd";
 import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, Switch, Modal, Button } from "antd";
 const { Column, ColumnGroup } = Table;
 import { useRouter } from "next/router";
@@ -14,31 +6,8 @@ const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
 import { request } from "../../../utils/network";
 import { logout, LoadSessionID } from "../../../utils/CookieOperation";
-import { renderAuthority } from "../../../utils/transformer";
 import MemberList from "../../../components/MemberList";
 
-type MenuItem = Required<MenuProps>["items"][number];
-
-function getItem(
-    label: React.ReactNode,
-    key: React.Key,
-    icon?: React.ReactNode,
-    children?: MenuItem[],
-): MenuItem {
-    return {
-        key,
-        icon,
-        children,
-        label,
-    } as MenuItem;
-}
-
-const items: MenuItem[] = [
-    getItem("用户管理", "1", <FileOutlined />),
-    getItem("部门管理", "2", <FileOutlined />),
-    getItem("操作日志", "3", <FileOutlined />),
-    getItem("导入导出管理", "4", <FileOutlined />),
-];
 interface DataType {
     key: React.Key;
     Name: string;
@@ -85,6 +54,7 @@ const data: DataType[] = [
         Authority: ["老四", "老五"],
     },
 ];
+
 const App = () => {
     const [state, setState] = useState(true); // 用户是否处在登录状态
     const [collapsed, setCollapsed] = useState(false);
@@ -97,6 +67,14 @@ const App = () => {
     const {
         token: { colorBgContainer },
     } = theme.useToken();
+    const SiderMenu = (
+        <Menu theme="dark" defaultSelectedKeys={["2"]} mode="inline">
+            <Menu.Item key="1" onClick={() => router.push("/user/system_manager")}>用户管理</Menu.Item>
+            <Menu.Item key="2" onClick={() => router.push("/user/system_manager/department")}>部门管理</Menu.Item>
+            <Menu.Item key="3">操作日志</Menu.Item>
+            <Menu.Item key="4">导入导出管理</Menu.Item>
+        </Menu>
+    );
     useEffect(() => {
         if (!router.isReady) {
             return;
@@ -144,14 +122,13 @@ const App = () => {
             <Layout style={{ minHeight: "100vh" }}>
                 <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
                     <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }} />
-                    <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline" items={items} />
+                    {SiderMenu}
                 </Sider>
                 <Layout className="site-layout" >
                     <Header style={{ padding: 0, background: colorBgContainer }} />
                     <Content style={{ margin: "0 16px" }}>
                         <Breadcrumb style={{ margin: "16px 0" }}>
                             <Breadcrumb.Item>用户管理</Breadcrumb.Item>
-                            {/* <Breadcrumb.Item>Bill</Breadcrumb.Item> */}
                         </Breadcrumb>
                         <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
                             

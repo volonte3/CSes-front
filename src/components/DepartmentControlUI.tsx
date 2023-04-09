@@ -95,12 +95,13 @@ const DepartmentUI = () => {
                 break;
             }
         }
-        let newstr = i>1 ? NowPath.substring(0, i-2)+new_path.substring(i-1): new_path;
+        let newstr = i>1 ? NowPath.substring(0, i-1)+new_path.substring(i-1): new_path;
         setDepartmentPath(newstr);
         fetchList(newstr);
     };
     // 向后端发送创建部门的请求
     const CreateNewDepartment = (DepartmentPath: string, DepartmentName: string) => {
+        let fetch = false;
         request(
             "/api/User/department/add",
             "POST",
@@ -111,20 +112,24 @@ const DepartmentUI = () => {
             }
         )
             .then((res) => {
+                setOpen1(false);
                 let answer: string = `成功创建部门 ${DepartmentName}`;
                 Modal.success({ title: "创建成功", content: answer });
                 onClose1();
+                fetch = true;
             })
             .catch((err: string) => {
+                setOpen1(false);
                 Modal.error({
                     title: "创建失败",
                     content: err.toString().substring(5),
                 });
             });
-        fetchList(DepartmentPath);
+        if (fetch) fetchList(DepartmentPath);
     };
     // 在特定部门下创建新员工
     const CreateNewUser = (DeparmentPath: string, UserName: string) => {
+        let fetch = false;
         request(
             "/api/User/add",
             "POST",
@@ -135,19 +140,23 @@ const DepartmentUI = () => {
             }
         )
             .then((res) => {
-                let answer: string = `成功创建部门 ${DepartmentName}`;
+                setOpen2(false);
+                let answer: string = `成功创建员工 ${DepartmentName}`;
                 Modal.success({ title: "创建成功", content: answer });
                 onClose1();
+                fetch = true;
             })
             .catch((err: string) => {
+                setOpen2(false);
                 Modal.error({
                     title: "创建失败",
                     content: err.toString().substring(5),
                 });
             });
-        fetchList(DeparmentPath);
+        if (fetch) fetchList(DeparmentPath);
     };
     const RemoveDepartment = (DepartmentPath: string, DepartmentName: string) => {
+        let fetch = false;
         request(
             `/api/User/department/delete/${LoadSessionID()}/${DepartmentPath}`,
             "DELETE"
@@ -155,14 +164,15 @@ const DepartmentUI = () => {
             .then((res) => {
                 let answer: string = `成功删除部门 ${DepartmentName}`;
                 Modal.success({ title: "删除成功", content: answer });
+                fetch = true;
             })
             .catch((err: string) => {
                 Modal.error({
-                    title: "创建失败",
+                    title: "删除失败",
                     content: err.toString().substring(5),
                 });
             });
-        fetchList(DepartmentPath);
+        if(fetch) fetchList(DepartmentPath);
     };
     const onFinishFailed = (errorInfo: any) => {
         console.log("Failed:", errorInfo);
