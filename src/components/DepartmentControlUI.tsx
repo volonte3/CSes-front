@@ -24,6 +24,7 @@ interface DepartmentData {
 }
 const DepartmentUI = () => {
     const [refreshing, setRefreshing] = useState(false);
+    const [fetch, setFetch] = useState(false);
     const [open1, setOpen1] = useState(false);    //添加部门侧边栏的显示
     const [open2, setOpen2] = useState(false);    //创建员工侧边栏的显示
     const [DepartmentName, setDepartmentName] = useState(""); //注册新部门名
@@ -86,6 +87,7 @@ const DepartmentUI = () => {
                     onOk: () => { window.location.href = "/"; }
                 });
             });
+        setFetch(false);
     };
     const GoUp = (NowPath: string) => {
         let new_path = "000000000";
@@ -101,7 +103,6 @@ const DepartmentUI = () => {
     };
     // 向后端发送创建部门的请求
     const CreateNewDepartment = (DepartmentPath: string, DepartmentName: string) => {
-        let fetch = false;
         request(
             "/api/User/department/add",
             "POST",
@@ -116,7 +117,7 @@ const DepartmentUI = () => {
                 let answer: string = `成功创建部门 ${DepartmentName}`;
                 Modal.success({ title: "创建成功", content: answer });
                 onClose1();
-                fetch = true;
+                setFetch(true);
             })
             .catch((err: string) => {
                 setOpen1(false);
@@ -129,7 +130,6 @@ const DepartmentUI = () => {
     };
     // 在特定部门下创建新员工
     const CreateNewUser = (DeparmentPath: string, UserName: string) => {
-        let fetch = false;
         request(
             "/api/User/add",
             "POST",
@@ -144,7 +144,7 @@ const DepartmentUI = () => {
                 let answer: string = `成功创建员工 ${DepartmentName}`;
                 Modal.success({ title: "创建成功", content: answer });
                 onClose1();
-                fetch = true;
+                setFetch(true);
             })
             .catch((err: string) => {
                 setOpen2(false);
@@ -156,7 +156,6 @@ const DepartmentUI = () => {
         if (fetch) fetchList(DeparmentPath);
     };
     const RemoveDepartment = (DepartmentPath: string, DepartmentName: string) => {
-        let fetch = false;
         request(
             `/api/User/department/delete/${LoadSessionID()}/${DepartmentPath}`,
             "DELETE"
@@ -164,7 +163,7 @@ const DepartmentUI = () => {
             .then((res) => {
                 let answer: string = `成功删除部门 ${DepartmentName}`;
                 Modal.success({ title: "删除成功", content: answer });
-                fetch = true;
+                setFetch(true);
             })
             .catch((err: string) => {
                 Modal.error({
