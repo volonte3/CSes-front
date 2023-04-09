@@ -77,7 +77,7 @@ const App = () => {
                 </Sider>
                 <Layout className="site-layout" >
                     <Header style={{ padding: 0, background: colorBgContainer }} />
-                    <DepartmentUI DepartmentPath={DepartmentPath}/>
+                    <DepartmentUI/>
                     <Footer style={{ textAlign: "center" }}>EAMS ©2023 Designed by CSes</Footer>
                 </Layout>
             </Layout >

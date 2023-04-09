@@ -146,15 +146,6 @@ const MemberList = (props: MemberListProps) => {
     };
     return (
         <div>
-            {props.department_page &&
-                <>
-                    <Button type="primary" disabled={!hasSelected}>移动员工</Button>
-                    <span style={{ marginLeft: 8 }}>
-                        {hasSelected ? `Selected ${selectedRowKeys.length} items` : ""}
-                    </span>
-                </>
-            }
-
             <Table rowSelection={props.department_page ? rowSelection : undefined} dataSource={props.Members}>
                 <Column title="姓名" dataIndex="Name" key="Name" />
                 <Column title="所属部门" dataIndex="Department" key="Department" />
@@ -184,6 +175,14 @@ const MemberList = (props: MemberListProps) => {
                     )}
                 />
             </Table>
+            {props.department_page &&
+                <>
+                    <Button type="primary" disabled={!hasSelected}>移动员工</Button>
+                    <span style={{ marginLeft: 8 }}>
+                        {hasSelected ? `选择了${selectedRowKeys.length}位用户` : ""}
+                    </span>
+                </>
+            }
         </div>
     );
 };

@@ -22,11 +22,7 @@ interface DepartmentData {
     DepartmentPath: string;
     DepartmentId: number;
 }
-interface DepartmentUIProps {
-    DepartmentPath: string
-}
-
-const DepartmentUI = (props: DepartmentUIProps) => {
+const DepartmentUI = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [open1, setOpen1] = useState(false);    //添加部门侧边栏的显示
     const [open2, setOpen2] = useState(false);    //创建员工侧边栏的显示
@@ -64,10 +60,10 @@ const DepartmentUI = (props: DepartmentUIProps) => {
     const onFinish = (values: any) => {
         console.log("Success:", values);
     };
-    const fetchList = () => {
+    const fetchList = (Path: string) => {
         setRefreshing(true);
         request(
-            `/api/User/department/${LoadSessionID()}/${DepartmentPath}`,
+            `/api/User/department/${LoadSessionID()}/${Path}`,
             "GET"
         )
             .then((res) => {
@@ -101,7 +97,7 @@ const DepartmentUI = (props: DepartmentUIProps) => {
         }
         let newstr = i>1 ? NowPath.substring(0, i-2)+new_path.substring(i-1): new_path;
         setDepartmentPath(newstr);
-        fetchList();
+        fetchList(newstr);
     };
     // 向后端发送创建部门的请求
     const CreateNewDepartment = (DepartmentPath: string, DepartmentName: string) => {
@@ -125,7 +121,7 @@ const DepartmentUI = (props: DepartmentUIProps) => {
                     content: err.toString().substring(5),
                 });
             });
-        fetchList();
+        fetchList(DepartmentPath);
     };
     // 在特定部门下创建新员工
     const CreateNewUser = (DeparmentPath: string, UserName: string) => {
@@ -149,7 +145,7 @@ const DepartmentUI = (props: DepartmentUIProps) => {
                     content: err.toString().substring(5),
                 });
             });
-        fetchList();
+        fetchList(DeparmentPath);
     };
     const RemoveDepartment = (DepartmentPath: string, DepartmentName: string) => {
         request(
@@ -166,7 +162,7 @@ const DepartmentUI = (props: DepartmentUIProps) => {
                     content: err.toString().substring(5),
                 });
             });
-        fetchList();
+        fetchList(DepartmentPath);
     };
     const onFinishFailed = (errorInfo: any) => {
         console.log("Failed:", errorInfo);
@@ -175,7 +171,7 @@ const DepartmentUI = (props: DepartmentUIProps) => {
         if (!router.isReady) {
             return;
         }
-        fetchList();
+        fetchList(DepartmentPath);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query]);
     return  refreshing ? (
@@ -261,7 +257,7 @@ const DepartmentUI = (props: DepartmentUIProps) => {
                         key="action"
                         render={(_: any, record: DepartmentData) => (
                             <>
-                                <a type="primary" onClick={() => { setDepartmentPath(record.DepartmentPath);fetchList();}}>{record.DepartmentName}</a>
+                                <a type="primary" onClick={() => { setDepartmentPath(record.DepartmentPath);fetchList(record.DepartmentPath);}}>{record.DepartmentName}</a>
                             </>
                         )}
                     />
