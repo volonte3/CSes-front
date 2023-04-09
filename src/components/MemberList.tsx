@@ -33,11 +33,17 @@ const MemberList = (props: MemberListProps) => {
     const [ChangeAuthorityValue, setChangeAuthorityValue] = useState(2);
     const [isAuthorityModalOpen, setIsAuthorityModalOpen] = useState(false);
     const [isRemakeModalOpen, setIsRemakeModalOpen] = useState(false);
-    const [NowUser, setNowUser]  =useState("");
-    const [NowAuthority,setNowAuthority] = useState("");
-    const [LockLoading,setLockLoading] = useState(false);
-    
-    const showRemakeModal = (UserName:string,Authority:number) => {
+    const [NowUser, setNowUser] = useState("");
+    const [NowAuthority, setNowAuthority] = useState("");
+    const [LockLoading, setLockLoading] = useState(false);
+    const [Member, setMember] = useState<MemberData[] | undefined>(props.Members); // 存储加载该系统管理员管理的资产管理员和员工的信息
+    const FetchMemberList = () => {
+        request(`/api/User/member/${LoadSessionID()}`, "GET")
+            .then((res) => {
+                setMember(res.member);
+            });
+    };
+    const showRemakeModal = (UserName: string, Authority: number) => {
         setNowUser(UserName);
         setNowAuthority(renderAuthority(Authority));
         setIsRemakeModalOpen(true);
@@ -98,7 +104,7 @@ const MemberList = (props: MemberListProps) => {
                 });
             });
     };
-    const ChangeAuthority = (username: string,value:number) => {
+    const ChangeAuthority = (username: string, value: number) => {
         request(
             "/api/User/ChangeAuthority",
             "PUT",
@@ -123,7 +129,7 @@ const MemberList = (props: MemberListProps) => {
                 });
             });
     };
-    const ChangeLock = (username: string)=>{
+    const ChangeLock = (username: string) => {
         setLockLoading(true);
         request(
             "/api/User/lock",
@@ -135,6 +141,7 @@ const MemberList = (props: MemberListProps) => {
         )
             .then(() => {
                 setLockLoading(false);
+
             })
             .catch((err: string) => {
                 Modal.error({
@@ -144,9 +151,17 @@ const MemberList = (props: MemberListProps) => {
                 setLockLoading(false);
             });
     };
+    const router = useRouter();
+    const query = router.query;
+    useEffect(() => {
+        if (!router.isReady) {
+            return;
+        }
+        FetchMemberList();
+    }, [router, query]);
     return (
         <div>
-            <Table rowSelection={props.department_page ? rowSelection : undefined} dataSource={props.Members}>
+            <Table rowSelection={props.department_page ? rowSelection : undefined} dataSource={Member}>
                 <Column title="姓名" dataIndex="Name" key="Name" />
                 <Column title="所属部门" dataIndex="Department" key="Department" />
                 <Column
@@ -162,13 +177,13 @@ const MemberList = (props: MemberListProps) => {
                     key="action"
                     render={(_: any, record: MemberData) => (
                         <Space size="middle">
-                            <Switch checkedChildren="解锁" unCheckedChildren="锁定" onChange={()=>{ChangeLock(record.Name);}} checked= {!record.lock} loading={LockLoading}/>
-                            <Button danger onClick={()=>{showRemakeModal(record.Name,record.Authority);}}>重置密码</Button>
-                            <Modal title="重置密码" open={isRemakeModalOpen} onOk={()=>{RemakePassword(record.Name);}} onCancel={handleRemakeCancel}>
+                            <Switch checkedChildren="解锁" unCheckedChildren="锁定" onChange={() => { ChangeLock(record.Name); }} checked={!record.lock} loading={LockLoading} />
+                            <Button danger onClick={() => { showRemakeModal(record.Name, record.Authority); }}>重置密码</Button>
+                            <Modal title="重置密码" open={isRemakeModalOpen} onOk={() => { RemakePassword(record.Name); }} onCancel={handleRemakeCancel}>
                                 将 {NowAuthority} {NowUser} 密码重置为 yiqunchusheng
                             </Modal>
                             <Button type="primary" onClick={showAuthorityModal} >设置角色</Button>
-                            <Modal title="设置角色" open={isAuthorityModalOpen} onOk={()=>{ChangeAuthority(record.Name,ChangeAuthorityValue);}} onCancel={handleAuthorityCancel}>
+                            <Modal title="设置角色" open={isAuthorityModalOpen} onOk={() => { ChangeAuthority(record.Name, ChangeAuthorityValue); }} onCancel={handleAuthorityCancel}>
                                 <Radio.Group options={options} onChange={onChange3} optionType="button" />
                             </Modal>
                         </Space>
