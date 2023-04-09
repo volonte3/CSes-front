@@ -24,6 +24,7 @@ const App = () => {
     const [openDetail, setOpenDetail] = useState(true);
     const [AssetName, setAssetName] = useState<string>("");
     const [CategoryStyle, setCategoryStyle] = useState<number>(-1);
+    const [Change, setChange] = useState(false);
     const rolelist = ["超级管理员","系统管理员","资产管理员","员工"];
 
     const submit = () => {
@@ -39,8 +40,16 @@ const App = () => {
                     NaturalClass: CategoryStyle,
                 }
             )
-                .then(() => {router.push("/asset/asset_define"); success_add();})
-                .catch((err) => console.log(err.message));
+                .then(() => {
+                    success_add();
+                    setChange((e) => !e);
+                })
+                .catch((err) => {
+                    Modal.error({
+                        title: "错误",
+                        content: err.message.substring(5),
+                    });
+                });
         }
         else {
             error_add();
@@ -57,6 +66,7 @@ const App = () => {
     const handlechange1 = (value: string) => {
         if (value == "yes") {
             setOpenDetail(false);
+            setCategoryStyle(1);
         }
         if (value == "no") {
             setOpenDetail(true);
@@ -107,6 +117,26 @@ const App = () => {
                 setState(true);
                 setUserName(res.UserName);
                 setUserAuthority(res.Authority);
+                request(
+                    "/api/Asset/tree",
+                    "POST",
+                    {
+                        SessionID: LoadSessionID(),
+                    }
+                )
+                    .then((res) => {
+                        if (res) {
+                            setAsset(res.treeData);
+                        }
+                    })
+                    .catch((err) => {
+                        console.log(err.code);
+                        Modal.error({
+                            title: "错误",
+                            content: err.message.substring(5),
+                            onOk: () => { window.location.href = "/"; }
+                        });
+                    });
             })
             .catch((err) => {
                 console.log(err.message);
@@ -117,28 +147,7 @@ const App = () => {
                     onOk: () => { window.location.href = "/"; }
                 });
             });
-        request(
-            "/api/Asset/tree",
-            "POST",
-            {
-                SessionID: LoadSessionID(),
-            }
-        )
-            .then((res) => {
-                if (res) {
-                    setAsset(res.treeData);
-                }
-            })
-            .catch((err) => {
-                console.log(err.message);
-                setState(false);
-                Modal.error({
-                    title: "无权获取资产列表",
-                    content: "请重新登录",
-                    onOk: () => { window.location.href = "/"; }
-                });
-            });
-    }, [router, query, state]);
+    }, [router, query, state, Change]);
     if (state) {
         return (
             <Layout style={{
