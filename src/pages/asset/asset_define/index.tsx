@@ -5,7 +5,6 @@ import { LoadSessionID } from "../../../utils/CookieOperation";
 import { useRouter } from "next/router";
 import { request } from "../../../utils/network";
 import { useState, useEffect } from "react";
-import { ftruncate } from "fs";
 const { Header, Content } = Layout;
 const { Option } = Select;
 
