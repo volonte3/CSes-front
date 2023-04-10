@@ -19,6 +19,13 @@ interface MemberData {
     Authority: number;
     lock: boolean;
 }
+interface DataType {
+    key: React.Key;
+    Name: string;
+    Department: string;
+    Authority: number;
+    lock: boolean;
+}
 interface MemberListProps {
     Members: MemberData[] | undefined;
     department_page: boolean;
@@ -37,10 +44,23 @@ const MemberList = (props: MemberListProps) => {
     const [NowAuthority, setNowAuthority] = useState("");
     const [LockLoading, setLockLoading] = useState(false);
     const [Member, setMember] = useState<MemberData[] | undefined>(props.Members); // 存储加载该系统管理员管理的资产管理员和员工的信息
+    const [data, setData] = useState<DataType[] | undefined>();
     const FetchMemberList = () => {
         request(`/api/User/member/${LoadSessionID()}`, "GET")
             .then((res) => {
                 setMember(res.member);
+                const now_data: DataType[] = [];
+                for(let i=0; i<res.member.length;i++){
+                    now_data.push({
+                        key:i,
+                        Name: res.member[i].Name,
+                        Department: res.member[i].Department,
+                        Authority: res.member[i].Authority,
+                        lock: res.member[i].lock
+                    });
+                    console.log(i);
+                }
+                setData(now_data);
             });
     };
     const showRemakeModal = (UserName: string, Authority: number) => {
@@ -118,9 +138,9 @@ const MemberList = (props: MemberListProps) => {
                 Modal.success({
                     title: "成功",
                     content: `身份已设为${renderAuthority(value)}$`,
-
                 });
                 handleAuthorityOk();
+                FetchMemberList();
             })
             .catch((err: string) => {
                 Modal.error({
@@ -159,10 +179,11 @@ const MemberList = (props: MemberListProps) => {
             return;
         }
         FetchMemberList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query]);
     return (
         <div>
-            <Table rowSelection={props.department_page ? rowSelection : undefined} dataSource={Member}>
+            <Table rowSelection={props.department_page ? rowSelection : undefined} dataSource={data}>
                 <Column title="姓名" dataIndex="Name" key="Name" />
                 <Column title="所属部门" dataIndex="Department" key="Department" />
                 <Column
@@ -176,7 +197,7 @@ const MemberList = (props: MemberListProps) => {
                 <Column
                     title="管理"
                     key="action"
-                    render={(_: any, record: MemberData) => (
+                    render={(_: any, record: DataType) => (
                         <Space size="middle">
                             <Switch checkedChildren="解锁" unCheckedChildren="锁定" onChange={() => { ChangeLock(record.Name); }} checked={!record.lock} loading={LockLoading} />
                             <Button danger onClick={() => { showRemakeModal(record.Name, record.Authority); }}>重置密码</Button>
