@@ -29,6 +29,7 @@ interface DataType {
 interface MemberListProps {
     Members: MemberData[] | undefined;
     department_page: boolean;
+    department_path: string;
 }
 const plainOptions = ["Apple", "Pear"];
 const options = [
@@ -46,22 +47,51 @@ const MemberList = (props: MemberListProps) => {
     const [Member, setMember] = useState<MemberData[] | undefined>(props.Members); // 存储加载该系统管理员管理的资产管理员和员工的信息
     const [data, setData] = useState<DataType[] | undefined>();
     const FetchMemberList = () => {
-        request(`/api/User/member/${LoadSessionID()}`, "GET")
-            .then((res) => {
-                setMember(res.member);
-                const now_data: DataType[] = [];
-                for(let i=0; i<res.member.length;i++){
-                    now_data.push({
-                        key:i,
-                        Name: res.member[i].Name,
-                        Department: res.member[i].Department,
-                        Authority: res.member[i].Authority,
-                        lock: res.member[i].lock
+        if (!props.department_page){
+            request(`/api/User/member/${LoadSessionID()}`, "GET")
+                .then((res) => {
+                    const now_data: DataType[] = [];
+                    for(let i=0; i<res.member.length;i++){
+                        now_data.push({
+                            key:i,
+                            Name: res.member[i].Name,
+                            Department: res.member[i].Department,
+                            Authority: res.member[i].Authority,
+                            lock: res.member[i].lock
+                        });
+                        console.log(i);
+                    }
+                    setData(now_data);
+                });
+        }
+        else {
+            request(
+                `/api/User/department/${LoadSessionID()}/${props.department_path}`,
+                "GET"
+            )
+                .then((res) => {
+                    const now_data: DataType[] = [];
+                    for(let i=0; i<res.member.length;i++){
+                        now_data.push({
+                            key:i,
+                            Name: res.member[i].Name,
+                            Department: res.member[i].Department,
+                            Authority: res.member[i].Authority,
+                            lock: res.member[i].lock
+                        });
+                        console.log(i);
+                    }
+                    setData(now_data);
+                })
+                .catch((err) => {
+                    console.log(err.message);
+                    Modal.error({
+                        title: "无权获取对应用户信息",
+                        content: "请重新登录",
+                        onOk: () => { window.location.href = "/"; }
                     });
-                    console.log(i);
-                }
-                setData(now_data);
-            });
+                });
+        }
     };
     const showRemakeModal = (UserName: string, Authority: number) => {
         setNowUser(UserName);

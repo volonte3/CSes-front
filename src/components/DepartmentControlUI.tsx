@@ -257,6 +257,7 @@ const DepartmentUI = () => {
                 {IsLeafDepartment && <MemberList
                     Members={DepartmentMemberList}
                     department_page = {true}
+                    department_path = {DepartmentPath}
                 />}
                 {!IsLeafDepartment && <Table  dataSource={DepartmentList}>
                     <Column
