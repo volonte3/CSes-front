@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import { request } from "../../../utils/network";
 import { logout, LoadSessionID } from "../../../utils/CookieOperation";
 import MemberList from "../../../components/MemberList";
-
+import  UserInfo  from "../../../components/UserInfoUI";
 interface DataType {
     key: React.Key;
     Name: string;
@@ -125,7 +125,8 @@ const App = () => {
                     {SiderMenu}
                 </Sider>
                 <Layout className="site-layout" >
-                    <Header style={{ padding: 0, background: colorBgContainer }} />
+                    <Header style={{ padding: 16, background: colorBgContainer }} />
+                    <UserInfo></UserInfo>
                     <Content style={{ margin: "0 16px" }}>
                         <Breadcrumb style={{ margin: "16px 0" }}>
                             <Breadcrumb.Item>用户管理</Breadcrumb.Item>
@@ -135,6 +136,7 @@ const App = () => {
                             <MemberList
                                 Members={Member}
                                 department_page={false}
+                                department_path={"000000000"}
                             />
                         </div>
                     </Content>
