@@ -1,5 +1,5 @@
 import React from "react";
-import { Layout, Modal, Space, Button, Typography, TreeSelect, message, Drawer, Form, Input, Row, Select } from "antd";
+import { Layout, Modal, Space, Button, Typography, TreeSelect, message, Drawer, Form, Input, Row, Select, Col } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { LoadSessionID } from "../../../utils/CookieOperation";
 import { useRouter } from "next/router";
@@ -20,11 +20,18 @@ const App = () => {
     const [value, setValue] = useState<string>();
     const [ButtonDisable, setButtonDisable] = useState(true);
     const [openAdd, setOpenAdd] = useState(false);
+    const [openModify, setOpenModify] = useState(false);
     const [openDetail, setOpenDetail] = useState(true);
     const [AssetName, setAssetName] = useState<string>("");
     const [CategoryStyle, setCategoryStyle] = useState<number>(-1);
     const [Change, setChange] = useState(false);
     const rolelist = ["超级管理员","系统管理员","资产管理员","员工"];
+
+    const initvalue = () => {
+        setAssetName("");
+        setCategoryStyle(-1);
+        setOpenDetail(true);
+    };
 
     const submit = () => {
         if (AssetName && CategoryStyle != -1) {
@@ -54,7 +61,56 @@ const App = () => {
             error_add();
         }
     };
-        
+
+    const modify = () => {
+        if (AssetName && CategoryStyle != -1) {
+            onClose(); 
+            request(
+                "/api/Asset/ModifyAssetClass",
+                "POST",
+                {
+                    SessionID: LoadSessionID(),
+                    NodeValue: value,
+                    AssetClassName: AssetName,
+                    NaturalClass: CategoryStyle,
+                }
+            )
+                .then(() => {
+                    success_modify();
+                    setChange((e) => !e);
+                })
+                .catch((err) => {
+                    Modal.error({
+                        title: "错误",
+                        content: err.message.substring(5),
+                    });
+                });
+        }
+        else {
+            error_add();
+        }
+    };
+    
+    const delete_asset = () => {
+        onClose(); 
+        request(
+            `/api/Asset/DeleteAssetClass/${LoadSessionID()}/${value}`,
+            "DELETE",
+        )
+            .then(() => {
+                success_delete();
+                setChange((e) => !e);
+                setValue("1");
+            })
+            .catch((err) => {
+                console.log(err.name);
+                console.log(err.message);
+                Modal.error({
+                    title: "错误",
+                    content: err.message.substring(5),
+                });
+            });
+    };
 
     const onChange = (newValue: string) => {
         console.log(newValue);
@@ -89,19 +145,31 @@ const App = () => {
         });
     };
 
+    const success_modify = () => {
+        messageApi.open({
+            type: "success",
+            content: "成功修改资产",
+        });
+    };
+
+    const success_delete = () => {
+        messageApi.open({
+            type: "success",
+            content: "成功删除资产",
+        });
+    };
+
     const error_add = () => {
         messageApi.open({
             type: "error",
             content: "请填入完整信息",
         });
     };
-
-    const showDrawer = () => {
-        setOpenAdd(true);
-    };
     
     const onClose = () => {
         setOpenAdd(false);
+        setOpenModify(false);
+        initvalue();
     };
 
     useEffect(() => {
@@ -133,7 +201,7 @@ const App = () => {
                         Modal.error({
                             title: "错误",
                             content: err.message.substring(5),
-                            onOk: () => { window.location.href = "/"; }
+                            // onOk: () => { window.location.href = "/"; }
                         });
                     });
             })
@@ -176,38 +244,94 @@ const App = () => {
                     <br />
                     <br />
                     <br />
-                    <Space>
-                        <div>
-                            <Space direction='horizontal' size={450} align='start'>
-                                <TreeSelect
-                                    style={{ width: "300%" }}
-                                    size="large"
-                                    value={value}
-                                    dropdownStyle={{ maxHeight: 1600, overflow: "auto" }}
-                                    treeData={Asset}
-                                    placeholder="查看或修改资产"
-                                    treeDefaultExpandAll
-                                    onChange={onChange}
-                                />
-                                <Space direction="vertical" style={{ display: "flex" }} size={20}>
-                                    <Button type="primary" disabled={ButtonDisable} block onClick={() => setOpenAdd(true)}>在其下创建</Button>
-                                    <Button type="primary" disabled={ButtonDisable} block>重命名</Button>
-                                    <Button type="primary" disabled={ButtonDisable} danger block>删除</Button>
-                                </Space>
-                            </Space>
-                        </div>
-                    </Space>
+                    <Row align="top">
+                        <Col span={18}>
+                            <TreeSelect
+                                style={{ width: "100%" }}
+                                size="large"
+                                value={value}
+                                dropdownStyle={{ maxHeight: 1600, overflow: "auto" }}
+                                treeData={Asset}
+                                placeholder="查看或修改资产"
+                                treeDefaultExpandAll
+                                onChange={onChange}
+                            />
+                        </Col>
+                        <Col span={2}>
+                        </Col>
+                        <Col span={4} className="gutter-row">
+                            <Row gutter={[16, 24]}>
+                                <Button type="primary" disabled={ButtonDisable} block onClick={() => {initvalue(); setOpenAdd(true);}}>在其下创建</Button>
+                                <Button type="primary" disabled={ButtonDisable} block onClick={() => {initvalue(); setOpenModify(true);}}>修改</Button>
+                                <Button type="primary" disabled={ButtonDisable} danger block onClick={() => {delete_asset();}}>删除</Button>
+                            </Row>
+                        </Col>
+                    </Row>
                 </Content>
                 <Drawer
                     title="增加资产"
                     width={420}
                     onClose={onClose}
+                    destroyOnClose={true}
                     open={openAdd}
                     bodyStyle={{ paddingBottom: 80 }}
                     extra={
                         <Space>
                             <Button onClick={onClose}>取消</Button>
                             <Button onClick={() => {submit();}} type="primary" >
+                                提交
+                            </Button>
+                        </Space>
+                    }
+                >
+                    <Form layout="vertical" initialValues={[]}>
+                        <Row>
+                            <Form.Item
+                                name="assetname"
+                                label="资产名称"
+                                rules={[{ required: true, message: "必填项" }]}
+                            >
+                                <Input placeholder="请输入要增加的资产名称" onChange={(e) => setAssetName(e.target.value)}/>
+                            </Form.Item>
+                        </Row>
+                        <Row>
+                            <Form.Item
+                                name="owner"
+                                label="是否为品类"
+                                rules={[{ required: true, message: "必选项" }]}
+                            >
+                                <Select placeholder="请选择该资产是否为品类" onChange={handlechange1}>
+                                    <Option value="yes">是</Option>
+                                    <Option value="no">否</Option>
+                                </Select>
+                            </Form.Item>
+                        </Row>
+                        <Row>
+                            <Form.Item
+                                name="style"
+                                label="具体类型"
+                                hidden={openDetail}
+                                rules={[{ required: true, message: "必选项" }]}
+                            >
+                                <Select placeholder="请选择品类的具体类型" onChange={handlechange2} defaultValue={"shuliang"}>
+                                    <Option value="shuliang">数量型品类</Option>
+                                    <Option value="tiaomu">条目型品类</Option>
+                                </Select>
+                            </Form.Item>
+                        </Row>
+                    </Form>
+                </Drawer>
+                <Drawer
+                    title="修改资产"
+                    width={420}
+                    onClose={onClose}
+                    destroyOnClose={true}
+                    open={openModify}
+                    bodyStyle={{ paddingBottom: 80 }}
+                    extra={
+                        <Space>
+                            <Button onClick={onClose}>取消</Button>
+                            <Button onClick={() => {modify();}} type="primary" >
                                 提交
                             </Button>
                         </Space>
@@ -220,7 +344,7 @@ const App = () => {
                                 label="资产名称"
                                 rules={[{ required: true, message: "必填项" }]}
                             >
-                                <Input placeholder="请输入要增加的资产名称" onChange={(e) => setAssetName(e.target.value)}/>
+                                <Input placeholder="请输入要修改的资产名称" onChange={(e) => setAssetName(e.target.value)}/>
                             </Form.Item>
                         </Row>
                         <Row>
