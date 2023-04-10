@@ -1,6 +1,6 @@
 import React from "react";
 import {
-    FileOutlined, PlusSquareOutlined
+    FileOutlined, PlusSquareOutlined,UpOutlined,DownOutlined
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, Switch, Modal, Button, Radio } from "antd";
@@ -76,8 +76,9 @@ const MemberList = (props: MemberListProps) => {
     const handleRemakeCancel = () => {
         setIsRemakeModalOpen(false);
     };
-    const showAuthorityModal = () => {
+    const showAuthorityModal = (username:string) => {
         setIsAuthorityModalOpen(true);
+        console.log("username",username);
     };
 
     const handleAuthorityOk = () => {
@@ -96,8 +97,10 @@ const MemberList = (props: MemberListProps) => {
         onChange: onSelectChange,
     };
     const onChange3 = ({ target: { value } }: RadioChangeEvent) => {
-        console.log("radio3 checked", value);
+        console.log("target value checked", value);
         setChangeAuthorityValue(value);
+        console.log("ChangeAuthorityValue: ",ChangeAuthorityValue);
+        return value;
     };
     const hasSelected = selectedRowKeys.length > 0;
     const RemakePassword = (username: string) => {
@@ -124,20 +127,21 @@ const MemberList = (props: MemberListProps) => {
                 });
             });
     };
-    const ChangeAuthority = (username: string, value: number) => {
+    const ChangeAuthority = (username: string,Authority:number) => {
+        let ans = Authority==2?3:2;
         request(
             "/api/User/ChangeAuthority",
             "PUT",
             {
                 SessionID: LoadSessionID(),
                 UserName: username,
-                Authority: value,
+                Authority: ans,
             }
         )
             .then(() => {
                 Modal.success({
                     title: "成功",
-                    content: `身份已设为${renderAuthority(value)}$`,
+                    content: `身份已设为${renderAuthority(ans)}$`,
                 });
                 handleAuthorityOk();
                 FetchMemberList();
@@ -179,8 +183,9 @@ const MemberList = (props: MemberListProps) => {
             return;
         }
         FetchMemberList();
+        console.log("ChangeAuthorityValue has been updated:", ChangeAuthorityValue);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [router, query]);
+    }, [router, query,ChangeAuthorityValue]);
     return (
         <div>
             <Table rowSelection={props.department_page ? rowSelection : undefined} dataSource={data}>
@@ -199,15 +204,14 @@ const MemberList = (props: MemberListProps) => {
                     key="action"
                     render={(_: any, record: DataType) => (
                         <Space size="middle">
+                            
                             <Switch checkedChildren="解锁" unCheckedChildren="锁定" onChange={() => { ChangeLock(record.Name); }} checked={!record.lock} loading={LockLoading} />
                             <Button danger onClick={() => { showRemakeModal(record.Name, record.Authority); }}>重置密码</Button>
                             <Modal title="重置密码" open={isRemakeModalOpen} onOk={() => { RemakePassword(record.Name); }} onCancel={handleRemakeCancel} mask={false}>
                                 将 {NowAuthority} {NowUser} 密码重置为 yiqunchusheng
                             </Modal>
-                            <Button type="primary" onClick={showAuthorityModal} >设置角色</Button>
-                            <Modal title="设置角色" open={isAuthorityModalOpen} onOk={() => { ChangeAuthority(record.Name, ChangeAuthorityValue); }} onCancel={handleAuthorityCancel}>
-                                <Radio.Group options={options} onChange={onChange3} optionType="button" />
-                            </Modal>
+                            {record.Authority==3 && <Button type="text"  onClick={()=>{ChangeAuthority(record.Name,record.Authority);}}icon={<UpOutlined />}>提拔为资产管理员</Button>}
+                            {record.Authority==2 && <Button type="text" danger onClick={()=>{ChangeAuthority(record.Name,record.Authority);}}icon={<DownOutlined />}>降为普通员工</Button>}
                         </Space>
                     )}
                 />
