@@ -10,6 +10,7 @@ const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
 import { request } from "../../../utils/network";
 import { LoadSessionID, logout } from "../../../utils/CookieOperation";
+import  UserInfo  from "../../../components/UserInfoUI";
 
 
 type MenuItem = Required<MenuProps>["items"][number];
@@ -202,7 +203,7 @@ const App = () => {
                 </Sider>
                 <Layout className="site-layout" >
                     <Header style={{ padding: 16, background: colorBgContainer }}>
-                        <Row justify="end">
+                        {/* <Row justify="end">
                             <Dropdown menu={{ items }} >
                                 <a onClick={(e) => e.preventDefault()}>
                                     <Space>
@@ -212,7 +213,9 @@ const App = () => {
                                 </a>
                             </Dropdown>
 
-                        </Row>
+                        </Row> */}
+                        <UserInfo></UserInfo>
+
                     </Header>
                     <Content style={{ margin: "0 16px" }}>
                         <Button
