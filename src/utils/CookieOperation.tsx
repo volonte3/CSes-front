@@ -28,7 +28,7 @@ const generateRandomString = (num: number) => {
 };
 //
 const LoadSessionID= () => {
-    return cookie.load("SessionID");
+    return cookie.load("SessionID")?cookie.load("SessionID"):"";
 };
 //用户登出，删除cookie
 const logout = () => {
