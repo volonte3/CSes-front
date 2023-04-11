@@ -122,10 +122,11 @@ const App = () => {
                 onClose();
             })
             .catch((err: any) => {
+                console.log(err.type);
                 if (IfCodeSessionWrong(err, router)) {
                     Modal.error({
                         title: "创建失败",
-                        content: err.message,
+                        content: err.message.toString().substring(5),
                     });
                 }
             });
@@ -142,10 +143,13 @@ const App = () => {
                 Modal.success({ title: "注销成功", content: answer, afterClose: () => { window.location.reload(); } });
             })
             .catch((err: string) => {
-                Modal.error({
-                    title: "注销失败",
-                    content: err.toString().substring(5),
-                });
+                if (IfCodeSessionWrong(err, router)) {
+
+                    Modal.error({
+                        title: "注销失败",
+                        content: err.toString().substring(5),
+                    });
+                }
             });
     };
     const onFinishFailed = (errorInfo: any) => {
@@ -187,11 +191,14 @@ const App = () => {
                 .catch((err) => {
                     console.log(err.message);
                     setState(false);
-                    Modal.error({
-                        title: "无权获取系统管理员及实体信息",
-                        content: "请重新登录",
-                        onOk: () => { window.location.href = "/"; }
-                    });
+                    if (IfCodeSessionWrong(err, router)) {
+
+                        Modal.error({
+                            title: "无权获取系统管理员及实体信息",
+                            content: "请重新登录",
+                            onOk: () => { window.location.href = "/"; }
+                        });
+                    }
                 });
         }
 

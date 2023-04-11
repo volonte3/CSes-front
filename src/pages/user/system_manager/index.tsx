@@ -7,7 +7,8 @@ import { useState, useEffect } from "react";
 import { request } from "../../../utils/network";
 import { logout, LoadSessionID } from "../../../utils/CookieOperation";
 import MemberList from "../../../components/MemberList";
-import  UserInfo  from "../../../components/UserInfoUI";
+import UserInfo from "../../../components/UserInfoUI";
+import {IfCodeSessionWrong} from "../../../utils/CookieOperation";
 interface DataType {
     key: React.Key;
     Name: string;
@@ -99,7 +100,7 @@ const App = () => {
                 });
             });
         // setState(true);
-        if(state){
+        if (state) {
             request(`/api/User/member/${LoadSessionID()}`, "GET")
                 .then((res) => {
                     // const Member = JSON.parse(res.jsonString) as MemberData;
@@ -107,12 +108,15 @@ const App = () => {
                 })
                 .catch((err) => {
                     console.log(err.message);
-                    setState(false);
-                    Modal.error({
-                        title: "无权获取用户列表",
-                        content: "请重新登录",
-                        onOk: () => { window.location.href = "/"; }
-                    });
+                    if (IfCodeSessionWrong(err, router)) {
+
+                        setState(false);
+                        Modal.error({
+                            title: "无权获取用户列表",
+                            content: "请重新登录",
+                            onOk: () => { window.location.href = "/"; }
+                        });
+                    }
                 });
         }
     }, [router, query, state]);
@@ -132,7 +136,7 @@ const App = () => {
                             <Breadcrumb.Item>用户管理</Breadcrumb.Item>
                         </Breadcrumb>
                         <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
-                            
+
                             <MemberList
                                 Members={Member}
                                 department_page={false}

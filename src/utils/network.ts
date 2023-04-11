@@ -11,6 +11,7 @@ const network = axios.create({
 
 enum NetworkErrorType {
     CORRUPTED_RESPONSE,
+    SESSION_ERROR,
     UNKNOWN_ERROR,
 }
 
@@ -40,13 +41,21 @@ export const request = async (
     const response = await network.request({ method, url, data })
         .catch((err: AxiosError) => {
             // @note: 这里的错误处理显然是极其粗糙的，大作业中你可以根据组内约定的 API 文档细化错误处理
+            // 判断错误返回的code如果是-2的话，则抛出SESSION_ERROR 1错误,.catch中用error.type捕获
+            if (err.response.data.code === -2) {
+                throw new NetworkError(
+                    NetworkErrorType.SESSION_ERROR,
+                    `[${err.response?.status}] ` + (err.response?.data as any).info,
+                );
+            }
+            else {
 
-            throw new NetworkError(
-                NetworkErrorType.UNKNOWN_ERROR,
-                `[${err.response?.status}] ` + (err.response?.data as any).info,
-            );
+                throw new NetworkError(
+                    NetworkErrorType.UNKNOWN_ERROR,
+                    `[${err.response?.status}] ` + (err.response?.data as any).info,
+                );
+            }
         });
-
     if (response?.data.code === 0) {
         return { ...response.data, code: undefined };
     } else {

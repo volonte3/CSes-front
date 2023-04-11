@@ -43,6 +43,7 @@ const CreateCookie = (key:string) => {
 // 根据错误码判断是否SessionID过期或错误，若是则应该登出
 const IfCodeSessionWrong=(err:any,router:any)=>{
     if (err.type === 1) {
+        console.log("return code=-2,  SessionError");
         Modal.error({
             title: "会话失败",
             content: "请重新登陆",
