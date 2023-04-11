@@ -1,6 +1,6 @@
 import React from "react";
 import {
-    FileOutlined, PlusSquareOutlined,UpOutlined,DownOutlined
+    FileOutlined, PlusSquareOutlined, UpOutlined, DownOutlined
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, Switch, Modal, Button, Radio } from "antd";
@@ -9,7 +9,7 @@ const { Column } = Table;
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { request } from "../utils/network";
-import { LoadSessionID } from "../utils/CookieOperation";
+import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
 import MenuItem from "antd/es/menu/MenuItem";
 import { renderAuthority } from "../utils/transformer";
 import type { ColumnsType } from "antd/es/table";
@@ -47,13 +47,13 @@ const MemberList = (props: MemberListProps) => {
     const [Member, setMember] = useState<MemberData[] | undefined>(props.Members); // 存储加载该系统管理员管理的资产管理员和员工的信息
     const [data, setData] = useState<DataType[] | undefined>();
     const FetchMemberList = () => {
-        if (!props.department_page){
+        if (!props.department_page) {
             request(`/api/User/member/${LoadSessionID()}`, "GET")
                 .then((res) => {
                     const now_data: DataType[] = [];
-                    for(let i=0; i<res.member.length;i++){
+                    for (let i = 0; i < res.member.length; i++) {
                         now_data.push({
-                            key:i,
+                            key: i,
                             Name: res.member[i].Name,
                             Department: res.member[i].Department,
                             Authority: res.member[i].Authority,
@@ -71,9 +71,9 @@ const MemberList = (props: MemberListProps) => {
             )
                 .then((res) => {
                     const now_data: DataType[] = [];
-                    for(let i=0; i<res.member.length;i++){
+                    for (let i = 0; i < res.member.length; i++) {
                         now_data.push({
-                            key:i,
+                            key: i,
                             Name: res.member[i].Name,
                             Department: res.member[i].Department,
                             Authority: res.member[i].Authority,
@@ -106,9 +106,9 @@ const MemberList = (props: MemberListProps) => {
     const handleRemakeCancel = () => {
         setIsRemakeModalOpen(false);
     };
-    const showAuthorityModal = (username:string) => {
+    const showAuthorityModal = (username: string) => {
         setIsAuthorityModalOpen(true);
-        console.log("username",username);
+        console.log("username", username);
     };
 
     const handleAuthorityOk = () => {
@@ -129,7 +129,7 @@ const MemberList = (props: MemberListProps) => {
     const onChange3 = ({ target: { value } }: RadioChangeEvent) => {
         console.log("target value checked", value);
         setChangeAuthorityValue(value);
-        console.log("ChangeAuthorityValue: ",ChangeAuthorityValue);
+        console.log("ChangeAuthorityValue: ", ChangeAuthorityValue);
         return value;
     };
     const hasSelected = selectedRowKeys.length > 0;
@@ -137,7 +137,7 @@ const MemberList = (props: MemberListProps) => {
         // 重置密码操作，将用户输入的旧密码重新生成到<一个固定值>
         request(
             "/api/User/RemakePassword",
-            "PUT",
+            "POST",
             {
                 SessionID: LoadSessionID(),
                 UserName: username,
@@ -151,14 +151,16 @@ const MemberList = (props: MemberListProps) => {
                 handleRemakeOk();
             })
             .catch((err: string) => {
-                Modal.error({
-                    title: "重置失败",
-                    content: err.toString().substring(5),
-                });
+                if (IfCodeSessionWrong(err, router)) {
+                    Modal.error({
+                        title: "重置失败",
+                        content: err.toString().substring(5),
+                    });
+                }
             });
     };
-    const ChangeAuthority = (username: string,Authority:number) => {
-        let ans = Authority==2?3:2;
+    const ChangeAuthority = (username: string, Authority: number) => {
+        let ans = Authority == 2 ? 3 : 2;
         request(
             "/api/User/ChangeAuthority",
             "PUT",
@@ -177,10 +179,12 @@ const MemberList = (props: MemberListProps) => {
                 FetchMemberList();
             })
             .catch((err: string) => {
-                Modal.error({
-                    title: "设置失败",
-                    content: err.toString().substring(5),
-                });
+                if (IfCodeSessionWrong(err, router)) {
+                    Modal.error({
+                        title: "设置失败",
+                        content: err.toString().substring(5),
+                    });
+                }
             });
     };
     const ChangeLock = (username: string) => {
@@ -199,11 +203,13 @@ const MemberList = (props: MemberListProps) => {
 
             })
             .catch((err: string) => {
-                Modal.error({
-                    title: "解锁/锁定失败",
-                    content: err.toString().substring(5),
-                });
-                setLockLoading(false);
+                if (IfCodeSessionWrong(err, router)) {
+                    Modal.error({
+                        title: "解锁/锁定失败",
+                        content: err.toString().substring(5),
+                    });
+                    setLockLoading(false);
+                }
             });
     };
     const router = useRouter();
@@ -214,8 +220,8 @@ const MemberList = (props: MemberListProps) => {
         }
         FetchMemberList();
         console.log("ChangeAuthorityValue has been updated:", ChangeAuthorityValue);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [router, query,ChangeAuthorityValue]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [router, query, ChangeAuthorityValue]);
     return (
         <div>
             <Table rowSelection={props.department_page ? rowSelection : undefined} dataSource={data}>
@@ -234,14 +240,14 @@ const MemberList = (props: MemberListProps) => {
                     key="action"
                     render={(_: any, record: DataType) => (
                         <Space size="middle">
-                            
+
                             <Switch checkedChildren="解锁" unCheckedChildren="锁定" onChange={() => { ChangeLock(record.Name); }} checked={!record.lock} loading={LockLoading} />
                             <Button danger onClick={() => { showRemakeModal(record.Name, record.Authority); }}>重置密码</Button>
                             <Modal title="重置密码" open={isRemakeModalOpen} onOk={() => { RemakePassword(record.Name); }} onCancel={handleRemakeCancel} mask={false}>
                                 将 {NowAuthority} {NowUser} 密码重置为 yiqunchusheng
                             </Modal>
-                            {record.Authority==3 && <Button type="text"  onClick={()=>{ChangeAuthority(record.Name,record.Authority);}}icon={<UpOutlined />}>提拔为资产管理员</Button>}
-                            {record.Authority==2 && <Button type="text" danger onClick={()=>{ChangeAuthority(record.Name,record.Authority);}}icon={<DownOutlined />}>降为普通员工</Button>}
+                            {record.Authority == 3 && <Button type="text" onClick={() => { ChangeAuthority(record.Name, record.Authority); }} icon={<UpOutlined />}>提拔为资产管理员</Button>}
+                            {record.Authority == 2 && <Button type="text" danger onClick={() => { ChangeAuthority(record.Name, record.Authority); }} icon={<DownOutlined />}>降为普通员工</Button>}
                         </Space>
                     )}
                 />
