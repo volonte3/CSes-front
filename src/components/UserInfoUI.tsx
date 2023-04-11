@@ -27,6 +27,7 @@ const UserInfo = () => {
     const [UserApp, setUserApp] = useState<string>(""); // 用户显示的卡片，01串
     const [Entity, setEntity] = useState(null);  //用户所属业务实体，没有则为null
     const [Department, setDepartment] = useState(null);  //用户所属部门，没有则为null
+    const [LogoutLoadings, setLogoutLoadings] = useState<boolean>(true); //登出按钮是否允许点击
     const items: MenuProps["items"] = [
         {
             key: "1",
@@ -47,9 +48,10 @@ const UserInfo = () => {
                     <Button
                         type="link"
                         icon={<LogoutOutlined />}
-                        style={{margin: "auto" }}
+                        style={{ margin: "auto" }}
                         danger
-                        onClick={() => { logoutSendMessage(); logout(); }}
+                        onClick={() => { console.log("log out!!!!!!!!!!!!!!!!"); logoutSendMessage(); logout(); }}
+                        loading={LogoutLoadings}
                     >
                         退出登录
                     </Button>
@@ -66,6 +68,13 @@ const UserInfo = () => {
             .then(() => { router.push("/"); });
         // .catch((err) => { alert(FAILURE_PREFIX + err); setRefreshing(true); });
     };
+
+    const enterLoading = () => {
+        setTimeout(() => {
+            setLogoutLoadings(false);
+        }, 5000);
+    };
+
     const FetchUserinfo = () => {
         request(
             `/api/User/info/${LoadSessionID()}`,
@@ -94,7 +103,7 @@ const UserInfo = () => {
             return;
         }
         FetchUserinfo();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        enterLoading();
     }, [router, query]);
     return (
         <Row justify="end">
