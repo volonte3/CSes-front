@@ -8,7 +8,7 @@ import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
 import { request } from "../utils/network";
-import { LoadSessionID } from "../utils/CookieOperation";
+import { IfCodeSessionWrong, LoadSessionID } from "../utils/CookieOperation";
 import MemberList from "../components/MemberList";
 
 interface MemberData {
@@ -81,7 +81,7 @@ const DepartmentUI = () => {
                 setRefreshing(false);
                 console.log(err.message);
                 Modal.error({
-                    title: "无权获取对应部门信息",
+                    title: "无法获取对应部门信息",
                     content: "请重新登录",
                     onOk: () => { window.location.href = "/"; }
                 });
@@ -119,11 +119,13 @@ const DepartmentUI = () => {
                 fetchList(DepartmentPath);
             })
             .catch((err: string) => {
-                setOpen1(false);
-                Modal.error({
-                    title: "创建失败",
-                    content: err.toString().substring(5),
-                });
+                if (IfCodeSessionWrong(err, router)) {
+                    setOpen1(false);
+                    Modal.error({
+                        title: "创建失败",
+                        content: err.toString().substring(5),
+                    });
+                }
             });
     };
     // 在特定部门下创建新员工
@@ -139,17 +141,19 @@ const DepartmentUI = () => {
         )
             .then((res) => {
                 setOpen2(false);
-                let answer: string = `成功创建员工 ${DepartmentName}`;
+                let answer: string = `成功创建员工 ${UserName}`;
                 Modal.success({ title: "创建成功", content: answer });
                 onClose1();
                 fetchList(DepartmentPath);
             })
             .catch((err: string) => {
-                setOpen2(false);
-                Modal.error({
-                    title: "创建失败",
-                    content: err.toString().substring(5),
-                });
+                if (IfCodeSessionWrong(err, router)) {
+                    setOpen2(false);
+                    Modal.error({
+                        title: "创建失败",
+                        content: err.toString().substring(5),
+                    });
+                }
             });
         
     };
@@ -161,13 +165,15 @@ const DepartmentUI = () => {
             .then((res) => {
                 let answer: string = `成功删除部门 ${DepartmentName}`;
                 Modal.success({ title: "删除成功", content: answer });
-                fetchList(DepartmentPath);
+                GoUp(DepartmentPath);
             })
             .catch((err: string) => {
-                Modal.error({
-                    title: "删除失败",
-                    content: err.toString().substring(5),
-                });
+                if (IfCodeSessionWrong(err, router)) {
+                    Modal.error({
+                        title: "删除失败",
+                        content: err.toString().substring(5),
+                    });
+                }
             });
         
     };

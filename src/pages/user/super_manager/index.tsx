@@ -192,7 +192,6 @@ const App = () => {
                     console.log(err.message);
                     setState(false);
                     if (IfCodeSessionWrong(err, router)) {
-
                         Modal.error({
                             title: "无权获取系统管理员及实体信息",
                             content: "请重新登录",

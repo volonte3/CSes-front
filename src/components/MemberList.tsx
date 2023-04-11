@@ -39,13 +39,12 @@ const options = [
 const MemberList = (props: MemberListProps) => {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [ChangeAuthorityValue, setChangeAuthorityValue] = useState(2);
-    const [isAuthorityModalOpen, setIsAuthorityModalOpen] = useState(false);
     const [isRemakeModalOpen, setIsRemakeModalOpen] = useState(false);
     const [NowUser, setNowUser] = useState("");
     const [NowAuthority, setNowAuthority] = useState("");
     const [LockLoading, setLockLoading] = useState(false);
-    const [Member, setMember] = useState<MemberData[] | undefined>(props.Members); // 存储加载该系统管理员管理的资产管理员和员工的信息
-    const [data, setData] = useState<DataType[] | undefined>();
+    const [data, setData] = useState<DataType[] | undefined>(); // 存储加载该系统管理员管理的资产管理员和员工的信息
+    const [IsRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
     const FetchMemberList = () => {
         if (!props.department_page) {
             request(`/api/User/member/${LoadSessionID()}`, "GET")
@@ -106,17 +105,17 @@ const MemberList = (props: MemberListProps) => {
     const handleRemakeCancel = () => {
         setIsRemakeModalOpen(false);
     };
-    const showAuthorityModal = (username: string) => {
-        setIsAuthorityModalOpen(true);
-        console.log("username", username);
+    const handleRemoveOk = () => {
+        setIsRemoveModalOpen(false);
     };
 
-    const handleAuthorityOk = () => {
-        setIsAuthorityModalOpen(false);
+    const handleRemoveCancel = () => {
+        setIsRemoveModalOpen(false);
     };
-
-    const handleAuthorityCancel = () => {
-        setIsAuthorityModalOpen(false);
+    const showRemoveModal = (UserName: string, Authority: number) => {
+        setNowUser(UserName);
+        setIsRemoveModalOpen(true);
+        setNowAuthority(renderAuthority(Authority));
     };
     const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
         console.log("selectedRowKeys changed: ", newSelectedRowKeys);
@@ -173,9 +172,8 @@ const MemberList = (props: MemberListProps) => {
             .then(() => {
                 Modal.success({
                     title: "成功",
-                    content: `身份已设为${renderAuthority(ans)}$`,
+                    content: `身份已设为${renderAuthority(ans)}`,
                 });
-                handleAuthorityOk();
                 FetchMemberList();
             })
             .catch((err: string) => {
@@ -212,6 +210,27 @@ const MemberList = (props: MemberListProps) => {
                 }
             });
     };
+    const RemoveUser = (UserName: string) => {
+        request(
+            `/api/User/remove/${LoadSessionID()}/${UserName}`,
+            "DELETE"
+        )
+            .then((res) => {
+                let answer: string = `成功删除员工 ${UserName}`;
+                Modal.success({ title: "删除成功", content: answer });
+                handleRemoveOk();
+                FetchMemberList();
+            })
+            .catch((err: string) => {
+                if (IfCodeSessionWrong(err, router)) {
+                    Modal.error({
+                        title: "删除失败",
+                        content: err.toString().substring(5),
+                    });
+                }
+            });
+        
+    };
     const router = useRouter();
     const query = router.query;
     useEffect(() => {
@@ -224,7 +243,7 @@ const MemberList = (props: MemberListProps) => {
     }, [router, query, ChangeAuthorityValue]);
     return (
         <div>
-            <Table rowSelection={props.department_page ? rowSelection : undefined} dataSource={data}>
+            <Table /* rowSelection={props.department_page ? rowSelection : undefined}*/ dataSource={data}>
                 <Column title="姓名" dataIndex="Name" key="Name" />
                 <Column title="所属部门" dataIndex="Department" key="Department" />
                 <Column
@@ -233,6 +252,15 @@ const MemberList = (props: MemberListProps) => {
                     key="Authority"
                     render={(Authority) => (
                         <Tag color="blue" key={Authority}>{renderAuthority(Authority)}</Tag>
+                    )}
+                />
+                <Column
+                    title="个人资产"
+                    key="action"
+                    render={(_: any, record: DataType) => (
+                        <Space size="middle">
+                            <Button onClick={() => {}}>查看员工资产</Button>
+                        </Space>
                     )}
                 />
                 <Column
@@ -246,20 +274,24 @@ const MemberList = (props: MemberListProps) => {
                             <Modal title="重置密码" open={isRemakeModalOpen} onOk={() => { RemakePassword(record.Name); }} onCancel={handleRemakeCancel} mask={false}>
                                 将 {NowAuthority} {NowUser} 密码重置为 yiqunchusheng
                             </Modal>
+                            <Button danger onClick={() => { showRemoveModal(record.Name, record.Authority); }}>删除员工</Button>
+                            <Modal title="删除员工" open={IsRemoveModalOpen} onOk={() => { RemoveUser(record.Name); }} onCancel={handleRemoveCancel} mask={false}>
+                                请确认删除 {NowAuthority} {NowUser}
+                            </Modal>
                             {record.Authority == 3 && <Button type="text" onClick={() => { ChangeAuthority(record.Name, record.Authority); }} icon={<UpOutlined />}>提拔为资产管理员</Button>}
                             {record.Authority == 2 && <Button type="text" danger onClick={() => { ChangeAuthority(record.Name, record.Authority); }} icon={<DownOutlined />}>降为普通员工</Button>}
                         </Space>
                     )}
                 />
             </Table>
-            {props.department_page &&
+            {/* {props.department_page &&
                 <>
                     <Button type="primary" disabled={!hasSelected}>移动员工</Button>
                     <span style={{ marginLeft: 8 }}>
                         {hasSelected ? `选择了${selectedRowKeys.length}位用户` : ""}
                     </span>
                 </>
-            }
+            } */}
         </div>
     );
 };
