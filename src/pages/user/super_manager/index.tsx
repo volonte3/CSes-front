@@ -9,8 +9,8 @@ import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
 import { request } from "../../../utils/network";
-import { LoadSessionID, logout } from "../../../utils/CookieOperation";
-import  UserInfo  from "../../../components/UserInfoUI";
+import { LoadSessionID, logout, IfCodeSessionWrong } from "../../../utils/CookieOperation";
+import UserInfo from "../../../components/UserInfoUI";
 
 
 type MenuItem = Required<MenuProps>["items"][number];
@@ -121,11 +121,13 @@ const App = () => {
                 Modal.success({ title: "创建成功", content: answer, afterClose: () => { window.location.reload(); } });
                 onClose();
             })
-            .catch((err: string) => {
-                Modal.error({
-                    title: "创建失败",
-                    content: err.toString().substring(5),
-                });
+            .catch((err: any) => {
+                if (IfCodeSessionWrong(err, router)) {
+                    Modal.error({
+                        title: "创建失败",
+                        content: err.message,
+                    });
+                }
             });
 
     };

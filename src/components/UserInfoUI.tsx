@@ -6,7 +6,7 @@ import { Space, Modal, Button, Dropdown, Row, Descriptions } from "antd";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { request } from "../utils/network";
-import { LoadSessionID, logout } from "../utils/CookieOperation";
+import { LoadSessionID, logout, IfCodeSessionWrong } from "../utils/CookieOperation";
 import type { MenuProps } from "antd";
 import { renderAuthority } from "../utils/transformer";
 type MenuItem = Required<MenuProps>["items"][number];
