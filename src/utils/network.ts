@@ -42,7 +42,7 @@ export const request = async (
         .catch((err: AxiosError) => {
             // @note: 这里的错误处理显然是极其粗糙的，大作业中你可以根据组内约定的 API 文档细化错误处理
             // 判断错误返回的code如果是-2的话，则抛出SESSION_ERROR 1错误,.catch中用error.type捕获
-            if (err.response.data.code === -2) {
+            if (err.response?.data.code === -2) {
                 throw new NetworkError(
                     NetworkErrorType.SESSION_ERROR,
                     `[${err.response?.status}] ` + (err.response?.data as any).info,
