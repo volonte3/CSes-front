@@ -5,8 +5,10 @@ import { LoadSessionID } from "../../../utils/CookieOperation";
 import { useRouter } from "next/router";
 import { request } from "../../../utils/network";
 import { useState, useEffect } from "react";
+import UserInfo from "../../../components/UserInfoUI";
 const { Header, Content } = Layout;
 const { Option } = Select;
+
 
 const App = () => {
     const router = useRouter();
@@ -226,6 +228,7 @@ const App = () => {
                     <div className="logo">CSCompany资产管理系统</div>
                     <div className="right-menu">
                         <Button type = "text" className="header_button" icon={<ArrowLeftOutlined />} onClick={() =>router.push("/main_page")}>返回</Button>
+                        <UserInfo></UserInfo>
                     </div>
                 </Header>
                 <br />

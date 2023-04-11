@@ -13,6 +13,7 @@ import { LoadSessionID } from "../../../../utils/CookieOperation";
 import MenuItem from "antd/es/menu/MenuItem";
 import MemberList from "../../../../components/MemberList";
 import DepartmentUI from "../../../../components/DepartmentControlUI";
+import  UserInfo  from "../../../../components/UserInfoUI";
 interface MemberData {
     Name: string;
     Department: string;
@@ -77,6 +78,7 @@ const App = () => {
                 </Sider>
                 <Layout className="site-layout" >
                     <Header style={{ padding: 0, background: colorBgContainer }} />
+                    <UserInfo></UserInfo>
                     <DepartmentUI/>
                     <Footer style={{ textAlign: "center" }}>EAMS ©2023 Designed by CSes</Footer>
                 </Layout>

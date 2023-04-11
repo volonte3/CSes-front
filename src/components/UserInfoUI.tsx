@@ -1,13 +1,14 @@
 import React from "react";
 import {
-    DownOutlined,LogoutOutlined
+    DownOutlined, LogoutOutlined, UserOutlined
 } from "@ant-design/icons";
-import { Layout, Menu, theme, Space, Table, Modal, Button, Input, Form, Drawer, Avatar, Dropdown, Row } from "antd";
+import { Space, Modal, Button, Dropdown, Row, Descriptions } from "antd";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { request } from "../utils/network";
-import { LoadSessionID ,logout} from "../utils/CookieOperation";
+import { LoadSessionID, logout } from "../utils/CookieOperation";
 import type { MenuProps } from "antd";
+import { renderAuthority } from "../utils/transformer";
 type MenuItem = Required<MenuProps>["items"][number];
 
 interface UserinfoProps {
@@ -24,24 +25,36 @@ const UserInfo = () => {
     const [UserName, setUserName] = useState<string>(""); // 用户名
     const [UserAuthority, setUserAuthority] = useState(0); // 用户的角色权限，0超级，1系统，2资产，3员工
     const [UserApp, setUserApp] = useState<string>(""); // 用户显示的卡片，01串
-    const [Entity,setEntity] = useState(null);  //用户所属业务实体，没有则为null
-    const [Department,setDepartment] = useState(null);  //用户所属部门，没有则为null
+    const [Entity, setEntity] = useState(null);  //用户所属业务实体，没有则为null
+    const [Department, setDepartment] = useState(null);  //用户所属部门，没有则为null
     const items: MenuProps["items"] = [
+        {
+            key: "1",
+            label: (
+                <Descriptions title={UserName} bordered>
+                    <UserOutlined />
+                    <Descriptions.Item label="身份">{renderAuthority(UserAuthority)}</Descriptions.Item>
+                    {UserAuthority != 0 && <Descriptions.Item label="业务实体">{Entity}</Descriptions.Item>}
+                    {(UserAuthority == 2 || UserAuthority == 3) && <Descriptions.Item label="部门">{Entity}</Descriptions.Item>}
+                </Descriptions>
+            ),
+        },
         {
             key: "2",
             label: (
-                <Button
-                    type="link"
-                    icon={<LogoutOutlined />}
-                    style={{ float: "right", margin: 10 }}
-                    danger
-                    onClick={() => { logoutSendMessage(); logout(); }}
-                >
-                    退出登录
-                </Button>
+                <div style={{ display: "flex", justifyContent: "center" }}>
+
+                    <Button
+                        type="link"
+                        icon={<LogoutOutlined />}
+                        style={{margin: "auto" }}
+                        danger
+                        onClick={() => { logoutSendMessage(); logout(); }}
+                    >
+                        退出登录
+                    </Button>
+                </div>
             ),
-            // icon: <SmileOutlined />,
-            // disabled: true,
         },
     ];
     const logoutSendMessage = () => {
@@ -53,7 +66,7 @@ const UserInfo = () => {
             .then(() => { router.push("/"); });
         // .catch((err) => { alert(FAILURE_PREFIX + err); setRefreshing(true); });
     };
-    const FetchUserinfo = ()=>{
+    const FetchUserinfo = () => {
         request(
             `/api/User/info/${LoadSessionID()}`,
             "GET"
@@ -81,7 +94,7 @@ const UserInfo = () => {
             return;
         }
         FetchUserinfo();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query]);
     return (
         <Row justify="end">
