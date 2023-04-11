@@ -20,8 +20,8 @@ function App() {
             "/api/User/logout",
             "POST"
         )
-            .then(() => { router.push("/"); });
-        // .catch((err) => { alert(FAILURE_PREFIX + err); setRefreshing(true); });
+            .then(() => { router.push("/"); })
+            .catch((err) => { router.push("/"); });
         // Step 6 END
     };
     const router = useRouter();

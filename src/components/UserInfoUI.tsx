@@ -65,8 +65,8 @@ const UserInfo = () => {
             "POST",
             { SessionID: LoadSessionID(), }
         )
-            .then(() => { router.push("/"); });
-        // .catch((err) => { alert(FAILURE_PREFIX + err); setRefreshing(true); });
+            .then(() => { router.push("/"); })
+            .catch((err) => { router.push("/"); });
     };
 
     const enterLoading = () => {

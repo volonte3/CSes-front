@@ -21,8 +21,8 @@ const App = () => {
             "POST",
             { SessionID: LoadSessionID(), }
         )
-            .then(() => { router.push("/"); });
-        // .catch((err) => { alert(FAILURE_PREFIX + err); setRefreshing(true); });
+            .then(() => { router.push("/"); })
+            .catch((err) => { router.push("/"); });
     };
     const router = useRouter();
     const query = router.query;
