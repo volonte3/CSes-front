@@ -2,7 +2,7 @@ import React from "react";
 import {
     FileOutlined, PlusSquareOutlined
 } from "@ant-design/icons";
-import { Layout, Menu, theme, Space, Table, Modal, Button, Input, Form, Drawer } from "antd";
+import { Layout, Menu, theme, Space, Table, Modal, Button, Input, Form, Drawer, Breadcrumb } from "antd";
 const { Column } = Table;
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
@@ -10,7 +10,6 @@ import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { IfCodeSessionWrong, LoadSessionID } from "../utils/CookieOperation";
 import MemberList from "../components/MemberList";
-
 interface MemberData {
     Name: string;
     Department: string;
@@ -22,6 +21,10 @@ interface DepartmentData {
     DepartmentPath: string;
     DepartmentId: number;
 }
+interface DepartmentPathData {
+    Name: string;
+    Path: string;
+}
 const DepartmentUI = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [open1, setOpen1] = useState(false);    //添加部门侧边栏的显示
@@ -29,10 +32,11 @@ const DepartmentUI = () => {
     const [DepartmentName, setDepartmentName] = useState(""); //注册新部门名
     const [IsLeafDepartment, setLeafDepartment] = useState(false);//判断是否为叶子部门，若是则显示用户列表
     const [DepartmentList, setDepartmentList] = useState<DepartmentData[]>(); // 存储当前部门下所有部门的信息 
-    
     const [DepartmentMemberList, setMemberList] = useState<MemberData[]>(); // 存储叶子部门下所有用户的信息
     const [UserName, setUserName] = useState("");// 储存新建用户的名称
     const [DepartmentPath, setDepartmentPath] = useState("000000000"); //储存当前的部门路径
+    const [DepartmentPathList, setDepartmentPathList] = useState<DepartmentPathData[]>(); // 储存页面历史路径
+    const [Loading, setLoading] = useState(false);
     const router = useRouter();
     const query = router.query;
     const handleDepartmentAdd = (e: any) => {
@@ -72,10 +76,13 @@ const DepartmentUI = () => {
                 setLeafDepartment(res.is_leaf);
                 if (res.is_leaf == true) {
                     setMemberList(res.member);
+                    setDepartmentPathList(res.route);
                 }
                 else {
                     setDepartmentList(res.Department);
-                    console.log(DepartmentList);
+                    setDepartmentPathList(res.route);
+                    console.log("DepartmentPathList");
+                    console.log(DepartmentPathList);
                 }
             })
             .catch((err) => {
@@ -103,6 +110,7 @@ const DepartmentUI = () => {
     };
     // 向后端发送创建部门的请求
     const CreateNewDepartment = (DepartmentPath: string, DepartmentName: string) => {
+        setLoading(true);
         request(
             "/api/User/department/add",
             "POST",
@@ -116,11 +124,13 @@ const DepartmentUI = () => {
                 setOpen1(false);
                 let answer: string = `成功创建部门 ${DepartmentName}`;
                 Modal.success({ title: "创建成功", content: answer });
+                setLoading(false);
                 onClose1();
                 fetchList(DepartmentPath);
             })
             .catch((err: string) => {
                 if (IfCodeSessionWrong(err, router)) {
+                    setLoading(false);
                     setOpen1(false);
                     Modal.error({
                         title: "创建失败",
@@ -131,6 +141,7 @@ const DepartmentUI = () => {
     };
     // 在特定部门下创建新员工
     const CreateNewUser = (DepartmentPath: string, UserName: string) => {
+        setLoading(true);
         request(
             "/api/User/add",
             "POST",
@@ -145,6 +156,7 @@ const DepartmentUI = () => {
                 let answer: string = `成功创建员工 ${UserName}`;
                 Modal.success({ title: "创建成功", content: answer });
                 onClose1();
+                setLoading(false);
                 fetchList(DepartmentPath);
             })
             .catch((err: string) => {
@@ -154,11 +166,13 @@ const DepartmentUI = () => {
                         title: "创建失败",
                         content: err.toString().substring(5),
                     });
+                    setLoading(false);
                 }
             });
         
     };
     const RemoveDepartment = (DepartmentPath: string, DepartmentName: string) => {
+        setLoading(true);
         request(
             `/api/User/department/delete/${LoadSessionID()}/${DepartmentPath}`,
             "DELETE"
@@ -167,6 +181,7 @@ const DepartmentUI = () => {
                 let answer: string = `成功删除部门 ${DepartmentName}`;
                 Modal.success({ title: "删除成功", content: answer });
                 GoUp(DepartmentPath);
+                setLoading(false);
             })
             .catch((err: string) => {
                 if (IfCodeSessionWrong(err, router)) {
@@ -174,7 +189,9 @@ const DepartmentUI = () => {
                         title: "删除失败",
                         content: err.toString().substring(5),
                     });
+                    setLoading(false);
                 }
+                
             });
         
     };
@@ -191,7 +208,16 @@ const DepartmentUI = () => {
     return  refreshing ? (
         <p> Loading... </p>
     ) : (
+        
         <Content style={{ margin: "0 16px" }}>
+
+            <Breadcrumb className="ant-breadcrumb">
+                {DepartmentPathList && DepartmentPathList.map((path, index) => (
+                    <Breadcrumb.Item key={index} onClick={() => { setDepartmentPath(path.Path);fetchList(path.Path);}}>
+                        {path.Name}
+                    </Breadcrumb.Item>
+                ))}
+            </Breadcrumb>
             {DepartmentPath != "000000000" && <Button
                 type="primary"
                 icon={<PlusSquareOutlined />}
@@ -227,12 +253,13 @@ const DepartmentUI = () => {
                 >
                     <Form.Item
                         label="部门名称"
+                        name = "DepartmentName"
                         rules={[{ required: true, message: "请输入部门名称" }]}
                     >
                         <Input onChange={handleDepartmentAdd} />
                     </Form.Item>
                     <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                        <Button type="primary" htmlType="submit" onClick={() => CreateNewDepartment(DepartmentPath, DepartmentName)}>
+                        <Button type="primary" htmlType="submit" loading = {Loading} onClick={() => {if (DepartmentName) CreateNewDepartment(DepartmentPath, DepartmentName);}}>
                             确认提交
                         </Button>
                     </Form.Item>
@@ -249,12 +276,13 @@ const DepartmentUI = () => {
                 >
                     <Form.Item
                         label="用户名"
+                        name = "UserName"
                         rules={[{ required: true, message: "请输入员工用户名" }]}
                     >
                         <Input onChange={handleUserAdd} />
                     </Form.Item>
                     <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                        <Button type="primary" htmlType="submit" onClick={() => CreateNewUser(DepartmentPath, UserName)}>
+                        <Button type="primary" htmlType="submit" onClick={() => {if(UserName) CreateNewUser(DepartmentPath, UserName);}}>
                             确认提交
                         </Button>
                     </Form.Item>
@@ -282,7 +310,7 @@ const DepartmentUI = () => {
                         key="action"
                         render={(_: any, record: DepartmentData) => (
                             <Space size="middle">
-                                <Button type="primary" onClick={() => { RemoveDepartment(record.DepartmentPath, record.DepartmentName);}}>移除该部门</Button>
+                                <Button type="primary" loading = {Loading} onClick={() => { RemoveDepartment(record.DepartmentPath, record.DepartmentName);}}>移除该部门</Button>
                             </Space>
                         )}
                     />

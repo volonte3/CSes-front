@@ -45,6 +45,7 @@ const MemberList = (props: MemberListProps) => {
     const [LockLoading, setLockLoading] = useState(false);
     const [data, setData] = useState<DataType[] | undefined>(); // 存储加载该系统管理员管理的资产管理员和员工的信息
     const [IsRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
+    const [Loading, setLoading] = useState(false);
     const FetchMemberList = () => {
         if (!props.department_page) {
             request(`/api/User/member/${LoadSessionID()}`, "GET")

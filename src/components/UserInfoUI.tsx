@@ -2,7 +2,7 @@ import React from "react";
 import {
     DownOutlined, LogoutOutlined, UserOutlined
 } from "@ant-design/icons";
-import { Space, Modal, Button, Dropdown, Row, Descriptions } from "antd";
+import { Space, Modal, Button, Dropdown, Row, Descriptions, Card } from "antd";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { request } from "../utils/network";
@@ -108,12 +108,12 @@ const UserInfo = () => {
     return (
         <Row justify="end">
             <Dropdown menu={{ items }} >
-                <a onClick={(e) => e.preventDefault()}>
+                <Card onClick={(e) => e.preventDefault()}>
                     <Space>
-                        {UserName}
+                        <span style={{ fontSize: "1.2rem", fontWeight: "bold" }}>{UserName}</span>
                         <DownOutlined />
                     </Space>
-                </a>
+                </Card>
             </Dropdown>
         </Row >
     );
