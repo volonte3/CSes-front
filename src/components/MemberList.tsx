@@ -211,13 +211,13 @@ const MemberList = (props: MemberListProps) => {
                 }
             });
     };
-    const RemoveUser = (UserName: string) => {
+    const RemoveUser = (UserName: string, Authority: number) => {
         request(
             `/api/User/remove/${LoadSessionID()}/${UserName}`,
             "DELETE"
         )
             .then((res) => {
-                let answer: string = `成功删除员工 ${UserName}`;
+                let answer: string = `成功删除${renderAuthority(Authority)} ${UserName}`;
                 Modal.success({ title: "删除成功", content: answer });
                 handleRemoveOk();
                 FetchMemberList();
@@ -276,7 +276,7 @@ const MemberList = (props: MemberListProps) => {
                                 将 {NowAuthority} {NowUser} 密码重置为 yiqunchusheng
                             </Modal>
                             <Button danger onClick={() => { showRemoveModal(record.Name, record.Authority); }}>删除员工</Button>
-                            <Modal title="删除员工" open={IsRemoveModalOpen} onOk={() => { RemoveUser(record.Name); }} onCancel={handleRemoveCancel} mask={false}>
+                            <Modal title="删除员工" open={IsRemoveModalOpen} onOk={() => { RemoveUser(record.Name, record.Authority); }} onCancel={handleRemoveCancel} mask={false}>
                                 请确认删除 {NowAuthority} {NowUser}
                             </Modal>
                             {record.Authority == 3 && <Button type="text" onClick={() => { ChangeAuthority(record.Name, record.Authority); }} icon={<UpOutlined />}>提拔为资产管理员</Button>}
