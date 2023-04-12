@@ -29,6 +29,7 @@ const DepartmentUI = () => {
     const [DepartmentName, setDepartmentName] = useState(""); //注册新部门名
     const [IsLeafDepartment, setLeafDepartment] = useState(false);//判断是否为叶子部门，若是则显示用户列表
     const [DepartmentList, setDepartmentList] = useState<DepartmentData[]>(); // 存储当前部门下所有部门的信息 
+    
     const [DepartmentMemberList, setMemberList] = useState<MemberData[]>(); // 存储叶子部门下所有用户的信息
     const [UserName, setUserName] = useState("");// 储存新建用户的名称
     const [DepartmentPath, setDepartmentPath] = useState("000000000"); //储存当前的部门路径
