@@ -2,7 +2,7 @@ import React from "react";
 import {
     DownOutlined, LogoutOutlined, UserOutlined
 } from "@ant-design/icons";
-import { Space, Modal, Button, Dropdown, Row, Descriptions, Card } from "antd";
+import { Space, Modal, Button, Dropdown, Row, Descriptions, Card, Spin } from "antd";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { request } from "../utils/network";
@@ -28,6 +28,7 @@ const UserInfo = () => {
     const [Entity, setEntity] = useState(null);  //用户所属业务实体，没有则为null
     const [Department, setDepartment] = useState(null);  //用户所属部门，没有则为null
     const [LogoutLoadings, setLogoutLoadings] = useState<boolean>(true); //登出按钮是否允许点击
+    const [Logouting, setLogouting] = useState<boolean>(false); //登出是否正在进行中
     const items: MenuProps["items"] = [
         {
             key: "1",
@@ -44,13 +45,17 @@ const UserInfo = () => {
             key: "2",
             label: (
                 <div style={{ display: "flex", justifyContent: "center" }}>
-
+                    {/* <Spin /> */}
                     <Button
                         type="link"
                         icon={<LogoutOutlined />}
                         style={{ margin: "auto" }}
                         danger
-                        onClick={() => { console.log("log out!!!!!!!!!!!!!!!!"); logoutSendMessage(); logout(); }}
+                        onClick={() => {
+                            setLogouting(true);
+                            Modal.info({"title":"登出中","content":"请稍后...","okText":"返回主屏幕","onOk":()=>{router.push("/");},"okButtonProps":{"disabled":Logouting}});
+                            console.log("log out!!!!!!!!!!!!!!!!"); logoutSendMessage(); logout();setLogouting(false);
+                        }}
                         loading={LogoutLoadings}
                     >
                         退出登录
@@ -65,14 +70,14 @@ const UserInfo = () => {
             "POST",
             { SessionID: LoadSessionID(), }
         )
-            .then(() => { router.push("/"); })
+            .then(() => {setLogouting(true);  })
             .catch((err) => { router.push("/"); });
     };
 
     const enterLoading = () => {
         setTimeout(() => {
             setLogoutLoadings(false);
-        }, 5000);
+        }, 10000);
     };
 
     const FetchUserinfo = () => {
