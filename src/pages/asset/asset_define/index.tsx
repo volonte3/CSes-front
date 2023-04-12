@@ -33,6 +33,9 @@ const App = () => {
     const [AssetName, setAssetName] = useState<string>("");
     const [CategoryStyle, setCategoryStyle] = useState<number>(-1);
     const [Change, setChange] = useState(false);
+    const [Entity, setEntity] = useState<string>(""); // 实体名称
+    const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
+    
     const rolelist = ["超级管理员","系统管理员","资产管理员","员工"];
     const {
         token: { colorBgContainer },
@@ -207,6 +210,8 @@ const App = () => {
                 setState(true);
                 setUserName(res.UserName);
                 setUserAuthority(res.Authority);
+                setEntity(res.Entity);
+                setDepartment(res.Department);
                 request(
                     "/api/Asset/tree",
                     "POST",
@@ -249,7 +254,7 @@ const App = () => {
                 <Layout className="site-layout" >
                     <Header style={{ padding: 16, background: colorBgContainer }} />
                     {contextHolder}
-                    <UserInfo></UserInfo>
+                    <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department}></UserInfo>
                     <Content style={{ margin: "0 16px" }}>
                         <Breadcrumb style={{ margin: "16px 0" }}>
                             <Breadcrumb.Item>资产定义</Breadcrumb.Item>

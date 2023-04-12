@@ -18,26 +18,26 @@ interface UserinfoProps {
     Entity: string;
 
 }
-const UserInfo = () => {
+const UserInfo = (props:UserinfoProps) => {
     const router = useRouter();
     const query = router.query;
     const [state, setState] = useState(false);  //路径保护变量
-    const [UserName, setUserName] = useState<string>(""); // 用户名
-    const [UserAuthority, setUserAuthority] = useState(0); // 用户的角色权限，0超级，1系统，2资产，3员工
-    const [UserApp, setUserApp] = useState<string>(""); // 用户显示的卡片，01串
-    const [Entity, setEntity] = useState(null);  //用户所属业务实体，没有则为null
-    const [Department, setDepartment] = useState(null);  //用户所属部门，没有则为null
+    // const [UserName, setUserName] = useState<string>(""); // 用户名
+    // const [UserAuthority, setUserAuthority] = useState(0); // 用户的角色权限，0超级，1系统，2资产，3员工
+    // const [UserApp, setUserApp] = useState<string>(""); // 用户显示的卡片，01串
+    // const [Entity, setEntity] = useState(null);  //用户所属业务实体，没有则为null
+    // const [Department, setDepartment] = useState(null);  //用户所属部门，没有则为null
     const [LogoutLoadings, setLogoutLoadings] = useState<boolean>(true); //登出按钮是否允许点击
     const [Logouting, setLogouting] = useState<boolean>(false); //登出是否正在进行中
     const items: MenuProps["items"] = [
         {
             key: "1",
             label: (
-                <Descriptions title={UserName} bordered>
+                <Descriptions title={props.Name} bordered>
                     <UserOutlined />
-                    <Descriptions.Item label="身份">{renderAuthority(UserAuthority)}</Descriptions.Item>
-                    {UserAuthority != 0 && <Descriptions.Item label="业务实体">{Entity}</Descriptions.Item>}
-                    {(UserAuthority == 2 || UserAuthority == 3) && <Descriptions.Item label="部门">{Entity}</Descriptions.Item>}
+                    <Descriptions.Item label="身份">{renderAuthority(props.Authority)}</Descriptions.Item>
+                    {props.Authority != 0 && <Descriptions.Item label="业务实体">{props.Entity}</Descriptions.Item>}
+                    {(props.Authority == 2 || props.Authority == 3) && <Descriptions.Item label="部门">{props.Department}</Descriptions.Item>}
                 </Descriptions>
             ),
         },
@@ -77,37 +77,37 @@ const UserInfo = () => {
     const enterLoading = () => {
         setTimeout(() => {
             setLogoutLoadings(false);
-        }, 10000);
+        }, 1000);
     };
 
-    const FetchUserinfo = () => {
-        request(
-            `/api/User/info/${LoadSessionID()}`,
-            "GET"
-        )
-            .then((res) => {
-                setState(true);
-                setUserName(res.UserName);
-                setUserApp(res.UserApp);
-                setUserAuthority(res.Authority);
-                setEntity(res.Entity);
-                setDepartment(res.Department);
-            })
-            .catch((err) => {
-                console.log(err.message);
-                setState(false);
-                Modal.error({
-                    title: "登录失败",
-                    content: "请重新登录",
-                    onOk: () => { window.location.href = "/"; }
-                });
-            });
-    };
+    // const FetchUserinfo = () => {
+    //     request(
+    //         `/api/User/info/${LoadSessionID()}`,
+    //         "GET"
+    //     )
+    //         .then((res) => {
+    //             setState(true);
+    //             setUserName(res.UserName);
+    //             setUserApp(res.UserApp);
+    //             setUserAuthority(res.Authority);
+    //             setEntity(res.Entity);
+    //             setDepartment(res.Department);
+    //         })
+    //         .catch((err) => {
+    //             console.log(err.message);
+    //             setState(false);
+    //             Modal.error({
+    //                 title: "登录失败",
+    //                 content: "请重新登录",
+    //                 onOk: () => { window.location.href = "/"; }
+    //             });
+    //         });
+    // };
     useEffect(() => {
         if (!router.isReady) {
             return;
         }
-        FetchUserinfo();
+        // FetchUserinfo();
         enterLoading();
     }, [router, query]);
     return (
@@ -115,7 +115,7 @@ const UserInfo = () => {
             <Dropdown menu={{ items }} >
                 <Card onClick={(e) => e.preventDefault()}>
                     <Space>
-                        <span style={{ fontSize: "1.2rem", fontWeight: "bold" }}>{UserName}</span>
+                        <span style={{ fontSize: "1.2rem", fontWeight: "bold" }}>{props.Name}</span>
                         <DownOutlined />
                     </Space>
                 </Card>

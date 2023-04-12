@@ -56,6 +56,8 @@ const App = () => {
     const [UserName, setUserName] = useState<string>(""); // 用户名
     const [UserAuthority, setUserAuthority] = useState(0); // 用户的角色权限，0超级，1系统，2资产，3员工
     const [UserApp, setUserApp] = useState<string>(""); // 用户显示的卡片，01串
+    const [Entity, setEntity] = useState<string>(""); // 实体名称
+    const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
     const router = useRouter();
 
     const items: MenuProps["items"] = [
@@ -168,6 +170,8 @@ const App = () => {
                 setUserName(res.UserName);
                 setUserApp(res.UserApp);
                 setUserAuthority(res.Authority);
+                setEntity(res.Entity);
+                setDepartment(res.Department);
             })
             .catch((err) => {
                 console.log(err.message);
@@ -222,7 +226,7 @@ const App = () => {
                             </Dropdown>
 
                         </Row> */}
-                        <UserInfo></UserInfo>
+                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department}></UserInfo>
 
                     </Header>
                     <Content style={{ margin: "0 16px" }}>

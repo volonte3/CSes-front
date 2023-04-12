@@ -65,6 +65,8 @@ const App = () => {
     const [Member, setMember] = useState<MemberData[]>(); // 存储加载该系统管理员管理的资产管理员和员工的信息
     const router = useRouter();
     const query = router.query;
+    const [Entity, setEntity] = useState<string>(""); // 实体名称
+    const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
     const {
         token: { colorBgContainer },
     } = theme.useToken();
@@ -89,6 +91,8 @@ const App = () => {
                 setUserName(res.UserName);
                 setUserApp(res.UserApp);
                 setUserAuthority(res.Authority);
+                setEntity(res.Entity);
+                setDepartment(res.Department);
             })
             .catch((err) => {
                 console.log(err.message);
@@ -130,7 +134,7 @@ const App = () => {
                 </Sider>
                 <Layout className="site-layout" >
                     <Header style={{ padding: 16, background: colorBgContainer }} />
-                    <UserInfo></UserInfo>
+                    <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department}></UserInfo>
                     <Content style={{ margin: "0 16px" }}>
                         <Breadcrumb style={{ margin: "16px 0" }}>
                             <Breadcrumb.Item>用户管理</Breadcrumb.Item>
