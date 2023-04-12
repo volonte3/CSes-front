@@ -1,4 +1,5 @@
 import cookie from "react-cookies";
+import {Modal} from "antd";
 const getCookie = (key: string, default_value: string): string => {
     const rgx = new RegExp("(?:^|(?:; ))" + key + "=([^;]*)");
     const result = document.cookie.match(rgx);
@@ -27,7 +28,7 @@ const generateRandomString = (num: number) => {
 };
 //
 const LoadSessionID= () => {
-    return cookie.load("SessionID");
+    return cookie.load("SessionID")?cookie.load("SessionID"):"";
 };
 //用户登出，删除cookie
 const logout = () => {
@@ -39,5 +40,17 @@ const CreateCookie = (key:string) => {
     console.log(`${key} is`,SessionID);
     cookie.save(key, SessionID, { path: "/" });
 };
-
-export { getCookie, setCookie, generateRandomString,LoadSessionID, logout, CreateCookie, };
+// 根据错误码判断是否SessionID过期或错误，若是则应该登出
+const IfCodeSessionWrong=(err:any,router:any)=>{
+    if (err.type === 1) {
+        console.log("return code=-2,  SessionError");
+        Modal.error({
+            title: "会话失败",
+            content: "请重新登陆",
+        });
+        router.push("/");
+        return false;
+    }
+    return true;
+};
+export { getCookie, setCookie, generateRandomString,LoadSessionID, logout, CreateCookie,IfCodeSessionWrong };

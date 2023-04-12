@@ -17,7 +17,7 @@ a {
 .card {
   display: flex;
   align-items: center;
-  padding: 20px;
+  padding: 10px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
@@ -32,4 +32,63 @@ a {
   font-size: 18px;
   font-weight: bold;
   margin: 0;
+}
+.logo {
+  font-size: 50px;
+  font-weight: bold;
+  color: #fff;
+  margin-right: 500px;
+}
+
+.right-menu {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  
+}
+
+.site-layout-content {
+  /* display: flex; */
+  flex-wrap: wrap;
+  gap: 32px;
+  margin: 48px 0;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  padding: 16px;
+  margin: 2px -20px;
+  align-items: center;
+}
+.header_button {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  font-size: 16px;
+  font-weight: bold;
+  background: none;
+}
+/* 面包屑容器 */
+.ant-breadcrumb {
+  font-size: 22px; /* 增加字体大小 */
+}
+
+/* 面包屑项 */
+.ant-breadcrumb-item {
+  color: #333; /* 文字颜色 */
+}
+
+/* 伪元素 */
+.ant-breadcrumb-separator {
+  content: "/"; /* 设置内容为斜杠 */
+  position: relative; /* 设置绝对定位 */
+  top: -2px; /* 调整位置 */
+  left: -1px; /* 调整位置 */
+  font-size: 22px; /* 增加字体大小 */
+  font-weight: bold; /* 加粗字体 */
 }

@@ -1,0 +1,126 @@
+import React from "react";
+import {
+    DownOutlined, LogoutOutlined, UserOutlined
+} from "@ant-design/icons";
+import { Space, Modal, Button, Dropdown, Row, Descriptions, Card, Spin } from "antd";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import { request } from "../utils/network";
+import { LoadSessionID, logout, IfCodeSessionWrong } from "../utils/CookieOperation";
+import type { MenuProps } from "antd";
+import { renderAuthority } from "../utils/transformer";
+type MenuItem = Required<MenuProps>["items"][number];
+
+interface UserinfoProps {
+    Name: string;
+    Authority: number;
+    Department: string;
+    Entity: string;
+
+}
+const UserInfo = (props:UserinfoProps) => {
+    const router = useRouter();
+    const query = router.query;
+    const [state, setState] = useState(false);  //路径保护变量
+    // const [UserName, setUserName] = useState<string>(""); // 用户名
+    // const [UserAuthority, setUserAuthority] = useState(0); // 用户的角色权限，0超级，1系统，2资产，3员工
+    // const [UserApp, setUserApp] = useState<string>(""); // 用户显示的卡片，01串
+    // const [Entity, setEntity] = useState(null);  //用户所属业务实体，没有则为null
+    // const [Department, setDepartment] = useState(null);  //用户所属部门，没有则为null
+    const [LogoutLoadings, setLogoutLoadings] = useState<boolean>(true); //登出按钮是否允许点击
+    const [Logouting, setLogouting] = useState<boolean>(false); //登出是否正在进行中
+    const items: MenuProps["items"] = [
+        {
+            key: "1",
+            label: (
+                <Descriptions title={props.Name} bordered>
+                    <UserOutlined />
+                    <Descriptions.Item label="身份">{renderAuthority(props.Authority)}</Descriptions.Item>
+                    {props.Authority != 0 && <Descriptions.Item label="业务实体">{props.Entity}</Descriptions.Item>}
+                    {(props.Authority == 2 || props.Authority == 3) && <Descriptions.Item label="部门">{props.Department}</Descriptions.Item>}
+                </Descriptions>
+            ),
+        },
+        {
+            key: "2",
+            label: (
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                    {/* <Spin /> */}
+                    <Button
+                        type="link"
+                        icon={<LogoutOutlined />}
+                        style={{ margin: "auto" }}
+                        danger
+                        onClick={() => {
+                            setLogouting(true);
+                            Modal.info({"title":"登出中","content":"请稍后...","okText":"返回主屏幕","onOk":()=>{router.push("/");},"okButtonProps":{"disabled":Logouting}});
+                            console.log("log out!!!!!!!!!!!!!!!!"); logoutSendMessage(); logout();setLogouting(false);
+                        }}
+                        loading={LogoutLoadings}
+                    >
+                        退出登录
+                    </Button>
+                </div>
+            ),
+        },
+    ];
+    const logoutSendMessage = () => {
+        request(
+            "/api/User/logout",
+            "POST",
+            { SessionID: LoadSessionID(), }
+        )
+            .then(() => {setLogouting(true);  })
+            .catch((err) => { router.push("/"); });
+    };
+
+    const enterLoading = () => {
+        setTimeout(() => {
+            setLogoutLoadings(false);
+        }, 1000);
+    };
+
+    // const FetchUserinfo = () => {
+    //     request(
+    //         `/api/User/info/${LoadSessionID()}`,
+    //         "GET"
+    //     )
+    //         .then((res) => {
+    //             setState(true);
+    //             setUserName(res.UserName);
+    //             setUserApp(res.UserApp);
+    //             setUserAuthority(res.Authority);
+    //             setEntity(res.Entity);
+    //             setDepartment(res.Department);
+    //         })
+    //         .catch((err) => {
+    //             console.log(err.message);
+    //             setState(false);
+    //             Modal.error({
+    //                 title: "登录失败",
+    //                 content: "请重新登录",
+    //                 onOk: () => { window.location.href = "/"; }
+    //             });
+    //         });
+    // };
+    useEffect(() => {
+        if (!router.isReady) {
+            return;
+        }
+        // FetchUserinfo();
+        enterLoading();
+    }, [router, query]);
+    return (
+        <Row justify="end">
+            <Dropdown menu={{ items }} >
+                <Card onClick={(e) => e.preventDefault()}>
+                    <Space>
+                        <span style={{ fontSize: "1.2rem", fontWeight: "bold" }}>{props.Name}</span>
+                        <DownOutlined />
+                    </Space>
+                </Card>
+            </Dropdown>
+        </Row >
+    );
+};
+export default UserInfo;
