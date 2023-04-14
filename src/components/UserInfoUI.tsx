@@ -53,7 +53,7 @@ const UserInfo = (props:UserinfoProps) => {
                         danger
                         onClick={() => {
                             setLogouting(true);
-                            Modal.info({"title":"登出中","content":"请稍后...","okText":"返回主屏幕","onOk":()=>{router.push("/");},"okButtonProps":{"disabled":Logouting}});
+                            Modal.info({"title":"成功登出","content":"点击确认回到登录界面","onOk":()=>{router.push("/");},"okButtonProps":{"disabled":Logouting}});
                             console.log("log out!!!!!!!!!!!!!!!!"); logoutSendMessage(); logout();setLogouting(false);
                         }}
                         loading={LogoutLoadings}
