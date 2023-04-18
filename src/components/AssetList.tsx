@@ -86,7 +86,7 @@ const AssetList = (props: AssetListProps) => {
             //         success: true,
             //     });
             // }}
-            request={async (params = {}) =>
+            request={async(params={}) =>
                 request(`/api/Asset/Info/${LoadSessionID()}`, "GET")
                     .then(response => {    // 将request请求的对象保存到state中
                         const filteredData = props.Assets.filter(
@@ -97,19 +97,9 @@ const AssetList = (props: AssetListProps) => {
                         console.log(filteredData);
                         setData(filteredData);
                         console.log(data);
-                        response.Asset=data;
+                        response.Asset = data;
                         console.log(response);
-                        return {data:filteredData,success: true};
-                        // const filteredData = props.Assets.filter(
-                        //     (item) =>
-                        //         item.Description.includes(searchText)
-                        // );
-                        // return Promise.resolve({
-                        //     data: filteredData,
-                        //     success: true,
-                        // });
-                    }).catch(info => {
-                        console.log("请求数据失败", info);
+                        return Promise.resolve({ data: filteredData, success: true });
                     })
             }
             // request={async (params = {}, sort, filter) => {
