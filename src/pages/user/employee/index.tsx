@@ -12,11 +12,19 @@ import {IfCodeSessionWrong} from "../../../utils/CookieOperation";
 import {AssetData} from "../../../utils/types";
 const AssetTest: AssetData[] = [
     {
-        Name: "张一的车",
+        Name: "张三的车",
+        ID: "109",
+        Status: 0,
+        Owner: "张三",
+        Description: "技术部有一个车牌，车牌是阿尔法国际象棋局面。牌质的生命周期",
+        CreateTime: "2020-12-01T15:00:00.000Z" 	//YYYY-MM-DDThh:mm
+    },
+    {
+        Name: "张三的书",
         ID: "110",
         Status: 0,
-        Owner: "张一",
-        Description: "技术部有一个车牌，车牌是阿尔法国际象棋局面。牌质的生命周期",
+        Owner: "张三",
+        Description: "这是一本书",
         CreateTime: "2020-12-01T15:00:00.000Z" 	//YYYY-MM-DDThh:mm
     },
     {
@@ -26,6 +34,30 @@ const AssetTest: AssetData[] = [
         Owner: "李四",
         Description: "李四有一本好书",
         CreateTime: "2023-12-01T15:00:00.000Z" 	//YYYY-MM-DDThh:mm
+    },
+    {
+        Name: "王五的电脑",
+        ID: "112",
+        Status: 0,
+        Owner: "王五",
+        Description: "王五在研发部门使用的一台笔记本电脑",
+        CreateTime: "2022-06-15T10:30:00.000Z"
+    },
+    {
+        Name: "赵六的手机",
+        ID: "113",
+        Status: 1,
+        Owner: "赵六",
+        Description: "赵六在营销部门使用的一部智能手机",
+        CreateTime: "2021-08-05T09:00:00.000Z"
+    },
+    {
+        Name: "陈七的相机",
+        ID: "114",
+        Status: 0,
+        Owner: "陈七",
+        Description: "陈七在摄影部门使用的一台相机",
+        CreateTime: "2023-01-10T13:45:00.000Z"
     },
 ];
 const App = () => {
