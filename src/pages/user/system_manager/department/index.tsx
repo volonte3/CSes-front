@@ -72,7 +72,6 @@ const App = () => {
                     {SiderMenu}
                 </Sider>
                 <Layout className="site-layout" >
-                    <Header style={{ padding: 0, background: colorBgContainer }} />
                     <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department}></UserInfo>
                     <DepartmentUI/>
                     <Footer style={{ textAlign: "center" }}>EAMS ©2023 Designed by CSes</Footer>

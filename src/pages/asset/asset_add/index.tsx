@@ -74,7 +74,6 @@ const App = () => {
                     {SiderMenu}
                 </Sider>
                 <Layout className="site-layout" >
-                    <Header style={{ padding: 0, background: colorBgContainer }} />
                     <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department}></UserInfo>
                     <Content style={{ margin: "0 16px" }}>
                         <Breadcrumb style={{ margin: "16px 0" }}>

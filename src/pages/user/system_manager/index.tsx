@@ -9,53 +9,12 @@ import { logout, LoadSessionID } from "../../../utils/CookieOperation";
 import MemberList from "../../../components/MemberList";
 import UserInfo from "../../../components/UserInfoUI";
 import {IfCodeSessionWrong} from "../../../utils/CookieOperation";
-interface DataType {
-    key: React.Key;
-    Name: string;
-    Department: string;
-    Authority: string[];
-}
 interface MemberData {
     Name: string;
     Department: string;
     Authority: number;
     lock: boolean;
 }
-const MemberTest: MemberData[] = [
-    {
-        Name: "张一",
-        Department: "技术部",
-        Authority: 2,
-        lock: false,
-    },
-    {
-        Name: "张二",
-        Department: "运维部",
-        Authority: 3,
-        lock: true,
-    },
-];
-const data: DataType[] = [
-    {
-        key: "1",
-        Name: "John",
-        Department: "部门0.0",
-        Authority: ["老大", "老二"],
-    },
-    {
-        key: "2",
-        Name: "Jim",
-        Department: "部门0.0",
-        Authority: ["老三"],
-    },
-    {
-        key: "3",
-        Name: "Joe",
-        Department: "部门0.0",
-        Authority: ["老四", "老五"],
-    },
-];
-
 const App = () => {
     const [state, setState] = useState(true); // 用户是否处在登录状态
     const [collapsed, setCollapsed] = useState(false);
@@ -127,13 +86,12 @@ const App = () => {
     if (state) {
 
         return (
-            <Layout style={{ minHeight: "100vh" }}>
+            <Layout className="site-layout">
                 <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
                     <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }} />
                     {SiderMenu}
                 </Sider>
                 <Layout className="site-layout" >
-                    <Header style={{ padding: 16, background: colorBgContainer }} />
                     <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department}></UserInfo>
                     <Content style={{ margin: "0 16px" }}>
                         <Breadcrumb style={{ margin: "16px 0" }}>

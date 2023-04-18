@@ -214,21 +214,7 @@ const App = () => {
                     <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline" items={items_} />
                 </Sider>
                 <Layout className="site-layout" >
-                    <Header style={{ padding: 16, background: colorBgContainer }}>
-                        {/* <Row justify="end">
-                            <Dropdown menu={{ items }} >
-                                <a onClick={(e) => e.preventDefault()}>
-                                    <Space>
-                                        {UserName}
-                                        <DownOutlined />
-                                    </Space>
-                                </a>
-                            </Dropdown>
-
-                        </Row> */}
-                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department}></UserInfo>
-
-                    </Header>
+                    <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department}></UserInfo>
                     <Content style={{ margin: "0 16px" }}>
                         <Button
                             type="primary"

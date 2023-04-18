@@ -251,7 +251,6 @@ const App = () => {
                     {SiderMenu}
                 </Sider>
                 <Layout className="site-layout" >
-                    <Header style={{ padding: 16, background: colorBgContainer }} />
                     {contextHolder}
                     <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department}></UserInfo>
                     <Content style={{ margin: "0 16px" }}>

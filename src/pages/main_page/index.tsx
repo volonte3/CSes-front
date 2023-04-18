@@ -76,7 +76,7 @@ const App = () => {
                 backgroundImage: "url(\"LoginBackground.png\")", backgroundSize: "cover", backgroundPosition: "center"
             }}>
                 <Header style = {{background : "transparent"}}>
-                    <div className="logo">CSCompany资产管理系统</div>
+                    <div className="logo">CSCompany 资产管理系统</div>
                     <div className="right-menu">
                         <Button type = "text" className="header_button" color="#fff" icon={<UserOutlined /> }>{UserName}</Button>
                         <Dropdown overlay={DropdownMenu} trigger={["click"]}>

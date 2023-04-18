@@ -82,16 +82,25 @@ const UserInfo = (props:UserinfoProps) => {
         enterLoading();
     }, [router, query]);
     return (
-        <Row justify="end">
-            <Dropdown menu={{ items }} >
-                <Card onClick={(e) => e.preventDefault()}>
-                    <Space>
-                        <span style={{ fontSize: "1.2rem", fontWeight: "bold" }}>{props.Name}</span>
-                        <DownOutlined />
-                    </Space>
-                </Card>
-            </Dropdown>
-        </Row >
+        <div>
+            <Row justify="end">
+                <Space>
+                    
+                    <Dropdown menu={{ items }} >
+                        <Card onClick={(e) => e.preventDefault()}>
+                            <Space>
+                                <span style={{ fontSize: "1.2rem", fontWeight: "bold" }}>{props.Name}</span>
+                                <DownOutlined />
+                                <Button  size = "large" color="white" htmlType="submit"  onClick={() => {router.push("/main_page");}}>
+                                    返回主界面
+                                </Button>
+                            </Space>
+                        </Card>
+                    </Dropdown>
+                </Space>
+            </Row >
+            
+        </div>
     );
 };
 export default UserInfo;
