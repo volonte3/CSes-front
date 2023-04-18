@@ -26,7 +26,6 @@ interface DepartmentPathData {
     Path: string;
 }
 const DepartmentUI = () => {
-    const [refreshing, setRefreshing] = useState(false);
     const [open1, setOpen1] = useState(false);    //添加部门侧边栏的显示
     const [open2, setOpen2] = useState(false);    //创建员工侧边栏的显示
     const [DepartmentName, setDepartmentName] = useState(""); //注册新部门名
@@ -66,13 +65,11 @@ const DepartmentUI = () => {
         console.log("Success:", values);
     };
     const fetchList = (Path: string) => {
-        setRefreshing(true);
         request(
             `/api/User/department/${LoadSessionID()}/${Path}`,
             "GET"
         )
             .then((res) => {
-                setRefreshing(false);
                 setLeafDepartment(res.is_leaf);
                 if (res.is_leaf == true) {
                     setMemberList(res.member);
@@ -86,7 +83,6 @@ const DepartmentUI = () => {
                 }
             })
             .catch((err) => {
-                setRefreshing(false);
                 console.log(err.message);
                 Modal.error({
                     title: "无法获取对应部门信息",
@@ -205,12 +201,8 @@ const DepartmentUI = () => {
         fetchList(DepartmentPath);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query]);
-    return  refreshing ? (
-        <p> Loading... </p>
-    ) : (
-        
+    return(
         <Content style={{ margin: "0 16px" }}>
-
             <Breadcrumb className="ant-breadcrumb">
                 {DepartmentPathList && DepartmentPathList.map((path, index) => (
                     <Breadcrumb.Item key={index} onClick={() => { setDepartmentPath(path.Path);fetchList(path.Path);}}>

@@ -57,11 +57,12 @@ const App = () => {
             });
     }, [state, router]);
     const SiderMenu = (
-        <Menu theme="dark" defaultSelectedKeys={["2"]} mode="inline">
+        <Menu theme="dark" defaultSelectedKeys={["3"]} mode="inline">
             <Menu.Item key="1" onClick={() => router.push("/user/system_manager")}>用户管理</Menu.Item>
             <Menu.Item key="2" onClick={() => router.push("/user/system_manager/department")}>部门管理</Menu.Item>
-            <Menu.Item key="3">操作日志</Menu.Item>
-            <Menu.Item key="4">导入导出管理</Menu.Item>
+            <Menu.Item key="3" onClick={() => router.push("/user/system_manager/application")}>应用管理</Menu.Item>
+            <Menu.Item key="4">操作日志</Menu.Item>
+            <Menu.Item key="5">导入导出管理</Menu.Item>
         </Menu>
     );
     if (state) {
