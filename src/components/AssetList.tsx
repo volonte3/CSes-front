@@ -22,25 +22,21 @@ const AssetList = (props: AssetListProps) => {
             title: "资产名称",
             dataIndex: "Name",
             key: "Name",
-            search: false,
         },
         {
             title: "资产编号",
             dataIndex: "ID",
             key: "ID",
-            search: false,
         },
         {
-            title: "生命周期状态",
+            title: "状态",
             dataIndex: "Status",
             key: "Status",
-            search: false,
         },
         {
             title: "所有者",
             dataIndex: "Owner",
             key: "Owner",
-            search: false,
         },
         {
             title: "描述",
@@ -89,14 +85,38 @@ const AssetList = (props: AssetListProps) => {
             request={async (params = {}) =>
                 request(`/api/Asset/Info/${LoadSessionID()}`, "GET")
                     .then(response => {    // 将request请求的对象保存到state中
+                        // 对获取到的信息进行筛选，其中创建时间设为不可筛选项，描述、物品名称和所有者设为包含搜索，状态和ID设为严格搜索
+                        // TODO ID到底是number还是string，前后端统一一下
+                        // TODO 强等于弱等于的问题，暂时没去管
                         let filteredData = response.Asset;
                         if(params.Description){
                             filteredData = filteredData.filter(
-                                (item: any) => item.Description.includes(params.Description)
+                                (item: AssetData) => item.Description.includes(params.Description)
                             );
                         }
-                        console.log(params.Description);
-                        console.log(response.Asset);
+                        if(params.Owner){
+                            filteredData = filteredData.filter(
+                                (item: AssetData) => item.Owner.includes(params.Owner)
+                            );
+                        }
+                        if(params.ID){
+                            filteredData = filteredData.filter(
+                                (item: AssetData) => item.ID == params.ID
+                            );
+                        }
+                        if(params.Name){
+                            filteredData = filteredData.filter(
+                                (item: AssetData) => item.Name.includes(params.Name)
+                            );
+                        }
+                        if(params.Status){
+                            filteredData = filteredData.filter(
+                                (item: AssetData) => item.Status == params.Status
+                            );
+                        }
+                        // console.log(params.Description);
+                        // console.log(response.Asset);
+                        console.log(params.Status);
                         console.log(filteredData);
                         setData(filteredData);
                         console.log(data);
