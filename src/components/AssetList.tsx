@@ -86,18 +86,21 @@ const AssetList = (props: AssetListProps) => {
             //         success: true,
             //     });
             // }}
-            request={async(params={}) =>
+            request={async (params = {}) =>
                 request(`/api/Asset/Info/${LoadSessionID()}`, "GET")
                     .then(response => {    // 将request请求的对象保存到state中
-                        const filteredData = props.Assets.filter(
-                            (item) =>
-                                item.Description.includes(params.Description)
-                        );
+                        let filteredData = response.Asset;
+                        if(params.Description){
+                            filteredData = filteredData.filter(
+                                (item: any) => item.Description.includes(params.Description)
+                            );
+                        }
                         console.log(params.Description);
+                        console.log(response.Asset);
                         console.log(filteredData);
                         setData(filteredData);
                         console.log(data);
-                        response.Asset = data;
+                        // response.Asset = data;
                         console.log(response);
                         return Promise.resolve({ data: filteredData, success: true });
                     })
