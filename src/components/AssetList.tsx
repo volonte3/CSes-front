@@ -1,11 +1,11 @@
 import React from "react";
-import { Badge, Table, List, Button } from "antd";
+import { theme, ConfigProvider, Badge, Table, List, Button } from "antd";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
 import { AssetData } from "../utils/types"; //对列表中数据的定义在 utils/types 中
-import { ProTable, ProColumns, Search } from "@ant-design/pro-components";
+import { ProTable, ProColumns,TableDropdown, Search } from "@ant-design/pro-components";
 import { DateTransform } from "../utils/transformer";
 
 interface AssetListProps {
@@ -35,8 +35,9 @@ const AssetList = () => {
             key: "Status",
             valueType: "select",
             valueEnum: {
-                0: { text: "闲置中", 
-                    status: "Success", 
+                0: {
+                    text: "闲置中",
+                    status: "Success",
                 },
                 1: {
                     text: "使用中",
@@ -72,9 +73,32 @@ const AssetList = () => {
             dataIndex: "CreateTime",
             key: "CreateTime",
             search: false,
-            render: (text:any, record) => {
+            render: (text: any, record) => {
                 return DateTransform(text);
             },
+        },
+        {
+            title: "操作",
+            valueType: "option",
+            key: "option",
+            render: (text, record, _, action) => [
+                <a
+                    key="editable"
+                    onClick={() => {
+                        
+                    }}
+                >
+                    编辑
+                </a>,
+                <TableDropdown
+                    key="actionGroup"
+                    onSelect={() => action?.reload()}
+                    menus={[
+                        { key: "copy", name: "复制" },
+                        { key: "delete", name: "删除" },
+                    ]}
+                />,
+            ],
         },
     ];
     const FetchAssetList = () => {
@@ -92,8 +116,25 @@ const AssetList = () => {
         // FetchAssetList();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query]);
+    const themeConfig = {
+        token: {
+            colorPrimary: "red",
+            borderRadius: 4,
+            // TODO 可以验证下是否透明也行
+            colorBgElevated: "white",
+        },
+        algorithm: [theme.darkAlgorithm, theme.compactAlgorithm],
+    };
     return (
-        // <div>
+    // <div>
+    // <div
+    //     style={{
+    //         backgroundColor: "hsl(218,22%,7%)",
+    //     }}
+    // >
+    //     <ConfigProvider theme={themeConfig}>
+
+
         <ProTable
             columns={columns}
             options={false}
@@ -198,8 +239,9 @@ const AssetList = () => {
                 searchText: "查询"
             }}
 
+        // /* </ConfigProvider> */ 
+        // /* </div> */ 
         />
-        // </div>
     );
 };
 export default AssetList;

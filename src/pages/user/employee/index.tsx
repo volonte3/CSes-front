@@ -8,8 +8,8 @@ import { request } from "../../../utils/network";
 import { logout, LoadSessionID } from "../../../utils/CookieOperation";
 import AssetList from "../../../components/AssetList";
 import UserInfo from "../../../components/UserInfoUI";
-import {IfCodeSessionWrong} from "../../../utils/CookieOperation";
-import {AssetData} from "../../../utils/types";
+import { IfCodeSessionWrong } from "../../../utils/CookieOperation";
+import { AssetData } from "../../../utils/types";
 const AssetTest: AssetData[] = [
     {
         Name: "张三的车",
@@ -251,27 +251,6 @@ const App = () => {
                     onOk: () => { window.location.href = "/"; }
                 });
             });
-        // setState(true);
-        if (state) {
-            // request(`/api/User/member/${LoadSessionID()}`, "GET")
-            //     .then((res) => {
-            //         // const Member = JSON.parse(res.jsonString) as MemberData;
-            //         setMember(res.member);
-            //     })
-            //     .catch((err) => {
-            //         console.log(err.message);
-            //         if (IfCodeSessionWrong(err, router)) {
-
-            //             setState(false);
-            //             Modal.error({
-            //                 title: "无权获取用户列表",
-            //                 content: "请重新登录",
-            //                 onOk: () => { window.location.href = "/"; }
-            //             });
-            //         }
-            //     });
-
-        }
     }, [router, query, state]);
     if (state) {
 
@@ -282,14 +261,22 @@ const App = () => {
                     {SiderMenu}
                 </Sider>
                 <Layout className="site-layout" >
-                    <Header style={{ padding: 16, background: colorBgContainer }} />
+                    {/* <Header style={{ padding: 16, background: colorBgContainer }} /> */}
                     <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department}></UserInfo>
+                    {/* <div>
+                        <Button
+                            type="primary"
+                            // icon={<PlusSquareOutlined />}
+                            style={{ float: "left", margin: 10 }}
+                        // onClick={showDrawer1}
+                        >
+                            添加部门
+                        </Button>
+                    </div> */}
                     <Content style={{ margin: "0 16px" }}>
-                        
-                        <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
 
-                            <AssetList
-                            />
+                        <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
+                            <AssetList />
                         </div>
                     </Content>
                     <Footer style={{ textAlign: "center" }}>EAMS ©2023 Designed by CSes</Footer>
