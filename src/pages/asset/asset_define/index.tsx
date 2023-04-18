@@ -9,10 +9,9 @@ import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
 import { request } from "../../../utils/network";
-import { logout, LoadSessionID } from "../../../utils/CookieOperation";
-import MemberList from "../../../components/MemberList";
+import { LoadSessionID } from "../../../utils/CookieOperation";
+import AssetAddUI from "../../../components/AssetAddUI";
 import UserInfo from "../../../components/UserInfoUI";
-import {IfCodeSessionWrong} from "../../../utils/CookieOperation";
 const { Option } = Select;
 
 const App = () => {
@@ -44,7 +43,7 @@ const App = () => {
         <Menu theme="dark" defaultSelectedKeys={["2"]} mode="inline">
             <Menu.Item key="1">资产审批</Menu.Item>
             <Menu.Item key="2" onClick={() => router.push("/asset/asset_define")}>资产定义</Menu.Item>
-            <Menu.Item key="3">资产录入</Menu.Item>
+            <Menu.Item key="3" onClick={() => router.push("/asset/asset_add")}>资产录入</Menu.Item>
             <Menu.Item key="4">资产变更</Menu.Item>
             <Menu.Item key="5">资产查询</Menu.Item>
             <Menu.Item key="6">资产清退</Menu.Item>
