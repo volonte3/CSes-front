@@ -6,12 +6,13 @@ import { request } from "../utils/network";
 import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
 import { AssetData } from "../utils/types"; //对列表中数据的定义在 utils/types 中
 import { ProTable, ProColumns, Search } from "@ant-design/pro-components";
+import { DateTransform } from "../utils/transformer";
 
 interface AssetListProps {
     Assets: AssetData[]
 }
-const AssetList = (props: AssetListProps) => {
-    const [data, setData] = useState<AssetData[]>(props.Assets); // 存储加载该系统管理员管理的资产管理员和员工的信息
+const AssetList = () => {
+    const [data, setData] = useState<AssetData[]>(); // 存储加载该系统管理员管理的资产管理员和员工的信息
     const [searchText, setSearchText] = useState<string>(""); // 存储搜索框中输入的值
     const onSearch = (value: string) => {
         setSearchText(value);
@@ -19,19 +20,42 @@ const AssetList = (props: AssetListProps) => {
 
     const columns: ProColumns<AssetData>[] = [
         {
-            title: "资产名称",
-            dataIndex: "Name",
-            key: "Name",
-        },
-        {
             title: "资产编号",
             dataIndex: "ID",
             key: "ID",
         },
         {
+            title: "资产名称",
+            dataIndex: "Name",
+            key: "Name",
+        },
+        {
             title: "状态",
             dataIndex: "Status",
             key: "Status",
+            valueType: "select",
+            valueEnum: {
+                0: { text: "闲置中", 
+                    status: "Success", 
+                },
+                1: {
+                    text: "使用中",
+                    status: "Error",
+                },
+                2: {
+                    text: "维保中",
+                    status: "Warning",
+                },
+                3: {
+                    text: "已清退",
+                    status: "Processing",
+                },
+                4: {
+                    text: "已删除",
+                    status: "Default",
+                    disabled: true,
+                }
+            },
         },
         {
             title: "所有者",
@@ -48,6 +72,9 @@ const AssetList = (props: AssetListProps) => {
             dataIndex: "CreateTime",
             key: "CreateTime",
             search: false,
+            render: (text:any, record) => {
+                return DateTransform(text);
+            },
         },
     ];
     const FetchAssetList = () => {
@@ -89,27 +116,27 @@ const AssetList = (props: AssetListProps) => {
                         // TODO ID到底是number还是string，前后端统一一下
                         // TODO 强等于弱等于的问题，暂时没去管
                         let filteredData = response.Asset;
-                        if(params.Description){
+                        if (params.Description) {
                             filteredData = filteredData.filter(
                                 (item: AssetData) => item.Description.includes(params.Description)
                             );
                         }
-                        if(params.Owner){
+                        if (params.Owner) {
                             filteredData = filteredData.filter(
                                 (item: AssetData) => item.Owner.includes(params.Owner)
                             );
                         }
-                        if(params.ID){
+                        if (params.ID) {
                             filteredData = filteredData.filter(
                                 (item: AssetData) => item.ID == params.ID
                             );
                         }
-                        if(params.Name){
+                        if (params.Name) {
                             filteredData = filteredData.filter(
                                 (item: AssetData) => item.Name.includes(params.Name)
                             );
                         }
-                        if(params.Status){
+                        if (params.Status) {
                             filteredData = filteredData.filter(
                                 (item: AssetData) => item.Status == params.Status
                             );
@@ -128,7 +155,7 @@ const AssetList = (props: AssetListProps) => {
             // request={async (params = {}, sort, filter) => {
             //     console.log(sort, filter);
             //     // await waitTime(2000);
-            //     return request('/api/Asset/Info/{}', {
+            //     return request("/api/Asset/Info/{}", {
             //         params,
             //     });
             // }}

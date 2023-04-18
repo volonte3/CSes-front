@@ -289,7 +289,6 @@ const App = () => {
                         <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
 
                             <AssetList
-                                Assets={AssetTest}
                             />
                         </div>
                     </Content>
