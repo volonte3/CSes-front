@@ -1,11 +1,11 @@
 import React from "react";
-import { theme, ConfigProvider, Badge, Table, List, Button } from "antd";
+import { theme, Space, Table, Button } from "antd";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
 import { AssetData } from "../utils/types"; //对列表中数据的定义在 utils/types 中
-import { ProTable, ProColumns,TableDropdown, Search } from "@ant-design/pro-components";
+import { ProTable, ProColumns, TableDropdown } from "@ant-design/pro-components";
 import { DateTransform } from "../utils/transformer";
 
 interface AssetListProps {
@@ -81,26 +81,38 @@ const AssetList = () => {
             title: "操作",
             valueType: "option",
             key: "option",
-            render: (text, record, _, action) => [
-                <a
-                    key="editable"
-                    onClick={() => {
-                        
-                    }}
-                >
-                    编辑
-                </a>,
-                <TableDropdown
-                    key="actionGroup"
-                    onSelect={() => action?.reload()}
-                    menus={[
-                        { key: "copy", name: "复制" },
-                        { key: "delete", name: "删除" },
-                    ]}
-                />,
-            ],
-        },
+            render: (text, record, _, action) => {
+                const { IsReceive, IsReturn, IsMaintenance, IsTransfers } = record;
+                const options = [
+                    { key: "receive", name: "领用", disabled: !IsReceive },
+                    { key: "return", name: "退库", disabled: !IsReturn },
+                    { key: "maintenance", name: "维保", disabled: !IsMaintenance },
+                    { key: "transfers", name: "转移", disabled: !IsTransfers },
+                ];
+                return (
+                    <TableDropdown
+                        key="actionGroup"
+                        onSelect={() => action?.reload()}
+                        menus={options}
+                    />
+                );
+            },
+        }
     ];
+    // const AssetDataSource: AssetData[] = [];
+    // for (let i = 0; i < 20; i += 1) {
+    //     tableListDataSource.push({
+    //       key: i,
+    //       name: 'AppName-' + i,
+    //       containers: Math.floor(Math.random() * 20),
+    //       callNumber: Math.floor(Math.random() * 2000),
+    //       progress: Math.ceil(Math.random() * 100) + 1,
+    //       creator: creators[Math.floor(Math.random() * creators.length)],
+    //       status: valueEnum[Math.floor(Math.random() * 10) % 4],
+    //       createdAt: Date.now() - Math.floor(Math.random() * 100000),
+    //       memo: i % 2 === 1 ? '很长很长很长很长很长很长很长的文字要展示但是要留下尾巴' : '简短备注文案',
+    //     });
+    //   }
     const FetchAssetList = () => {
         request(`/api/User/member/${LoadSessionID()}`, "GET")
             .then((res) => {
@@ -114,7 +126,6 @@ const AssetList = () => {
             return;
         }
         // FetchAssetList();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query]);
     const themeConfig = {
         token: {
@@ -126,19 +137,11 @@ const AssetList = () => {
         algorithm: [theme.darkAlgorithm, theme.compactAlgorithm],
     };
     return (
-    // <div>
-    // <div
-    //     style={{
-    //         backgroundColor: "hsl(218,22%,7%)",
-    //     }}
-    // >
-    //     <ConfigProvider theme={themeConfig}>
-
 
         <ProTable
             columns={columns}
             options={false}
-
+            // cardProps={{ title: "业务定制", bordered: true }}
             // request={(params) => {
             //     const filteredData = props.Assets.filter(
             //         (item) =>
@@ -150,6 +153,40 @@ const AssetList = () => {
             //         success: true,
             //     });
             // }}
+            rowKey="ID"
+            rowSelection={{
+                // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
+                // 注释该行则默认不显示下拉选项
+                selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
+                defaultSelectedRowKeys: [1],
+            }}
+            tableAlertRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => {
+                console.log(selectedRowKeys, selectedRows);
+                return (
+                    <Space size={4}>
+                        已选 {selectedRowKeys.length} 项
+                        <a style={{ marginInlineStart: 8,color:"#007AFF"}} onClick={onCleanSelected} >
+                            取消选择
+                        </a>
+                        {/* <span>{`容器数量: ${selectedRows.reduce(
+                            (pre, item) => pre + item.containers,
+                            0,
+                        )} 个`}</span>
+                        <span>{`调用量: ${selectedRows.reduce(
+                            (pre, item) => pre + item.callNumber,
+                            0,
+                        )} 次`}</span> */}
+                    </Space>
+                );
+            }}
+            tableAlertOptionRender={() => {
+                return (
+                    <Space size={16} >
+                        <Button type="primary" >领用资产</Button>
+                        <Button type="primary" >转移资产</Button>
+                    </Space>
+                );
+            }}
             request={async (params = {}) =>
                 request(`/api/Asset/Info/${LoadSessionID()}`, "GET")
                     .then(response => {    // 将request请求的对象保存到state中
@@ -193,13 +230,6 @@ const AssetList = () => {
                         return Promise.resolve({ data: filteredData, success: true });
                     })
             }
-            // request={async (params = {}, sort, filter) => {
-            //     console.log(sort, filter);
-            //     // await waitTime(2000);
-            //     return request("/api/Asset/Info/{}", {
-            //         params,
-            //     });
-            // }}
             form={{
                 // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
                 syncToUrl: (values, type) => {
@@ -212,7 +242,7 @@ const AssetList = () => {
                     return values;
                 },
             }}
-            rowKey="id"
+            // rowKey="id"
             scroll={{ x: "100%", y: "calc(100vh - 300px)" }}
             pagination={{
                 showSizeChanger: true
@@ -238,6 +268,7 @@ const AssetList = () => {
                 // },
                 searchText: "查询"
             }}
+
 
         // /* </ConfigProvider> */ 
         // /* </div> */ 
