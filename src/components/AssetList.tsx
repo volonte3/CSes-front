@@ -14,10 +14,12 @@ interface AssetListProps {
 const AssetList = () => {
     const [data, setData] = useState<AssetData[]>(); // 存储加载该系统管理员管理的资产管理员和员工的信息
     const [searchText, setSearchText] = useState<string>(""); // 存储搜索框中输入的值
+    const [IsSomeRowReceiveFalse,setIsSomeRowReceiveFalse] = useState<boolean>(true);
+    const [IsSomeRowTransfersFalse,setIsSomeRowTransfersFalse] = useState<boolean>(true);
     const onSearch = (value: string) => {
         setSearchText(value);
     };
-
+    
     const columns: ProColumns<AssetData>[] = [
         {
             title: "资产编号",
@@ -158,9 +160,12 @@ const AssetList = () => {
                 // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
                 // 注释该行则默认不显示下拉选项
                 selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
-                defaultSelectedRowKeys: [1],
+                defaultSelectedRowKeys: [],
             }}
             tableAlertRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => {
+                // const ans = selectedRows.some(row => {console.log("zzzz",row);});
+                setIsSomeRowReceiveFalse(selectedRows.some(row => !row.IsReceive));
+                setIsSomeRowTransfersFalse(selectedRows.some(row => !row.IsTransfers));
                 console.log(selectedRowKeys, selectedRows);
                 return (
                     <Space size={4}>
@@ -168,22 +173,14 @@ const AssetList = () => {
                         <a style={{ marginInlineStart: 8,color:"#007AFF"}} onClick={onCleanSelected} >
                             取消选择
                         </a>
-                        {/* <span>{`容器数量: ${selectedRows.reduce(
-                            (pre, item) => pre + item.containers,
-                            0,
-                        )} 个`}</span>
-                        <span>{`调用量: ${selectedRows.reduce(
-                            (pre, item) => pre + item.callNumber,
-                            0,
-                        )} 次`}</span> */}
                     </Space>
                 );
             }}
             tableAlertOptionRender={() => {
                 return (
                     <Space size={16} >
-                        <Button type="primary" >领用资产</Button>
-                        <Button type="primary" >转移资产</Button>
+                        <Button type="primary" disabled={IsSomeRowReceiveFalse}>领用资产</Button>
+                        <Button type="primary" disabled={IsSomeRowTransfersFalse}>转移资产</Button>
                     </Space>
                 );
             }}
