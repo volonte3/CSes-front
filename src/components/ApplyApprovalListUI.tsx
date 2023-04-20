@@ -1,0 +1,122 @@
+import React from "react";
+import { theme, Space, Table, Button, Modal, Menu } from "antd";
+import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
+import { request } from "../utils/network";
+import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
+import { ApplyApprovalData } from "../utils/types"; //对列表中数据的定义在 utils/types 中
+import { ProTable, ProColumns, TableDropdown } from "@ant-design/pro-components";
+import { DateTransform } from "../utils/transformer";
+
+interface AssetListProps {
+    Assets: ApplyApprovalData[]
+}
+const ApplyApprovalList = () => {
+    const columns: ProColumns<ApplyApprovalData>[] = [
+        {
+            title: "申请编号",
+            dataIndex: "ApplyID",
+            key: "ApplyID",
+        },
+        {
+            title: "资产名",
+            dataIndex: "Name",
+            key: "Name",
+        },
+        {
+            title: "申请者",
+            dataIndex: "Applicant",
+            key: "Applicant",
+        },
+        {
+            title: "申请类型",
+            dataIndex: "Operation",
+            key: "Operation",
+            valueType: "select",
+            valueEnum: {
+                0: {
+                    text: "领用",
+                    status: "Success",
+                },
+                1: {
+                    text: "退库",
+                    status: "Error",
+                },
+                2: {
+                    text: "维保",
+                    status: "Warning",
+                },
+                3: {
+                    text: "转移",
+                    status: "Processing",
+                }
+            },
+        },
+        {
+            title: "申请时间",
+            dataIndex: "ApplyTime",
+            key: "ApplyTime",
+            search: false,
+            render: (text: any, record) => {
+                return DateTransform(text);
+            },
+        },
+        {
+            title: "操作",
+            valueType: "option",
+            key: "option",
+        }
+    ];
+    const router = useRouter();
+    const query = router.query;
+    useEffect(() => {
+        if (!router.isReady) {
+            return;
+        }
+    }, [router, query]);
+    
+    return (
+
+        <ProTable
+            columns={columns}
+            options={false}
+            request={async (params = {}) =>
+                request(`/api/Asset/Info/${LoadSessionID()}`, "GET")
+                    .then(response => {    // 将request请求的对象保存到state中
+                        // 对获取到的信息进行筛选，其中创建时间设为不可筛选项，描述、物品名称和所有者设为包含搜索，状态和ID设为严格搜索
+                        // TODO ID到底是number还是string，前后端统一一下
+                        // TODO 强等于弱等于的问题，暂时没去管
+                        return Promise.resolve({ data: response.ApprovalList, success: true });
+                    })
+            }
+            form={{
+                // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
+                syncToUrl: (values, type) => {
+                    if (type === "get") {
+                        return {
+                            ...values,
+                            created_at: [values.startTime, values.endTime],
+                        };
+                    }
+                    return values;
+                },
+            }}
+            scroll={{ x: "100%", y: "calc(100vh - 300px)" }}
+            pagination={{
+                showSizeChanger: true
+            }}
+            search={{
+                defaultCollapsed: false,
+                defaultColsNumber: 1,
+                split: true,
+                span: 8,
+                searchText: "查询"
+            }}
+
+
+        // /* </ConfigProvider> */ 
+        // /* </div> */ 
+        />
+    );
+};
+export default ApplyApprovalList;
