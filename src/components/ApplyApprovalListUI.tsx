@@ -1,11 +1,11 @@
 import React from "react";
 import { theme, Space, Table, Button, Modal, Menu } from "antd";
 import { useRouter } from "next/router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef  } from "react";
 import { request } from "../utils/network";
 import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
 import { ApplyApprovalData } from "../utils/types"; //对列表中数据的定义在 utils/types 中
-import { ProTable, ProColumns, TableDropdown } from "@ant-design/pro-components";
+import { ProTable, ProColumns, ActionType } from "@ant-design/pro-components";
 import { DateTransform } from "../utils/transformer";
 
 interface AssetListProps {
@@ -59,6 +59,7 @@ const ApplyApprovalList = () => {
                     title: "批复成功",
                     content: type?"成功批准请求":"成功驳回请求",
                 });
+                ref.current?.reload();  //重新渲染表格
             })
             .catch(
                 (err: string) => {
@@ -68,6 +69,7 @@ const ApplyApprovalList = () => {
                             content: err.toString().substring(5),
                         });
                     }
+                    ref.current?.reload(); 
                 }
             );
     };
@@ -136,6 +138,7 @@ const ApplyApprovalList = () => {
     ];
     const router = useRouter();
     const query = router.query;
+    const ref = useRef<ActionType>();
     useEffect(() => {
         if (!router.isReady) {
             return;
@@ -147,6 +150,7 @@ const ApplyApprovalList = () => {
             columns={columns}
             options={false}
             dataSource={TestData}
+            actionRef={ref}
             request={async (params = {}) =>
                 request(`/api/Asset/Info/${LoadSessionID()}`, "GET")
                     .then(response => {    // 将request请求的对象保存到state中
