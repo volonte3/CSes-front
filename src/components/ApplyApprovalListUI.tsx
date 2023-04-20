@@ -148,13 +148,7 @@ const ApplyApprovalList = () => {
             pagination={{
                 showSizeChanger: true
             }}
-            search={{
-                defaultCollapsed: false,
-                defaultColsNumber: 1,
-                split: true,
-                span: 8,
-                searchText: "查询"
-            }}
+            search={false}
 
 
         // /* </ConfigProvider> */ 
