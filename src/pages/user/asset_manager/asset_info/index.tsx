@@ -6,7 +6,7 @@ const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
 import { request } from "../../../../utils/network";
 import { logout, LoadSessionID } from "../../../../utils/CookieOperation";
-import AssetList from "../../../../components/AssetList";
+import AssetList from "../../../../components/AssetListAssetManagerUI";
 import UserInfo from "../../../../components/UserInfoUI";
 import { AssetData } from "../../../../utils/types";
 const App = () => {
