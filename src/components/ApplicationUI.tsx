@@ -15,7 +15,7 @@ interface AppData {
     AppName: string;
     AppUrl: string;
 }
-const DepartmentUI = () => {
+const ApplicationUI = () => {
     const [Open, setOpen] = useState(false); //添加新url的侧边栏显示
     const [Authority, setAuthority] = useState(3); // 根据Authority判断当前应该显示的应用列表
     const [AppName, setAppName] = useState(""); //储存新建应用的名称
@@ -47,7 +47,7 @@ const DepartmentUI = () => {
                 if (IfCodeSessionWrong(err, router)) {
                     setOpen(false);
                     Modal.error({
-                        title: "创建失败",
+                        title: "获取应用信息失败",
                         content: err.toString().substring(5),
                     });
                 }
@@ -134,6 +134,9 @@ const DepartmentUI = () => {
         setAuthority(3);
         fetchList(3);
     };
+    const onClose = () => {
+        setOpen(false);
+    };
     useEffect(() => {
         if (!router.isReady) {
             return;
@@ -145,7 +148,6 @@ const DepartmentUI = () => {
         <Content style={{ margin: "0 16px" }}>
             {Authority == 3 && <Button
                 type="primary"
-                icon={<PlusSquareOutlined />}
                 style={{ float: "left", margin: 10 }}
                 onClick={() => {handleUser();}}
             >
@@ -153,7 +155,6 @@ const DepartmentUI = () => {
             </Button>}
             {Authority == 2 && <Button
                 type="primary"
-                icon={<PlusSquareOutlined />}
                 style={{ float: "left", margin: 10 }}
                 onClick={() => {handleAM();}}
             >
@@ -167,7 +168,7 @@ const DepartmentUI = () => {
             >
                 添加应用
             </Button>
-            <Drawer title="添加应用" placement="right"  open={Open}>
+            <Drawer title="添加应用" placement="right" onClose={onClose} open={Open}>
                 <Form
                     name="basic"
                     labelCol={{ span: 8 }}
@@ -198,7 +199,6 @@ const DepartmentUI = () => {
             <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
                 <Table  dataSource={AppList}>
                     <Column title="应用名称" dataIndex="AppName" key="AppName" />
-                    <Column title="应用url" dataIndex="AppUrl" key="AppUrl" />
                     <Column
                         title="管理"
                         key="action"
@@ -216,4 +216,4 @@ const DepartmentUI = () => {
     );
 };
 
-export default DepartmentUI;
+export default ApplicationUI;

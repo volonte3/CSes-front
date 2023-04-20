@@ -6,38 +6,37 @@ interface CardUIProps {
     appname: string;
     img: string;
     url: string;
+    internal:boolean;
 }
 const CardUI = (props: CardUIProps) => {
     const [open, setOpen] = useState<boolean>(false);
     const router = useRouter();
     const query = router.query;
     const handle_click = () => {
-        if(props.url == "" || props.state == 0) setOpen(true);
-        else router.push(props.url);
+        if(props.url == "empty" || props.state == 0) setOpen(true);
+        else if(props.internal) router.push(props.url);
+        else {window.location.href=props.url; console.log(props.url);}
     };
     const handle_cancel = () => {
         setOpen(false);
     };
     return (
         <>
-            {props.state == 1 && <Card className="card"
+            {props.internal && <Card className="card"
                 cover={
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img alt = "" className="card__icon" src={props.img}/>
                 }
-                onClick={handle_click}
+                onClick={handle_click}    
             >
                 <h1 className="card__title">{props.appname}</h1>
             </Card>}
-            {props.state == 0 && <Card className="card"
-                cover={
-                    <img alt = "" className="card__icon" src={props.img}/>
-                }
+            {!props.internal && <Card className="card"
                 onClick={handle_click}
-                color = "grey"
             >
-                <h1 className="card__title">{props.appname}</h1>
+                <a href={props.url} className="card__title">{props.appname}</a>
             </Card>}
-            {props.state == 1 && props.url == "" && <Modal
+            {props.state == 1 && props.url == "empty" && <Modal
                 title="抱歉，该功能正在开发中"
                 centered
                 open={open}

@@ -1,7 +1,7 @@
 import React from "react";
 import { Layout, Menu, Dropdown, Button, Divider, Space, Modal } from "antd";
 import { UserOutlined, BellOutlined, DownOutlined, PoweroffOutlined } from "@ant-design/icons";
-import { logout, LoadSessionID } from "../../utils/CookieOperation";
+import { logout, LoadSessionID, IfCodeSessionWrong } from "../../utils/CookieOperation";
 import { useRouter } from "next/router";
 import { request } from "../../utils/network";
 import { useState, useEffect } from "react";
@@ -13,7 +13,12 @@ const DropdownMenu = (
         <Menu.Item key="2">已完成事项</Menu.Item>
     </Menu>
 );
-
+interface AppData {
+    IsInternal: boolean;
+    IsLock: boolean;
+    AppName: string;
+    AppUrl: string;
+}
 const App = () => {
     const logoutSendMessage = () => {
         request(
@@ -26,7 +31,7 @@ const App = () => {
     };
     const router = useRouter();
     const query = router.query;
-
+    const [AppList, setAppList] = useState<AppData[]>(); // 储存所有已有应用的信息 
     const [state, setState] = useState(false); // 用户是否处在登录状态
     const [UserAuthority, setUserAuthority] = useState(0); // 用户的角色权限，0超级，1系统，2资产，3员工
     const [UserApp, setUserApp] = useState<string>(""); // 用户显示的卡片，01串
@@ -38,8 +43,26 @@ const App = () => {
     const supermanager_applist = ["业务实体管理","系统管理员列表"];
     const user_urllist = ["","","","",""];
     const assetmanager_urllist = ["","/asset/asset_define","/asset/asset_add","","","","","",""];
-    const systemmanager_urllist = ["/user/system_manager","/user/system_manager","/user/system_manager/department","","",""];
+    const systemmanager_urllist = ["/user/system_manager","/user/system_manager","/user/system_manager/department","/user/system_manager/application","",""];
     const supermanager_urllist = ["/user/super_manager","/user/super_manager"];
+    const GetApp = (Authority: number) => {
+        request(
+            `/api/User/App/${LoadSessionID()}/${Authority}`,
+            "GET"
+        )
+            .then((res) => {
+                setAppList(res.AppList);
+            })
+            .catch((err) => {
+                if (IfCodeSessionWrong(err, router)) {
+                    Modal.error({
+                        title: "获取应用信息失败",
+                        content: err.toString().substring(5),
+                    });
+                }
+            });
+
+    };
     useEffect(() => {
         if (!router.isReady) {
             return;
@@ -53,17 +76,18 @@ const App = () => {
                 setUserName(res.UserName);
                 setUserApp(res.UserApp);
                 setUserAuthority(res.Authority);
+                if(res.Authority == 2 || res.Authority == 3) GetApp(res.Authority);
             })
             .catch((err) => {
                 console.log(err.message);
                 setState(false);
-                
                 Modal.error({
                     title: "登录失败",
                     content: "请重新登录",
                     onOk: () => { window.location.href = "/"; }
                 });
             });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query, state]);
     const user_apps = UserApp.split("").filter((item, index) => index >= 0 && index <= 4).map((char) => (char === "0" ? 0 : 1));
     const am_apps = UserApp.split("").filter((item, index) => index >= 5 && index <= 13).map((char) => (char === "0" ? 0 : 1));
@@ -96,6 +120,7 @@ const App = () => {
                                     state={superm_apps[index]} 
                                     appname={name} img={name+".jpg"}
                                     url={supermanager_urllist[index]}
+                                    internal={true}
                                 />
                             ))
                         }</Space>}
@@ -109,6 +134,7 @@ const App = () => {
                                             appname={name} 
                                             img={name+".jpg"}
                                             url={systemmanager_urllist[index]}
+                                            internal={true}
                                         />
                                     ))
                                 }</Space>
@@ -120,6 +146,7 @@ const App = () => {
                                             appname={name} 
                                             img={name+".jpg"}
                                             url={systemmanager_urllist[index+3]}
+                                            internal={true}
                                         />
                                     ))
                                 }</Space>
@@ -127,67 +154,113 @@ const App = () => {
                         }</Space>}
                         {UserAuthority == 2 && <Space direction="vertical" size="middle" style={{ display: "flex" }}>{
                             <>
-                                <Space size="large" wrap>{
-                                    assetmanager_applist.filter((item, index) => index <= 2).map((name, index) => (
+                                {AppList && <Space size="large" wrap>{
+                                    AppList.filter((item) => item.IsInternal).filter((item, index) => index<3).map((app, index) => (
                                         < CardUI 
                                             key={index} 
-                                            state={am_apps[index]} 
-                                            appname={name} 
-                                            img={name+".jpg"}
-                                            url={assetmanager_urllist[index]}
+                                            state={app.IsLock ? 0 : 1} 
+                                            appname={app.AppName} 
+                                            img={app.AppName+".jpg"}
+                                            url={app.AppUrl}
+                                            internal={true}
                                         />
                                     ))
-                                }</Space>
-                                <Space size="large" wrap>{
-                                    assetmanager_applist.filter((item, index) => 3 <= index && index <= 5).map((name, index) => (
+                                }</Space>}
+                                {AppList && <Space size="large" wrap>{
+                                    AppList.filter((item) => item.IsInternal).filter((item, index) => index<6 && index>2).map((app, index) => (
                                         < CardUI 
                                             key={index} 
-                                            state={am_apps[index+3]} 
-                                            appname={name} 
-                                            img={name+".jpg"}
-                                            url={assetmanager_urllist[index+3]}
+                                            state={app.IsLock ? 0 : 1} 
+                                            appname={app.AppName} 
+                                            img={app.AppName+".jpg"}
+                                            url={app.AppUrl}
+                                            internal={true}
                                         />
                                     ))
-                                }</Space>
-                                <Space size="large" wrap>{
-                                    assetmanager_applist.filter((item, index) => 6 <= index).map((name, index) => (
+                                }</Space>}
+                                {AppList && <Space size="large" wrap>{
+                                    AppList.filter((item) => item.IsInternal).filter((item, index) => index>=6).map((app, index) => (
                                         < CardUI 
                                             key={index} 
-                                            state={am_apps[index+6]} 
-                                            appname={name} 
-                                            img={name+".jpg"}
-                                            url={assetmanager_urllist[index+6]}
+                                            state={app.IsLock ? 0 : 1} 
+                                            appname={app.AppName} 
+                                            img={app.AppName+".jpg"}
+                                            url={app.AppUrl}
+                                            internal={true}
                                         />
                                     ))
-                                }</Space>
+                                }</Space>}
                             </>
                         }</Space>}
                         {UserAuthority == 3 && <Space direction="vertical" size="middle" style={{ display: "flex" }}>{
                             <>
-                                <Space size="large" wrap>{
-                                    user_applist.filter((item, index) => index <= 2).map((name, index) => (
+                                {AppList && <Space size="large" wrap>{
+                                    AppList.filter((item) => item.IsInternal).filter((item, index) => index<3).map((app, index) => (
                                         < CardUI 
                                             key={index} 
-                                            state={user_apps[index]} 
-                                            appname={name} 
-                                            img={name+".jpg"}
-                                            url={user_urllist[index]}
+                                            state={app.IsLock ? 0 : 1} 
+                                            appname={app.AppName} 
+                                            img={app.AppName+".jpg"}
+                                            url={app.AppUrl}
+                                            internal={true}
                                         />
                                     ))
-                                }</Space>
-                                <Space size="large" wrap>{
-                                    user_applist.filter((item, index) => 3 <= index).map((name, index) => (
+                                }</Space>}
+                                {AppList && <Space size="large" wrap>{
+                                    AppList.filter((item) => item.IsInternal).filter((item, index) => index<6 && index>2).map((app, index) => (
                                         < CardUI 
                                             key={index} 
-                                            state={user_apps[index+3]} 
-                                            appname={name} 
-                                            img={name+".jpg"}
-                                            url={user_urllist[index+3]}
+                                            state={app.IsLock ? 0 : 1} 
+                                            appname={app.AppName} 
+                                            img={app.AppName+".jpg"}
+                                            url={app.AppUrl}
+                                            internal={true}
                                         />
                                     ))
-                                }</Space>
+                                }</Space>}
                             </>
                         }</Space>}
+                        {AppList && AppList.filter((item) => !item.IsInternal).length>0 && <div className="title">外部应用</div>}
+                        <Space direction="vertical" size="middle" style={{ display: "flex" }}>{
+                            <>
+                                {AppList && <Space size="large" wrap>{
+                                    AppList.filter((item) => !item.IsInternal).filter((item, index) => index<3).map((app, index) => (
+                                        < CardUI 
+                                            key={index} 
+                                            state={app.IsLock ? 0 : 1} 
+                                            appname={app.AppName} 
+                                            img={app.AppName+".jpg"}
+                                            url={app.AppUrl}
+                                            internal={false}
+                                        />
+                                    ))
+                                }</Space>}
+                                {AppList && <Space size="large" wrap>{
+                                    AppList.filter((item) => !item.IsInternal).filter((item, index) => index<6 && index>2).map((app, index) => (
+                                        < CardUI 
+                                            key={index} 
+                                            state={app.IsLock ? 0 : 1} 
+                                            appname={app.AppName} 
+                                            img={app.AppName+".jpg"}
+                                            url={app.AppUrl}
+                                            internal={false}
+                                        />
+                                    ))
+                                }</Space>}
+                                {AppList && <Space size="large" wrap>{
+                                    AppList.filter((item) => !item.IsInternal).filter((item, index) => index>=6).map((app, index) => (
+                                        < CardUI 
+                                            key={index} 
+                                            state={app.IsLock ? 0 : 1} 
+                                            appname={app.AppName} 
+                                            img={app.AppName+".jpg"}
+                                            url={app.AppUrl}
+                                            internal={false}
+                                        />
+                                    ))
+                                }</Space>}
+                            </>
+                        }</Space>
                     </div>
                 </Content>
             </Layout>

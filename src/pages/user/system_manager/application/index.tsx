@@ -14,6 +14,7 @@ import MenuItem from "antd/es/menu/MenuItem";
 import MemberList from "../../../../components/MemberList";
 import DepartmentUI from "../../../../components/DepartmentControlUI";
 import  UserInfo  from "../../../../components/UserInfoUI";
+import ApplicationUI from "../../../../components/ApplicationUI";
 
 
 
@@ -74,7 +75,7 @@ const App = () => {
                 </Sider>
                 <Layout className="site-layout" >
                     <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department}></UserInfo>
-                    <DepartmentUI/>
+                    <ApplicationUI/>
                     <Footer style={{ textAlign: "center" }}>EAMS ©2023 Designed by CSes</Footer>
                 </Layout>
             </Layout >
