@@ -47,6 +47,30 @@ const ApplyApprovalList = () => {
             Valid: true,
         },
     ];
+    const handleApproval = (type: boolean, approval_id: string) => {
+        request(`api/Asset/Approval/${LoadSessionID()}`, "POST",
+            {
+                "IsApproval": type,
+                "Approval": [approval_id],
+            }
+        )
+            .then(() => {
+                Modal.success({
+                    title: "批复成功",
+                    content: type?"成功批准请求":"成功驳回请求",
+                });
+            })
+            .catch(
+                (err: string) => {
+                    if (IfCodeSessionWrong(err, router)) {
+                        Modal.error({
+                            title: "批复失败",
+                            content: err.toString().substring(5),
+                        });
+                    }
+                }
+            );
+    };
     const columns: ProColumns<ApplyApprovalData>[] = [
         {
             title: "申请编号",
@@ -103,8 +127,8 @@ const ApplyApprovalList = () => {
             render: (text, record, _, action) => {
                 return (
                     <Space>
-                        <Button type="primary" disabled={record.Valid}>同意申请</Button>
-                        <Button danger>驳回申请</Button>
+                        <Button type="primary" disabled={record.Valid} onClick={()=>{handleApproval(true,record.ApplyID);}}>同意申请</Button>
+                        <Button danger onClick={()=>{handleApproval(false,record.ApplyID);}}>驳回申请</Button>
                     </Space>
                 );
             }
