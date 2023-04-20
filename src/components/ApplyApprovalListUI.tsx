@@ -12,6 +12,41 @@ interface AssetListProps {
     Assets: ApplyApprovalData[]
 }
 const ApplyApprovalList = () => {
+    const TestData: ApplyApprovalData[] = [
+        {
+            Name: "小熊",
+            AssetID: "123",
+            ApplyID: "002",
+            ApplyTime: "2023-04-18T07:47:11.258Z",
+            Operation: 0,
+            FromPerson: "李四",
+            ToPerson: "王五",
+            Applicant: "王五",
+            Valid: true,
+        },
+        {
+            Name: "披萨饼",
+            AssetID: "137",
+            ApplyID: "006",
+            ApplyTime: "2023-04-18T07:47:11.258Z",
+            Operation: 0,
+            FromPerson: "李四",
+            ToPerson: "王五",
+            Applicant: "王五",
+            Valid: false,
+        },
+        {
+            Name: "大玩具",
+            AssetID: "134",
+            ApplyID: "004",
+            ApplyTime: "2023-04-18T07:47:11.258Z",
+            Operation: 3,
+            FromPerson: "李四",
+            ToPerson: "王五",
+            Applicant: "王五",
+            Valid: true,
+        },
+    ];
     const columns: ProColumns<ApplyApprovalData>[] = [
         {
             title: "申请编号",
@@ -65,6 +100,14 @@ const ApplyApprovalList = () => {
             title: "操作",
             valueType: "option",
             key: "option",
+            render: (text, record, _, action) => {
+                return (
+                    <Space>
+                        <Button type="primary" disabled={record.Valid}>同意申请</Button>
+                        <Button danger>驳回申请</Button>
+                    </Space>
+                );
+            }
         }
     ];
     const router = useRouter();
@@ -74,12 +117,12 @@ const ApplyApprovalList = () => {
             return;
         }
     }, [router, query]);
-    
-    return (
 
+    return (
         <ProTable
             columns={columns}
             options={false}
+            dataSource={TestData}
             request={async (params = {}) =>
                 request(`/api/Asset/Info/${LoadSessionID()}`, "GET")
                     .then(response => {    // 将request请求的对象保存到state中
@@ -101,7 +144,7 @@ const ApplyApprovalList = () => {
                     return values;
                 },
             }}
-            scroll={{ x: "100%", y: "calc(100vh - 300px)" }}
+            // scroll={{ x: "100%", y: "calc(100vh - 300px)" }}
             pagination={{
                 showSizeChanger: true
             }}

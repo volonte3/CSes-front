@@ -22,7 +22,7 @@ const App = () => {
         token: { colorBgContainer },
     } = theme.useToken();
     const SiderMenu = (
-        <Menu theme="dark" defaultSelectedKeys={["5"]} mode="inline">
+        <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
             <Menu.Item key="1">资产审批</Menu.Item>
             <Menu.Item key="2" onClick={() => router.push("/asset/asset_define")}>资产定义</Menu.Item>
             <Menu.Item key="3" onClick={() => router.push("/asset/asset_add")}>资产录入</Menu.Item>
