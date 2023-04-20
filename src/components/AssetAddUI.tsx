@@ -8,7 +8,7 @@ import {
     ProFormText,
     ProFormTreeSelect,
     ProFormSelect,
-    ProList,
+    ProFormMoney,
 } from "@ant-design/pro-components";
 import { useRouter } from "next/router";
 import { Button, Form, message, TreeSelect, Modal, Space, Tag } from "antd";
@@ -89,7 +89,7 @@ const defaultData = [
   type DataItem = (typeof defaultData)[number];
 
 const AssetAddUI = () => {
-    const [form] = Form.useForm<{ name: string; class: string; father: number; count: number; describe: string }>();
+    const [form] = Form.useForm<{ name: string; class: string; father: number; count: number; money: number; position: string; describe: string }>();
     const router = useRouter();
     const query = router.query;
     const [treeData, setAsset] = useState<[]>(); // 储存资产列表树
@@ -120,6 +120,8 @@ const AssetAddUI = () => {
                 class: string;
                 father: number;
                 count: number;
+                money: number;
+                position: string;
                 describe: string;
             }>
                 title="新建资产"
@@ -142,6 +144,8 @@ const AssetAddUI = () => {
                     console.log(values.class);
                     console.log(values.father);
                     console.log(values.count);
+                    console.log(values.money);
+                    console.log(values.position);
                     console.log(values.describe);
                     message.success("提交成功");
                     return true;
@@ -193,6 +197,24 @@ const AssetAddUI = () => {
                         width="lg"
                         placeholder="请输入数量"
                         rules={[{ required: true, message: "这是必填项" }]} 
+                    />
+                </ProForm.Group>
+                <ProForm.Group>
+                    <ProFormMoney
+                        label="资产价值"
+                        name="money"
+                        locale="zh-CN"
+                        initialValue={0.00}
+                        min={0}
+                        rules={[{ required: true, message: "这是必填项" }]} 
+                    />
+                </ProForm.Group>
+                <ProForm.Group>
+                    <ProFormTextArea
+                        name="position"
+                        label="资产位置"
+                        width="lg"
+                        placeholder="请输入位置"
                     />
                 </ProForm.Group>
                 <ProForm.Group>
