@@ -81,9 +81,9 @@ const AssetList = () => {
             render: (text, record, _, action) => {
                 const { IsReceive, IsReturn, IsMaintenance, IsTransfers } = record;
                 const options = [
-                    { key: "receive", name: "领用", disabled: !IsReceive,onClick: ()=>hanleChange([record.ID], 0,"")},
-                    { key: "return", name: "退库", disabled: !IsReturn,onClick: ()=>hanleChange([record.ID], 1,"")},
-                    { key: "maintenance", name: "维保", disabled: !IsMaintenance, onClick: ()=>hanleChange([record.ID], 2,"") },
+                    { key: "receive", name: "领用", disabled: !IsReceive,onClick: ()=>hanleChange([record.ID], 0)},
+                    { key: "return", name: "退库", disabled: !IsReturn,onClick: ()=>hanleChange([record.ID], 1)},
+                    { key: "maintenance", name: "维保", disabled: !IsMaintenance, onClick: ()=>hanleChange([record.ID], 2) },
                     { key: "transfers", name: "转移", disabled: !IsTransfers},
                 ];
                 const menuItems = options.map(option => (
@@ -108,7 +108,7 @@ const AssetList = () => {
             return;
         }
     }, [router, query]);
-    const hanleChange = (AssetIDList: number[], operation: number, MoveTo: string) => {
+    const hanleChange = (AssetIDList: number[], operation: number, MoveTo: string="") => {
         console.log("11111111111",AssetIDList);
         request(`/api/Asset/Apply/${LoadSessionID()}`, "POST",
             {

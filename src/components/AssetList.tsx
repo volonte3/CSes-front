@@ -108,7 +108,7 @@ const AssetList = () => {
             return;
         }
     }, [router, query]);
-    const hanleChange = (AssetIDList: string[], operation: number, MoveTo: string = "") => {
+    const hanleChange = (AssetIDList: number[], operation: number, MoveTo: string = "") => {
         request(`api/Asset/Apply/${LoadSessionID()}`, "POST",
             {
                 "operation": operation,
