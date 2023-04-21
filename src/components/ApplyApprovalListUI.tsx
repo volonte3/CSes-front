@@ -48,7 +48,7 @@ const ApplyApprovalList = () => {
         },
     ];
     const handleApproval = (type: boolean, approval_id: string) => {
-        request(`api/Asset/Approval/${LoadSessionID()}`, "POST",
+        request(`/api/Asset/Approval/${LoadSessionID()}`, "POST",
             {
                 "IsApproval": type,
                 "Approval": [approval_id],
@@ -129,7 +129,7 @@ const ApplyApprovalList = () => {
             render: (text, record, _, action) => {
                 return (
                     <Space>
-                        <Button type="primary" disabled={record.Valid} onClick={()=>{handleApproval(true,record.ApplyID);}}>同意申请</Button>
+                        <Button type="primary" disabled={!record.Valid} onClick={()=>{handleApproval(true,record.ApplyID);}}>同意申请</Button>
                         <Button danger onClick={()=>{handleApproval(false,record.ApplyID);}}>驳回申请</Button>
                     </Space>
                 );
@@ -149,10 +149,10 @@ const ApplyApprovalList = () => {
         <ProTable
             columns={columns}
             options={false}
-            dataSource={TestData}
+            // dataSource={TestData}
             actionRef={ref}
             request={async (params = {}) =>
-                request(`/api/Asset/Info/${LoadSessionID()}`, "GET")
+                request(`/api/Asset/Approval/${LoadSessionID()}`, "GET")
                     .then(response => {    // 将request请求的对象保存到state中
                         // 对获取到的信息进行筛选，其中创建时间设为不可筛选项，描述、物品名称和所有者设为包含搜索，状态和ID设为严格搜索
                         // TODO ID到底是number还是string，前后端统一一下
