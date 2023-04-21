@@ -6,17 +6,21 @@ import { IfCodeSessionWrong, LoadSessionID } from "../utils/CookieOperation";
 import { request } from "../utils/network";
 import { AppData } from "../utils/types";
 
-const SiderMenu = (UserAuthority: number) => {
+const SiderMenu = ({ UserAuthority }: { UserAuthority: number }) => {
     const [AppList, setAppList] = useState<AppData[]>(); // 储存所有已有应用的信息
     const router = useRouter();
     const query = router.query;
+    const handleset = (applist:AppData[]) => {
+        setAppList(applist);
+    };
     const GetApp = (Authority: number) => {
         request(
             `/api/User/App/${LoadSessionID()}/${Authority}`,
             "GET"
         )
             .then((res) => {
-                setAppList(res.AppList);
+                handleset(res.AppList);
+                console.log(res.AppList);
             })
             .catch((err) => {
                 if (IfCodeSessionWrong(err, router)) {
@@ -26,7 +30,6 @@ const SiderMenu = (UserAuthority: number) => {
                     });
                 }
             });
-
     };
     useEffect(() => {
         if (!router.isReady) {
@@ -42,12 +45,19 @@ const SiderMenu = (UserAuthority: number) => {
         }
     };
     const menuItems = AppList ? AppList.map((AppInfo,index) => (
-        <Menu.Item key={index} disabled={AppInfo.IsLock} onClick={()=>{handleUser(AppInfo);}}>
+        <Menu.Item key={index} disabled={AppInfo.IsLock} onClick={()=>{
+            if (AppInfo.AppUrl != "empty"){
+                if(AppInfo.IsInternal) router.push(AppInfo.AppUrl);
+                else window.location.href=AppInfo.AppUrl;
+            }}}>
             {AppInfo.AppName}
         </Menu.Item>
     )):[];
     return (
         <Menu theme="dark" mode="inline">
+            <Menu.Item key={30} onClick={()=>{router.push("/main_page");}}>
+                首页
+            </Menu.Item>
             {menuItems}
         </Menu>
     );

@@ -9,9 +9,11 @@ import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
 import { request } from "../../../utils/network";
-import { LoadSessionID } from "../../../utils/CookieOperation";
+import { IfCodeSessionWrong, LoadSessionID } from "../../../utils/CookieOperation";
 import AssetAddUI from "../../../components/AssetAddUI";
 import UserInfo from "../../../components/UserInfoUI";
+import SiderMenu from "../../../components/SiderUI";
+import { AppData } from "../../../utils/types";
 const { Option } = Select;
 
 const App = () => {
@@ -21,7 +23,7 @@ const App = () => {
     const { Title } = Typography;
     const [collapsed, setCollapsed] = useState(false);
     const [state, setState] = useState(false); // 用户是否处在登录状态
-    const [UserAuthority, setUserAuthority] = useState(0); // 用户的角色权限，0超级，1系统，2资产，3员工
+    const [UserAuthority, setUserAuthority] = useState(2); // 用户的角色权限，0超级，1系统，2资产，3员工
     const [UserName, setUserName] = useState<string>(""); // 用户名
     const [Asset, setAsset] = useState<[]>(); // 储存资产列表树
     const [value, setValue] = useState<string>();
@@ -34,24 +36,11 @@ const App = () => {
     const [Change, setChange] = useState(false);
     const [Entity, setEntity] = useState<string>(""); // 实体名称
     const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
-    
+    const [AppList, setAppList] = useState<AppData[]>();
     const rolelist = ["超级管理员","系统管理员","资产管理员","员工"];
     const {
         token: { colorBgContainer },
     } = theme.useToken();
-    const SiderMenu = (
-        <Menu theme="dark" defaultSelectedKeys={["2"]} mode="inline">
-            <Menu.Item key="1">资产审批</Menu.Item>
-            <Menu.Item key="2" onClick={() => router.push("/asset/asset_define")}>资产定义</Menu.Item>
-            <Menu.Item key="3" onClick={() => router.push("/asset/asset_add")}>资产录入</Menu.Item>
-            <Menu.Item key="4">资产变更</Menu.Item>
-            <Menu.Item key="5">资产查询</Menu.Item>
-            <Menu.Item key="6">资产清退</Menu.Item>
-            <Menu.Item key="7">资产调拨</Menu.Item>
-            <Menu.Item key="8">资产统计</Menu.Item>
-            <Menu.Item key="9">资产告警</Menu.Item>
-        </Menu>
-    );
     const initvalue = () => {
         setAssetName("");
         setCategoryStyle(-1);
@@ -196,7 +185,6 @@ const App = () => {
         setOpenModify(false);
         initvalue();
     };
-
     useEffect(() => {
         if (!router.isReady) {
             return;
@@ -241,14 +229,14 @@ const App = () => {
                     onOk: () => { window.location.href = "/"; }
                 });
             });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query, state, Change]);
     if (state) {
-
         return (
             <Layout style={{ minHeight: "100vh" }}>
                 <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
                     <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }} />
-                    {SiderMenu}
+                    <SiderMenu UserAuthority={UserAuthority} />
                 </Sider>
                 <Layout className="site-layout" >
                     {contextHolder}
