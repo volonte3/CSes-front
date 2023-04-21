@@ -71,15 +71,13 @@ const DepartmentUI = () => {
         )
             .then((res) => {
                 setLeafDepartment(res.is_leaf);
-                if (res.is_leaf == true) {
+                if (res.is_leaf) {
                     setMemberList(res.member);
                     setDepartmentPathList(res.route);
                 }
                 else {
                     setDepartmentList(res.Department);
                     setDepartmentPathList(res.route);
-                    console.log("DepartmentPathList");
-                    console.log(DepartmentPathList);
                 }
             })
             .catch((err) => {
@@ -152,8 +150,8 @@ const DepartmentUI = () => {
                 let answer: string = `成功创建员工 ${UserName}`;
                 Modal.success({ title: "创建成功", content: answer });
                 onClose1();
-                setLoading(false);
                 fetchList(DepartmentPath);
+                setLoading(false);
             })
             .catch((err: string) => {
                 if (IfCodeSessionWrong(err, router)) {

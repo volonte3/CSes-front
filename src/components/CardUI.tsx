@@ -15,7 +15,7 @@ const CardUI = (props: CardUIProps) => {
     const handle_click = () => {
         if(props.url == "empty" || props.state == 0) setOpen(true);
         else if(props.internal) router.push(props.url);
-        else {window.location.href=props.url; console.log(props.url);}
+        else {window.location.href=props.url;}
     };
     const handle_cancel = () => {
         setOpen(false);
@@ -34,7 +34,7 @@ const CardUI = (props: CardUIProps) => {
             {!props.internal && <Card className="card"
                 onClick={handle_click}
             >
-                <a href={props.url} className="card__title">{props.appname}</a>
+                <h1 className="card__title">{props.appname}</h1>
             </Card>}
             {props.state == 1 && props.url == "empty" && <Modal
                 title="抱歉，该功能正在开发中"

@@ -59,7 +59,6 @@ const MemberList = (props: MemberListProps) => {
                             Authority: res.member[i].Authority,
                             lock: res.member[i].lock
                         });
-                        console.log(i);
                     }
                     setData(now_data);
                 });
@@ -79,7 +78,6 @@ const MemberList = (props: MemberListProps) => {
                             Authority: res.member[i].Authority,
                             lock: res.member[i].lock
                         });
-                        console.log(i);
                     }
                     setData(now_data);
                 })
@@ -241,7 +239,7 @@ const MemberList = (props: MemberListProps) => {
         FetchMemberList();
         console.log("ChangeAuthorityValue has been updated:", ChangeAuthorityValue);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [router, query, ChangeAuthorityValue]);
+    }, [router, query, ChangeAuthorityValue, props]);
     return (
         <div>
             <Table /* rowSelection={props.department_page ? rowSelection : undefined}*/ dataSource={data}>
