@@ -34,3 +34,40 @@ export interface ApplyApprovalData{
     Applicant:string;   //提出申请的人
     Valid:boolean;  //0表示不可以被同意，对应的情况比如多个人申请同一个资产，但资产管理员刚刚同意把资产转移到另一个人名下，那么其他人提出的申请就是无效的，虽然要向资产管理员展示但资产管理员只能驳回申请
 }
+
+export interface AppData {
+    IsInternal: boolean;
+    IsLock: boolean;
+    AppName: string;
+    AppUrl: string;
+}
+export interface CardUIProps {
+    state: number;
+    appname: string;
+    img: string;
+    url: string;
+    internal:boolean;
+}
+
+export interface MemberData {
+    Name: string;
+    Department: string;
+    Authority: number;
+    lock: boolean;
+}
+export interface DepartmentData {
+    DepartmentName: string;
+    DepartmentPath: string;
+    DepartmentId: number;
+}
+export interface DepartmentPathData {
+    Name: string;
+    Path: string;
+}
+export interface DataType {
+    key: React.Key;
+    Name: string;
+    Department: string;
+    Authority: number;
+    lock: boolean;
+}

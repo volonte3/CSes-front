@@ -9,11 +9,12 @@ import { logout, LoadSessionID } from "../../../utils/CookieOperation";
 import AssetList from "../../../components/AssetListEmployeeUI";
 import UserInfo from "../../../components/UserInfoUI";
 import { AssetData } from "../../../utils/types";
+import SiderMenu from "../../../components/SiderUI";
 const App = () => {
     const [state, setState] = useState(true); // 用户是否处在登录状态
     const [collapsed, setCollapsed] = useState(false);
     const [UserName, setUserName] = useState<string>(""); // 用户名
-    const [UserAuthority, setUserAuthority] = useState(0); // 用户的角色权限，0超级，1系统，2资产，3员工
+    const [UserAuthority, setUserAuthority] = useState(3); // 用户的角色权限，0超级，1系统，2资产，3员工
     const [UserApp, setUserApp] = useState<string>(""); // 用户显示的卡片，01串
     const [Asset, setAsset] = useState<AssetData[]>(); // 存储加载该系统管理员管理的资产管理员和员工的信息
     const router = useRouter();
@@ -23,14 +24,6 @@ const App = () => {
     const {
         token: { colorBgContainer },
     } = theme.useToken();
-    const SiderMenu = (
-        <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
-            <Menu.Item key="1" onClick={() => router.push("/user/system_manager")}>用户管理</Menu.Item>
-            <Menu.Item key="2" onClick={() => router.push("/user/system_manager/department")}>部门管理</Menu.Item>
-            <Menu.Item key="3">操作日志</Menu.Item>
-            <Menu.Item key="4">导入导出管理</Menu.Item>
-        </Menu>
-    );
     useEffect(() => {
         if (!router.isReady) {
             return;
@@ -63,7 +56,7 @@ const App = () => {
             <Layout style={{ minHeight: "100vh" }}>
                 <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
                     <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }} />
-                    {SiderMenu}
+                    {SiderMenu(UserAuthority)}
                 </Sider>
                 <Layout className="site-layout" >
                     <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department}></UserInfo>

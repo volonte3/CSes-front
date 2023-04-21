@@ -1,13 +1,8 @@
 import { Modal, Card, Button} from "antd";
 import { useRouter } from "next/router";
 import { useState } from "react";
-interface CardUIProps {
-    state: number;
-    appname: string;
-    img: string;
-    url: string;
-    internal:boolean;
-}
+import { CardUIProps } from "../utils/types";
+
 const CardUI = (props: CardUIProps) => {
     const [open, setOpen] = useState<boolean>(false);
     const router = useRouter();

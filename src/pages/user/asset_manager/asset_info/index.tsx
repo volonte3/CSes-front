@@ -9,11 +9,12 @@ import { logout, LoadSessionID } from "../../../../utils/CookieOperation";
 import AssetList from "../../../../components/AssetListAssetManagerUI";
 import UserInfo from "../../../../components/UserInfoUI";
 import { AssetData } from "../../../../utils/types";
+import SiderMenu from "../../../../components/SiderUI";
 const App = () => {
     const [state, setState] = useState(true); // 用户是否处在登录状态
     const [collapsed, setCollapsed] = useState(false);
     const [UserName, setUserName] = useState<string>(""); // 用户名
-    const [UserAuthority, setUserAuthority] = useState(0); // 用户的角色权限，0超级，1系统，2资产，3员工
+    const [UserAuthority, setUserAuthority] = useState(2); // 用户的角色权限，0超级，1系统，2资产，3员工
     const [UserApp, setUserApp] = useState<string>(""); // 用户显示的卡片，01串
     const [Asset, setAsset] = useState<AssetData[]>(); // 存储加载该系统管理员管理的资产管理员和员工的信息
     const router = useRouter();
@@ -23,19 +24,7 @@ const App = () => {
     const {
         token: { colorBgContainer },
     } = theme.useToken();
-    const SiderMenu = (
-        <Menu theme="dark" defaultSelectedKeys={["5"]} mode="inline">
-            <Menu.Item key="1">资产审批</Menu.Item>
-            <Menu.Item key="2" onClick={() => router.push("/asset/asset_define")}>资产定义</Menu.Item>
-            <Menu.Item key="3" onClick={() => router.push("/asset/asset_add")}>资产录入</Menu.Item>
-            <Menu.Item key="4">资产变更</Menu.Item>
-            <Menu.Item key="5" onClick={() => router.push("/user/asset_manager/asset_info")}>资产查询</Menu.Item>
-            <Menu.Item key="6">资产清退</Menu.Item>
-            <Menu.Item key="7">资产调拨</Menu.Item>
-            <Menu.Item key="8">资产统计</Menu.Item>
-            <Menu.Item key="9">资产告警</Menu.Item>
-        </Menu>
-    );
+
     useEffect(() => {
         if (!router.isReady) {
             return;
@@ -68,7 +57,7 @@ const App = () => {
             <Layout style={{ minHeight: "100vh" }}>
                 <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
                     <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }} />
-                    {SiderMenu}
+                    {SiderMenu(UserAuthority)}
                 </Sider>
                 <Layout className="site-layout" >
                     <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department}></UserInfo>

@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import { request } from "../../utils/network";
 import { useState, useEffect } from "react";
 import CardUI from "../../components/CardUI";
+import { AppData } from "../../utils/types";
 const { Header, Content } = Layout;
 const DropdownMenu = (
     <Menu>
@@ -13,12 +14,7 @@ const DropdownMenu = (
         <Menu.Item key="2">已完成事项</Menu.Item>
     </Menu>
 );
-interface AppData {
-    IsInternal: boolean;
-    IsLock: boolean;
-    AppName: string;
-    AppUrl: string;
-}
+
 const App = () => {
     const logoutSendMessage = () => {
         request(

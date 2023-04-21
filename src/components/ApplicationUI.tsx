@@ -9,12 +9,8 @@ const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { IfCodeSessionWrong, LoadSessionID } from "../utils/CookieOperation";
-interface AppData {
-    IsInternal: boolean;
-    IsLock: boolean;
-    AppName: string;
-    AppUrl: string;
-}
+import { AppData } from "../utils/types";
+
 const ApplicationUI = () => {
     const [Open, setOpen] = useState(false); //添加新url的侧边栏显示
     const [Authority, setAuthority] = useState(3); // 根据Authority判断当前应该显示的应用列表

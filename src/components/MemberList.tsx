@@ -13,19 +13,9 @@ import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
 import MenuItem from "antd/es/menu/MenuItem";
 import { renderAuthority } from "../utils/transformer";
 import type { ColumnsType } from "antd/es/table";
-interface MemberData {
-    Name: string;
-    Department: string;
-    Authority: number;
-    lock: boolean;
-}
-interface DataType {
-    key: React.Key;
-    Name: string;
-    Department: string;
-    Authority: number;
-    lock: boolean;
-}
+import { DataType, MemberData } from "../utils/types";
+
+
 interface MemberListProps {
     Members: MemberData[] | undefined;
     department_page: boolean;

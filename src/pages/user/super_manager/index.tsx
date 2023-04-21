@@ -11,6 +11,7 @@ import { useState, useEffect } from "react";
 import { request } from "../../../utils/network";
 import { LoadSessionID, logout, IfCodeSessionWrong } from "../../../utils/CookieOperation";
 import UserInfo from "../../../components/UserInfoUI";
+import SiderMenu from "../../../components/SiderUI";
 
 
 type MenuItem = Required<MenuProps>["items"][number];
@@ -211,7 +212,7 @@ const App = () => {
             <Layout style={{ minHeight: "100vh" }}>
                 <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
                     <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }} />
-                    <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline" items={items_} />
+                    {SiderMenu(UserAuthority)}
                 </Sider>
                 <Layout className="site-layout" >
                     <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department}></UserInfo>

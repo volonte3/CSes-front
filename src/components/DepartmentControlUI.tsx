@@ -10,21 +10,8 @@ import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { IfCodeSessionWrong, LoadSessionID } from "../utils/CookieOperation";
 import MemberList from "../components/MemberList";
-interface MemberData {
-    Name: string;
-    Department: string;
-    Authority: number;
-    lock: boolean;
-}
-interface DepartmentData {
-    DepartmentName: string;
-    DepartmentPath: string;
-    DepartmentId: number;
-}
-interface DepartmentPathData {
-    Name: string;
-    Path: string;
-}
+import { DepartmentData, DepartmentPathData, MemberData } from "../utils/types";
+
 const DepartmentUI = () => {
     const [open1, setOpen1] = useState(false);    //添加部门侧边栏的显示
     const [open2, setOpen2] = useState(false);    //创建员工侧边栏的显示

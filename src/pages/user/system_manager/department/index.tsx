@@ -14,6 +14,7 @@ import MenuItem from "antd/es/menu/MenuItem";
 import MemberList from "../../../../components/MemberList";
 import DepartmentUI from "../../../../components/DepartmentControlUI";
 import  UserInfo  from "../../../../components/UserInfoUI";
+import SiderMenu from "../../../../components/SiderUI";
 
 
 
@@ -22,7 +23,7 @@ const App = () => {
     const [state, setState] = useState(false);  //路径保护变量
     const [DepartmentPath, setDepartmentPath] = useState("000000000");
     const [UserName, setUserName] = useState<string>(""); // 用户名
-    const [UserAuthority, setUserAuthority] = useState(0); // 用户的角色权限，0超级，1系统，2资产，3员工
+    const [UserAuthority, setUserAuthority] = useState(1); // 用户的角色权限，0超级，1系统，2资产，3员工
     const [UserApp, setUserApp] = useState<string>(""); // 用户显示的卡片，01串
     const [Entity, setEntity] = useState<string>(""); // 实体名称
     const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
@@ -56,20 +57,13 @@ const App = () => {
                 });
             });
     }, [state, router]);
-    const SiderMenu = (
-        <Menu theme="dark" defaultSelectedKeys={["2"]} mode="inline">
-            <Menu.Item key="1" onClick={() => router.push("/user/system_manager")}>用户管理</Menu.Item>
-            <Menu.Item key="2" onClick={() => router.push("/user/system_manager/department")}>部门管理</Menu.Item>
-            <Menu.Item key="3">操作日志</Menu.Item>
-            <Menu.Item key="4">导入导出管理</Menu.Item>
-        </Menu>
-    );
+
     if (state) {
         return (
             <Layout style={{ minHeight: "100vh" }}>
                 <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
                     <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }} />
-                    {SiderMenu}
+                    {SiderMenu(UserAuthority)}
                 </Sider>
                 <Layout className="site-layout" >
                     <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department}></UserInfo>
