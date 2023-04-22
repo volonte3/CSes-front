@@ -6,10 +6,11 @@ const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
 import { request } from "../../../utils/network";
 import { logout, LoadSessionID } from "../../../utils/CookieOperation";
-import AssetList from "../../../components/AssetListEmployeeUI";
+import AssetList from "../../../components/EmployeeAssetListUI";
 import UserInfo from "../../../components/UserInfoUI";
 import { AssetData } from "../../../utils/types";
 import SiderMenu from "../../../components/SiderUI";
+import EmployeeAssetList from "../../../components/EmployeeAssetListUI";
 const App = () => {
     const [state, setState] = useState(true); // 用户是否处在登录状态
     const [collapsed, setCollapsed] = useState(false);
@@ -60,20 +61,10 @@ const App = () => {
                 </Sider>
                 <Layout className="site-layout" >
                     <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department}></UserInfo>
-                    {/* <div>
-                        <Button
-                            type="primary"
-                            // icon={<PlusSquareOutlined />}
-                            style={{ float: "left", margin: 10 }}
-                        // onClick={showDrawer1}
-                        >
-                            添加部门
-                        </Button>
-                    </div> */}
                     <Content style={{ margin: "0 16px" }}>
 
                         <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
-                            <AssetList />
+                            <EmployeeAssetList />
                         </div>
                     </Content>
                     <Footer style={{ textAlign: "center" }}>EAMS ©2023 Designed by CSes</Footer>

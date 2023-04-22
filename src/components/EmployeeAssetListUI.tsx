@@ -11,7 +11,7 @@ import { DateTransform } from "../utils/transformer";
 interface AssetListProps {
     Assets: AssetData[]
 }
-const AssetList = () => {
+const EmployeeAssetList = () => {
     const [IsSomeRowReceiveFalse, setIsSomeRowReceiveFalse] = useState<boolean>(true);
     const [IsSomeRowTransfersFalse, setIsSomeRowTransfersFalse] = useState<boolean>(true);
     const [SelectedRows, setSelectedRows] = useState<AssetData[]>([]);
@@ -239,4 +239,4 @@ const AssetList = () => {
         />
     );
 };
-export default AssetList;
+export default EmployeeAssetList;

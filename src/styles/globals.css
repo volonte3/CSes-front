@@ -92,3 +92,8 @@ a {
   font-size: 22px; /* 增加字体大小 */
   font-weight: bold; /* 加粗字体 */
 }
+.employee-item.selected {
+  transform: scale(1.05);
+  border: 2px solid #1890ff;
+  border-radius: 4px;
+}
