@@ -5,16 +5,16 @@ import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
 import { AssetData } from "../utils/types"; //对列表中数据的定义在 utils/types 中
-import { ProTable, ProColumns, TableDropdown } from "@ant-design/pro-components";
+import { ProTable, ProColumns, TableDropdown, ProCard } from "@ant-design/pro-components";
 import { DateTransform } from "../utils/transformer";
 
 interface AssetListProps {
     Assets: AssetData[]
 }
 const AssetList = () => {
-    const [IsSomeRowReceiveFalse, setIsSomeRowReceiveFalse] = useState<boolean>(true);
-    const [IsSomeRowTransfersFalse, setIsSomeRowTransfersFalse] = useState<boolean>(true);
+    const [IsSomeRowCanNotDispatch, setIsSomeRowCanNotDispatch] = useState<boolean>(true);  //退还维保
     const [SelectedRows, setSelectedRows] = useState<AssetData[]>([]);
+    const [Detail, setDetail] = useState<boolean>(false);
     const columns: ProColumns<AssetData>[] = [
         {
             title: "资产编号",
@@ -25,6 +25,38 @@ const AssetList = () => {
             title: "资产名称",
             dataIndex: "Name",
             key: "Name",
+            render: (_: any, record) => {
+                return (
+                    <div>
+                        <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => { setDetail(true); }}>{record.Name}</a>
+
+                        <Modal title="资产详细信息"
+                            centered
+                            open={Detail}
+                            onCancel={() => { setDetail(false); }}
+                            footer={[
+                                <Button key="ok" type="primary">
+                                    确定
+                                </Button>,
+                            ]}
+                            mask={false}
+                        >
+                            <ProCard
+                                tabs={{
+                                    type: "card",
+                                }}
+                            >
+                                <ProCard.TabPane key="Info" tab="资产信息">
+                                    内容一
+                                </ProCard.TabPane>
+                                <ProCard.TabPane key="History" tab="历史记录">
+                                    内容二
+                                </ProCard.TabPane>
+                            </ProCard>
+
+                        </Modal>
+                    </div>);
+            },
         },
         {
             title: "状态",
@@ -79,12 +111,10 @@ const AssetList = () => {
             valueType: "option",
             key: "option",
             render: (text, record, _, action) => {
-                const { IsReceive, IsReturn, IsMaintenance, IsTransfers } = record;
                 const options = [
-                    { key: "receive", name: "领用", disabled: !IsReceive,onClick: ()=>hanleChange([record.ID], 0)},
-                    { key: "return", name: "退库", disabled: !IsReturn,onClick: ()=>hanleChange([record.ID], 1)},
-                    { key: "maintenance", name: "维保", disabled: !IsMaintenance, onClick: ()=>hanleChange([record.ID], 2) },
-                    { key: "transfers", name: "转移", disabled: !IsTransfers},
+                    { key: "receive", name: "清退", onClick: () => hanleChange([record.ID], 0) },
+                    { key: "return", name: "退维", disabled: record.Status != 2, onClick: () => hanleChange([record.ID], 1) },
+                    { key: "maintenance", name: "调拨", disabled: record.Status != 0 },
                 ];
                 const menuItems = options.map(option => (
                     <Menu.Item key={option.key} disabled={option.disabled} onClick={option.onClick}>
@@ -108,12 +138,13 @@ const AssetList = () => {
             return;
         }
     }, [router, query]);
-    const hanleChange = (AssetIDList: number[], operation: number, MoveTo: string = "") => {
-        request(`api/Asset/Apply/${LoadSessionID()}`, "POST",
+    const hanleChange = (AssetIDList: number[], operation: number, MoveTo: string = "", Type = "") => {
+        request(`api/Asset/Manage/${LoadSessionID()}`, "POST",
             {
                 "operation": operation,
                 "AssetList": AssetIDList,
                 "MoveTo": MoveTo,
+                "Type": Type,
             }
         )
             .then(() => {
@@ -144,7 +175,6 @@ const AssetList = () => {
         algorithm: [theme.darkAlgorithm, theme.compactAlgorithm],
     };
     return (
-
         <ProTable
             columns={columns}
             options={false}
@@ -156,8 +186,7 @@ const AssetList = () => {
                 defaultSelectedRowKeys: [],
             }}
             tableAlertRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => {
-                setIsSomeRowReceiveFalse(selectedRows.some(row => !row.IsReceive));
-                setIsSomeRowTransfersFalse(selectedRows.some(row => !row.IsTransfers));
+                setIsSomeRowCanNotDispatch(selectedRows.some(row => row.Status != 0));
                 setSelectedRows(selectedRows);
                 console.log(selectedRowKeys, selectedRows);
                 return (
@@ -172,8 +201,8 @@ const AssetList = () => {
             tableAlertOptionRender={() => {
                 return (
                     <Space size={16} >
-                        <Button type="primary" disabled={IsSomeRowReceiveFalse} onClick={() => hanleChange(SelectedRows.map((row: any) => row.ID), 0)}>领用资产</Button>
-                        <Button type="primary" disabled={IsSomeRowTransfersFalse}>转移资产</Button>
+                        <Button type="primary" onClick={() => hanleChange(SelectedRows.map((row: any) => row.ID), 0)}>清退资产</Button>
+                        <Button type="primary" disabled={IsSomeRowCanNotDispatch}>调拨资产</Button>
                     </Space>
                 );
             }}
@@ -234,8 +263,9 @@ const AssetList = () => {
                 split: true,
                 span: 8,
                 searchText: "查询"
-            }} 
+            }}
         />
+
     );
 };
 export default AssetList;
