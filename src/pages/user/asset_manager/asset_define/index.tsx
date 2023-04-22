@@ -8,12 +8,11 @@ import {
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
-import { request } from "../../../utils/network";
-import { IfCodeSessionWrong, LoadSessionID } from "../../../utils/CookieOperation";
-import AssetAddUI from "../../../components/AssetAddUI";
-import UserInfo from "../../../components/UserInfoUI";
-import SiderMenu from "../../../components/SiderUI";
-import { AppData } from "../../../utils/types";
+import { request } from "../../../../utils/network";
+import { IfCodeSessionWrong, LoadSessionID } from "../../../../utils/CookieOperation";
+import UserInfo from "../../../../components/UserInfoUI";
+import SiderMenu from "../../../../components/SiderUI";
+import { AppData } from "../../../../utils/types";
 const { Option } = Select;
 
 const App = () => {
@@ -197,6 +196,13 @@ const App = () => {
                 setState(true);
                 setUserName(res.UserName);
                 setUserAuthority(res.Authority);
+                if(res.Authority != 2 ){
+                    Modal.error({
+                        title: "无权访问",
+                        content: "请重新登录",
+                        onOk: () => { window.location.href = "/"; }
+                    });
+                }
                 setEntity(res.Entity);
                 setDepartment(res.Department);
                 request(

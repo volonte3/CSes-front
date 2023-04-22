@@ -43,6 +43,13 @@ const App = () => {
                 setUserName(res.UserName);
                 setUserApp(res.UserApp);
                 setUserAuthority(res.Authority);
+                if(res.Authority != 1 ){
+                    Modal.error({
+                        title: "无权访问",
+                        content: "请重新登录",
+                        onOk: () => { window.location.href = "/"; }
+                    });
+                }
                 setEntity(res.Entity);
                 setDepartment(res.Department);
             })

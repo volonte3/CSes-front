@@ -19,10 +19,10 @@ import { Layout, Menu, theme, Modal, Button, Breadcrumb, Row, Col, Form, message
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
-import { request } from "../../../utils/network";
-import { LoadSessionID } from "../../../utils/CookieOperation";
-import UserInfo from "../../../components/UserInfoUI";
-import SiderMenu from "../../../components/SiderUI";
+import { request } from "../../../../utils/network";
+import { LoadSessionID } from "../../../../utils/CookieOperation";
+import UserInfo from "../../../../components/UserInfoUI";
+import SiderMenu from "../../../../components/SiderUI";
 
 interface DepartmentData {
     DepartmentName: string;
@@ -116,6 +116,13 @@ const App = () => {
                 setState(true);
                 setUserName(res.UserName);
                 setUserAuthority(res.Authority);
+                if(res.Authority != 2 ){
+                    Modal.error({
+                        title: "无权访问",
+                        content: "请重新登录",
+                        onOk: () => { window.location.href = "/"; }
+                    });
+                }
                 setEntity(res.Entity);
                 setDepartment(res.Department);
             })
