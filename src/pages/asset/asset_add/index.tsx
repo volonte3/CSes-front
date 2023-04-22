@@ -66,6 +66,7 @@ const App = () => {
     const [dataSource, setDataSource] = useState<DataItem[]>(AddList);
     const [Change, setChange] = useState(false);
     const [AssetID, setAssetID] = useState<number>(1);
+    const [AssetList, setAssetList] = useState<{[key : number] : string}>({});
     const router = useRouter();
     const query = router.query;
     const add = () => {
@@ -140,6 +141,28 @@ const App = () => {
                 .then((res) => {
                     setAsset(res.treeData);
                     console.log(res.treeData);
+                })
+                .catch((err) => {
+                    Modal.error({
+                        title: "错误",
+                        content: err.message.substring(5),
+                    });
+                });
+        }
+        if (!AssetList[0]) {
+            request(
+                `/api/Asset/Info/${LoadSessionID()}`,
+                "GET",
+            )
+                .then((res) => {
+                    let assetlist = res.Asset;
+                    for (let i = 0; i < assetlist.length; i = i + 1) {
+                        let item = assetlist[i];
+                        setAssetList((AssetList) => {
+                            AssetList[item.ID] = item.Name + " (" + item.Description + ")";
+                            return AssetList;
+                        });
+                    }
                 })
                 .catch((err) => {
                     Modal.error({
@@ -244,11 +267,9 @@ const App = () => {
                                         label="所属主资产"
                                         width="lg"
                                         tooltip="如果该资产有所属的主资产，请在这里添加"
-                                        valueEnum={{
-                                            1: "资产1",
-                                            2: "资产2",
-                                        }}
+                                        valueEnum={AssetList}
                                         placeholder="请选择所属的主资产"
+                                        
                                     />
                                 </ProForm.Group>
                                 <ProForm.Group>
