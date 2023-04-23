@@ -55,7 +55,7 @@ const data = [
 interface employeeprops{
     visible: boolean;
     onCancel: () => void;
-    onOk: (employee: MemberData | null) => void
+    AssetIDlist: number[];
 }
 const EmployeeListModal = (props: employeeprops) => {
     const [searchText, setSearchText] = useState("");
@@ -90,6 +90,33 @@ const EmployeeListModal = (props: employeeprops) => {
             });
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query, props]);
+    const handleChange = (AssetIDList: number[], operation: number, MoveTo: string = "", Type: string="") => {
+        request(`api/Asset/Apply/${LoadSessionID()}`, "POST",
+            {
+                "operation": operation,
+                "AssetList": AssetIDList,
+                "MoveTo": MoveTo,
+                "Type": Type
+            }
+        )
+            .then(() => {
+
+                Modal.success({
+                    title: "申请成功",
+                    content: "成功提交请求",
+                });
+            })
+            .catch(
+                (err: string) => {
+                    if (IfCodeSessionWrong(err, router)) {
+                        Modal.error({
+                            title: "申请失败",
+                            content: err.toString().substring(5),
+                        });
+                    }
+                }
+            );
+    };
     const handleSearch = (e:any) => {
         setSearchText(e.target.value);
     };
@@ -167,25 +194,12 @@ const EmployeeListModal = (props: employeeprops) => {
                 }}
                 submitTimeout={1000}
                 open={open2}
-                
-                // onFinish={async (values) => {
-                //     await waitTime(1000);
-                //     AddList.push(
-                //         {
-                //             id: AssetID.toString(),
-                //             name: values.name,
-                //             class: values.class,
-                //             father: values.father,
-                //             count: values.count,
-                //             money: values.money,
-                //             position: values.position,
-                //             describe: values.describe,
-                //         }
-                //     );
-                //     setAssetID((e) => (e+1));
-                //     setChange((e) => !e);
-                //     return true;
-                // }}
+                onFinish={async (values) => {
+                    handleChange(props.AssetIDlist,3,selectedEmployee?.Name,values.class);
+                    setOpen2(false);
+                    props.onCancel;
+                    return true;
+                }}
             >
                 <ProForm.Group>
                     <ProFormTreeSelect

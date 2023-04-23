@@ -34,11 +34,6 @@ const ParentComponent = () => {
     return (
         <div>
             <Button onClick={handleOpenModal}>选择员工</Button>
-            <EmployeeListModal
-                visible={visible}
-                onCancel={handleCloseModal}
-                onOk={handleSelectEmployee}
-            />
             {selectedEmployee && (
                 <div>
                     <p>选中的员工：</p>
