@@ -73,12 +73,12 @@ export interface DataType {
     lock: boolean;
 }
 export interface AssetHistory{
-    review_time:string,
-    id:number,
-    type:number,
-    initiator:string,
-    participant:string,
-    asset_admin:string,
+    Review_Time:string,
+    ID:number,
+    Type:number,
+    Initiator:string,
+    Participant:string,
+    Asset_Admin:string,
 }
 export interface AssetDetailInfo{
     Name:string,

@@ -64,7 +64,8 @@ const renderStatusBadge = (Status: any): "success" | "processing" | "error" | "d
     }
     return label;
 };
-const DateTransform=(text:string)=>{
+const DateTransform=(text:string|undefined)=>{
+    if (text==undefined) return undefined;
     const date = new Date(text);
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");

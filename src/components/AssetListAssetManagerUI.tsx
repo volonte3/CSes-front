@@ -20,28 +20,28 @@ const TestDetailInfo: AssetDetailInfo = {
     CreateTime: "2022-04-23",
     History: [
         {
-            review_time: "2022-04-23",
-            id: 1,
-            type: 1,
-            initiator: "李四",
-            participant: "王五",
-            asset_admin: "赵六",
+            Review_Time: "2022-04-23",
+            ID: 1,
+            Type: 1,
+            Initiator: "李四",
+            Participant: "王五",
+            Asset_Admin: "赵六",
         },
         {
-            review_time: "2022-04-22",
-            id: 2,
-            type: 2,
-            initiator: "王五",
-            participant: "赵六",
-            asset_admin: "李四",
+            Review_Time: "2022-04-22",
+            ID: 2,
+            Type: 2,
+            Initiator: "王五",
+            Participant: "赵六",
+            Asset_Admin: "李四",
         },
         {
-            review_time: "2022-04-21",
-            id: 3,
-            type: 3,
-            initiator: "赵六",
-            participant: "李四",
-            asset_admin: "王五",
+            Review_Time: "2022-04-21",
+            ID: 3,
+            Type: 3,
+            Initiator: "赵六",
+            Participant: "李四",
+            Asset_Admin: "王五",
         },
     ],
 };
@@ -54,13 +54,13 @@ const AssetList = () => {
 
         {
             title: "审批号",
-            dataIndex: "id",
+            dataIndex: "ID",
             search: false
         },
         {
             title: "申请类型",
-            dataIndex: "type",
-            key: "type",
+            dataIndex: "Type",
+            key: "Type",
             valueType: "select",
             valueEnum: {
                 0: {
@@ -83,20 +83,20 @@ const AssetList = () => {
         },
         {
             title: "发起者",
-            dataIndex: "initiator",
+            dataIndex: "Initiator",
         },
         {
             title: "参与者",
-            dataIndex: "participant",
+            dataIndex: "Participant",
             search: false,
         },
         {
             title: "审批人",
-            dataIndex: "asset_admin",
+            dataIndex: "Asset_Admin",
         },
         {
             title: "审批时间",
-            dataIndex: "review_time",
+            dataIndex: "Review_Time",
             search: false,
         },
     ];
@@ -139,7 +139,7 @@ const AssetList = () => {
                                         <ProCard split="vertical">
                                             <ProCard title="资产名称">{DetailInfo?.Name}</ProCard>
                                             <ProCard title="ID">{DetailInfo?.ID}</ProCard>
-                                            <ProCard title="创建时间">{DetailInfo?.CreateTime}</ProCard>
+                                            <ProCard title="创建时间">{DateTransform(DetailInfo?.CreateTime)}</ProCard>
                                         </ProCard>
                                         <ProCard split="vertical">
                                             <ProCard title="当前所有者">{DetailInfo?.Owner}</ProCard>
@@ -160,20 +160,21 @@ const AssetList = () => {
                                         request={async (params = {}) =>
                                             request(`/api/User/Asset_Detail/${LoadSessionID()}/${DetailInfo?.ID}`, "GET")
                                                 .then(response => {
-                                                    let filteredData = TestDetailInfo.History;
-                                                    if (params.type) {
+                                                    console.log("===============", response.Asset_Detail.History);
+                                                    let filteredData = response.Asset_Detail.History;
+                                                    if (params.Type) {
                                                         filteredData = filteredData.filter(
-                                                            (item: AssetHistory) => item.type == params.type
+                                                            (item: AssetHistory) => item.Type == params.Type
                                                         );
                                                     }
-                                                    if (params.initiator) {
+                                                    if (params.Initiator) {
                                                         filteredData = filteredData.filter(
-                                                            (item: AssetHistory) => item.initiator == params.initiator
+                                                            (item: AssetHistory) => item.Initiator == params.Initiator
                                                         );
                                                     }
-                                                    if (params.asset_admin) {
+                                                    if (params.Asset_Admin) {
                                                         filteredData = filteredData.filter(
-                                                            (item: AssetHistory) => item.asset_admin == params.asset_admin
+                                                            (item: AssetHistory) => item.Asset_Admin == params.Asset_Admin
                                                         );
                                                     }
                                                     return Promise.resolve({ data: filteredData, success: true });
@@ -181,22 +182,22 @@ const AssetList = () => {
                                                 .catch((err) => {
 
                                                     let filteredData = TestDetailInfo.History;
-                                                    if (params.type) {
+                                                    if (params.Type) {
                                                         filteredData = filteredData.filter(
-                                                            (item: AssetHistory) => item.type == params.type
+                                                            (item: AssetHistory) => item.Type == params.Type
                                                         );
                                                     }
-                                                    if (params.initiator) {
+                                                    if (params.Initiator) {
                                                         filteredData = filteredData.filter(
-                                                            (item: AssetHistory) => item.initiator == params.initiator
+                                                            (item: AssetHistory) => item.Initiator == params.Initiator
                                                         );
                                                     }
-                                                    if (params.asset_admin) {
+                                                    if (params.Asset_Admin) {
                                                         filteredData = filteredData.filter(
-                                                            (item: AssetHistory) => item.asset_admin == params.asset_admin
+                                                            (item: AssetHistory) => item.Asset_Admin == params.Asset_Admin
                                                         );
                                                     }
-                                                    return Promise.resolve({ data: filteredData, success: true });
+                                                    return Promise.resolve({ data: filteredData, success: false });
                                                 })
                                         }
                                     // dataSource={DetailInfo?.History}
@@ -291,10 +292,10 @@ const AssetList = () => {
     const router = useRouter();
     const query = router.query;
     const FetchDetail = (AssetID: number) => {
-        request(`/api/Asset_Detail/${LoadSessionID()}/${AssetID}`, "GET")
+        request(`/api/User/Asset_Detail/${LoadSessionID()}/${AssetID}`, "GET")
             .then(
                 (res) => {
-                    setDetailInfo(res.info);
+                    setDetailInfo(res.Asset_Detail);
                     setDetail(true);
 
                 }
