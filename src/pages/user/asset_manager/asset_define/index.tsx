@@ -3,8 +3,15 @@ import {
     Breadcrumb, Layout, Menu, theme, message, Modal, Typography, Drawer, Form, Input, Row, Select, Col, Button, Space, TreeSelect 
 } from "antd";
 import {
-    EditOutlined, ScissorOutlined, DeleteOutlined
+    EditOutlined, ScissorOutlined, DeleteOutlined, PlusOutlined
 } from "@ant-design/icons";
+import {
+    ModalForm,
+    ProForm,
+    ProFormDateRangePicker,
+    ProFormSelect,
+    ProFormText,
+} from "@ant-design/pro-components";
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
@@ -15,7 +22,16 @@ import SiderMenu from "../../../../components/SiderUI";
 import { AppData } from "../../../../utils/types";
 const { Option } = Select;
 
+const waitTime = (time: number = 100) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(true);
+        }, time);
+    });
+};
+
 const App = () => {
+    const [form] = Form.useForm<{ property: string}>();
     const router = useRouter();
     const query = router.query;
     const [messageApi, contextHolder] = message.useMessage();
@@ -288,6 +304,59 @@ const App = () => {
                                 >
                                     删除
                                 </Button>
+                            </Col>
+                            <Col offset={9}>
+                                <ModalForm<{
+                                property: string;
+                                }>
+                                    title="增加自定义属性"
+                                    trigger={
+                                        <Button type="primary" disabled={ButtonDisable}>
+                                            <PlusOutlined />
+                                            增加自定义属性
+                                        </Button>
+                                    }
+                                    form={form}
+                                    autoFocusFirstInput
+                                    modalProps={{
+                                        destroyOnClose: true,
+                                        onCancel: () => console.log("run"),
+                                    }}
+                                    submitTimeout={1000}
+                                    onFinish={async (values) => {
+                                        await waitTime(1000);
+                                        console.log(values.property);
+                                        console.log(value);
+                                        request(
+                                            `/api/Asset/DefineProp/${LoadSessionID()}`,
+                                            "POST",
+                                            {
+                                                AssetClassID: value,
+                                                Property: [values.property],
+                                            }
+                                        )
+                                            .then((res) => {
+                                                message.success("添加成功");
+                                            })
+                                            .catch((err) => {
+                                                Modal.error({
+                                                    title: "错误",
+                                                    content: err.message.substring(5),
+                                                });
+                                            });
+                                        return true;
+                                    }}
+                                >
+                                    <ProForm.Group>
+                                        <ProFormText
+                                            width="md"
+                                            name="property"
+                                            label="属性名称"
+                                            placeholder="请输入名称"
+                                            rules={[{ required: true, message: "这是必填项" }]} 
+                                        />
+                                    </ProForm.Group>
+                                </ModalForm>
                             </Col>
                         </Row>
                         <Row align="top">
