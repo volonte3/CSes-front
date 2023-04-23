@@ -98,6 +98,11 @@ const AssetList = () => {
             title: "审批时间",
             dataIndex: "Review_Time",
             search: false,
+            render: (text: any, record) => {
+                console.log(text);
+                // TODO 不是很理解如果返回值为 undefined，前端默认会解析为 -
+                return (text!="-")?DateTransform(text):"-";
+            },
         },
     ];
     const columns: ProColumns<AssetData>[] = [
