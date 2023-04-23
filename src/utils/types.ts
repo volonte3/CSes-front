@@ -33,6 +33,7 @@ export interface ApplyApprovalData{
     ToPerson:string;    //这里写目标员工/资产管理员名
     Applicant:string;   //提出申请的人
     Valid:boolean;  //0表示不可以被同意，对应的情况比如多个人申请同一个资产，但资产管理员刚刚同意把资产转移到另一个人名下，那么其他人提出的申请就是无效的，虽然要向资产管理员展示但资产管理员只能驳回申请
+    Property:any;
 }
 
 export interface AppData {
@@ -70,4 +71,21 @@ export interface DataType {
     Department: string;
     Authority: number;
     lock: boolean;
+}
+export interface AssetHistory{
+    review_time:string,
+    id:number,
+    type:number,
+    initiator:string,
+    participant:string,
+    asset_admin:string,
+}
+export interface AssetDetailInfo{
+    Name:string,
+    ID:number,
+    Status:number,
+    Owner:string,
+    Description:string,
+    CreateTime:string,
+    History:AssetHistory[]
 }

@@ -1,20 +1,56 @@
 import React from "react";
-import { theme, Space, Table, Button, Modal, Menu } from "antd";
+import { theme, Space, Table, Button, Modal, Menu, Tooltip, List } from "antd";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
-import { AssetData } from "../utils/types"; //对列表中数据的定义在 utils/types 中
-import { ProTable, ProColumns, TableDropdown, ProCard } from "@ant-design/pro-components";
+import { AssetData, AssetDetailInfo, AssetHistory } from "../utils/types"; //对列表中数据的定义在 utils/types 中
+import { ProTable, ProColumns, TableDropdown, ProCard, ProList } from "@ant-design/pro-components";
 import { DateTransform } from "../utils/transformer";
 
 interface AssetListProps {
     Assets: AssetData[]
 }
+const TestDetailInfo: AssetDetailInfo = {
+    Name: "测试资产",
+    ID: 1,
+    Status: 1,
+    Owner: "张三",
+    Description: "这是一个测试资产",
+    CreateTime: "2022-04-23",
+    History: [
+        {
+            review_time: "2022-04-23",
+            id: 1,
+            type: 1,
+            initiator: "李四",
+            participant: "王五",
+            asset_admin: "赵六",
+        },
+        {
+            review_time: "2022-04-22",
+            id: 2,
+            type: 2,
+            initiator: "王五",
+            participant: "赵六",
+            asset_admin: "李四",
+        },
+        {
+            review_time: "2022-04-21",
+            id: 3,
+            type: 3,
+            initiator: "赵六",
+            participant: "李四",
+            asset_admin: "王五",
+        },
+    ],
+};
 const AssetList = () => {
-    const [IsSomeRowCanNotDispatch, setIsSomeRowCanNotDispatch] = useState<boolean>(true);  //退还维保
+    const [IsSomeRowCanNotDispatch, setIsSomeRowCanNotDispatch] = useState<boolean>(false);  //退还维保
     const [SelectedRows, setSelectedRows] = useState<AssetData[]>([]);
     const [Detail, setDetail] = useState<boolean>(false);
+    const [DetailInfo, setDetailInfo] = useState<AssetDetailInfo>();
+    
     const columns: ProColumns<AssetData>[] = [
         {
             title: "资产编号",
@@ -25,11 +61,13 @@ const AssetList = () => {
             title: "资产名称",
             dataIndex: "Name",
             key: "Name",
+            tip: "标题过长会自动收缩",
             render: (_: any, record) => {
                 return (
                     <div>
-                        <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => { setDetail(true); }}>{record.Name}</a>
-
+                        <Tooltip title="点击查看详情">
+                            <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => { FetchDetail(record.ID); }}>{record.Name}</a>
+                        </Tooltip>
                         <Modal title="资产详细信息"
                             centered
                             open={Detail}
@@ -47,10 +85,23 @@ const AssetList = () => {
                                 }}
                             >
                                 <ProCard.TabPane key="Info" tab="资产信息">
-                                    内容一
+                                    <ProCard split="horizontal">
+                                        <ProCard split="vertical">
+                                            <ProCard title="资产名称">{DetailInfo?.Name}</ProCard>
+                                            <ProCard title="ID">{DetailInfo?.ID}</ProCard>
+                                            <ProCard title="创建时间">{DetailInfo?.CreateTime}</ProCard>
+                                        </ProCard>
+                                        <ProCard split="vertical">
+                                            <ProCard title="当前所有者">{DetailInfo?.Owner}</ProCard>
+                                            <ProCard title="状态">{DetailInfo?.Status}</ProCard>
+                                        </ProCard>
+                                        <ProCard split="vertical">
+                                            <ProCard title="资产描述">{DetailInfo?.Description}</ProCard>
+                                        </ProCard>
+                                    </ProCard>
                                 </ProCard.TabPane>
                                 <ProCard.TabPane key="History" tab="历史记录">
-                                    内容二
+                                    
                                 </ProCard.TabPane>
                             </ProCard>
 
@@ -133,11 +184,34 @@ const AssetList = () => {
     ];
     const router = useRouter();
     const query = router.query;
+    const FetchDetail = (AssetID: number) => {
+        request(`/api/Asset/Detail/${LoadSessionID()}/${AssetID}`, "GET")
+            .then(
+                (res) => {
+                    setDetailInfo(res.info);
+                    setDetail(true);
+
+                }
+            )
+            .catch(
+                (err: string) => {
+                    setDetailInfo(TestDetailInfo);
+                    setDetail(true);
+                    if (IfCodeSessionWrong(err, router)) {
+
+                        Modal.error({
+                            title: "获取详情信息失败",
+                            content: err.toString().substring(5),
+                        });
+                    }
+                }
+            );
+    };
     useEffect(() => {
         if (!router.isReady) {
             return;
         }
-    }, [router, query]);
+    }, [router, query, DetailInfo]);
     const hanleChange = (AssetIDList: number[], operation: number, MoveTo: string = "", Type = "") => {
         request(`api/Asset/Manage/${LoadSessionID()}`, "POST",
             {
@@ -177,7 +251,7 @@ const AssetList = () => {
     return (
         <ProTable
             columns={columns}
-            options={false}
+            options={{ reload: true, setting: false }}
             rowKey="ID"
             rowSelection={{
                 // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
@@ -213,6 +287,7 @@ const AssetList = () => {
                         // TODO ID到底是number还是string，前后端统一一下
                         // TODO 强等于弱等于的问题，暂时没去管
                         let filteredData = response.Asset;
+                        console.log(filteredData);
                         if (params.Description) {
                             filteredData = filteredData.filter(
                                 (item: AssetData) => item.Description.includes(params.Description)
@@ -264,6 +339,7 @@ const AssetList = () => {
                 span: 8,
                 searchText: "查询"
             }}
+            toolBarRender={() => []}
         />
 
     );

@@ -148,7 +148,7 @@ const ApplyApprovalList = () => {
     return (
         <ProTable
             columns={columns}
-            options={false}
+            options={{reload:true,setting:false}}
             // dataSource={TestData}
             actionRef={ref}
             request={async (params = {}) =>
