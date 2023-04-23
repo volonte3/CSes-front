@@ -115,7 +115,7 @@ const AssetList = () => {
             title: "资产名称",
             dataIndex: "Name",
             key: "Name",
-            tip: "标题过长会自动收缩",
+            tip: "点击资产可查看详情信息",
             render: (_: any, record) => {
                 return (
                     <div>
@@ -165,7 +165,6 @@ const AssetList = () => {
                                         request={async (params = {}) =>
                                             request(`/api/User/Asset_Detail/${LoadSessionID()}/${DetailInfo?.ID}`, "GET")
                                                 .then(response => {
-                                                    console.log("===============", response.Asset_Detail.History);
                                                     let filteredData = response.Asset_Detail.History;
                                                     if (params.Type) {
                                                         filteredData = filteredData.filter(
@@ -324,7 +323,7 @@ const AssetList = () => {
         }
     }, [router, query, DetailInfo]);
     const hanleChange = (AssetIDList: number[], operation: number, MoveTo: string = "", Type = "") => {
-        request(`api/Asset/Manage/${LoadSessionID()}`, "POST",
+        request(`/api/Asset/Manage/${LoadSessionID()}`, "POST",
             {
                 "operation": operation,
                 "AssetList": AssetIDList,
@@ -335,8 +334,8 @@ const AssetList = () => {
             .then(() => {
 
                 Modal.success({
-                    title: "申请成功",
-                    content: "成功提交请求",
+                    title: "操作成功",
+                    content: "成功更改资产状态",
                 });
             })
             .catch(
