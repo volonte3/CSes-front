@@ -18,7 +18,7 @@ const renderAuthority = (identity: number): string => {
     }
     return label;
 };
-const renderStatus = (Status: number): string => {
+const renderStatus = (Status: any): string => {
     let label = "";
     switch (Status) {
     case 0:
@@ -41,6 +41,29 @@ const renderStatus = (Status: number): string => {
     }
     return label;
 };
+const renderStatusBadge = (Status: any): "success" | "processing" | "error" | "default" | "warning" | undefined => {
+    let label: "success" | "processing" | "error" | "default" | "warning" | undefined;
+    switch (Status) {
+    case 0:
+        label = "success";
+        break;
+    case 1:
+        label = "error";
+        break;
+    case 2:
+        label = "warning";
+        break;
+    case 3:
+        label = "processing";
+        break;
+    case 4:
+        label = "default";
+        break;
+    default:
+        break;
+    }
+    return label;
+};
 const DateTransform=(text:string)=>{
     const date = new Date(text);
     const year = date.getFullYear();
@@ -55,5 +78,6 @@ const DateTransform=(text:string)=>{
 export {
     renderAuthority,
     renderStatus,
-    DateTransform
+    DateTransform,
+    renderStatusBadge
 };

@@ -12,41 +12,6 @@ interface AssetListProps {
     Assets: ApplyApprovalData[]
 }
 const ApplyApprovalList = () => {
-    const TestData: ApplyApprovalData[] = [
-        {
-            Name: "小熊",
-            AssetID: "123",
-            ApplyID: "002",
-            ApplyTime: "2023-04-18T07:47:11.258Z",
-            Operation: 0,
-            FromPerson: "李四",
-            ToPerson: "王五",
-            Applicant: "王五",
-            Valid: true,
-        },
-        {
-            Name: "披萨饼",
-            AssetID: "137",
-            ApplyID: "006",
-            ApplyTime: "2023-04-18T07:47:11.258Z",
-            Operation: 0,
-            FromPerson: "李四",
-            ToPerson: "王五",
-            Applicant: "王五",
-            Valid: false,
-        },
-        {
-            Name: "大玩具",
-            AssetID: "134",
-            ApplyID: "004",
-            ApplyTime: "2023-04-18T07:47:11.258Z",
-            Operation: 3,
-            FromPerson: "李四",
-            ToPerson: "王五",
-            Applicant: "王五",
-            Valid: true,
-        },
-    ];
     const handleApproval = (type: boolean, approval_id: string) => {
         request(`/api/Asset/Approval/${LoadSessionID()}`, "POST",
             {

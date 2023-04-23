@@ -1,12 +1,12 @@
 import React from "react";
-import { theme, Space, Table, Button, Modal, Menu, Tooltip, List } from "antd";
+import { theme, Space, Table, Button, Modal, Menu, Tooltip, Badge } from "antd";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
 import { AssetData, AssetDetailInfo, AssetHistory } from "../utils/types"; //对列表中数据的定义在 utils/types 中
 import { ProTable, ProColumns, TableDropdown, ProCard, ProList } from "@ant-design/pro-components";
-import { DateTransform } from "../utils/transformer";
+import { DateTransform,renderStatus,renderStatusBadge } from "../utils/transformer";
 
 interface AssetListProps {
     Assets: AssetData[]
@@ -50,7 +50,56 @@ const AssetList = () => {
     const [SelectedRows, setSelectedRows] = useState<AssetData[]>([]);
     const [Detail, setDetail] = useState<boolean>(false);
     const [DetailInfo, setDetailInfo] = useState<AssetDetailInfo>();
-    
+    const Historycolumns: ProColumns<AssetHistory>[] = [
+
+        {
+            title: "审批号",
+            dataIndex: "id",
+            search: false
+        },
+        {
+            title: "申请类型",
+            dataIndex: "type",
+            key: "type",
+            valueType: "select",
+            valueEnum: {
+                0: {
+                    text: "领用",
+                    status: "Success",
+                },
+                1: {
+                    text: "退库",
+                    status: "Error",
+                },
+                2: {
+                    text: "维保",
+                    status: "Warning",
+                },
+                3: {
+                    text: "转移",
+                    status: "Processing",
+                }
+            },
+        },
+        {
+            title: "发起者",
+            dataIndex: "initiator",
+        },
+        {
+            title: "参与者",
+            dataIndex: "participant",
+            search: false,
+        },
+        {
+            title: "审批人",
+            dataIndex: "asset_admin",
+        },
+        {
+            title: "审批时间",
+            dataIndex: "review_time",
+            search: false,
+        },
+    ];
     const columns: ProColumns<AssetData>[] = [
         {
             title: "资产编号",
@@ -73,11 +122,12 @@ const AssetList = () => {
                             open={Detail}
                             onCancel={() => { setDetail(false); }}
                             footer={[
-                                <Button key="ok" type="primary">
+                                <Button key="ok" type="primary" onClick={() => { setDetail(false); }}>
                                     确定
                                 </Button>,
                             ]}
                             mask={false}
+                            destroyOnClose={true}
                         >
                             <ProCard
                                 tabs={{
@@ -93,7 +143,9 @@ const AssetList = () => {
                                         </ProCard>
                                         <ProCard split="vertical">
                                             <ProCard title="当前所有者">{DetailInfo?.Owner}</ProCard>
-                                            <ProCard title="状态">{DetailInfo?.Status}</ProCard>
+                                            <ProCard title="状态">
+                                                <Badge status={renderStatusBadge(DetailInfo?.Status)} text={renderStatus(DetailInfo?.Status)} />
+                                            </ProCard>
                                         </ProCard>
                                         <ProCard split="vertical">
                                             <ProCard title="资产描述">{DetailInfo?.Description}</ProCard>
@@ -101,7 +153,61 @@ const AssetList = () => {
                                     </ProCard>
                                 </ProCard.TabPane>
                                 <ProCard.TabPane key="History" tab="历史记录">
-                                    
+                                    <ProTable
+                                        columns={Historycolumns}
+                                        options={false}
+                                        rowKey="ID"
+                                        request={async (params = {}) =>
+                                            request(`/api/User/Asset_Detail/${LoadSessionID()}/${DetailInfo?.ID}`, "GET")
+                                                .then(response => {
+                                                    let filteredData = TestDetailInfo.History;
+                                                    if (params.type) {
+                                                        filteredData = filteredData.filter(
+                                                            (item: AssetHistory) => item.type == params.type
+                                                        );
+                                                    }
+                                                    if (params.initiator) {
+                                                        filteredData = filteredData.filter(
+                                                            (item: AssetHistory) => item.initiator == params.initiator
+                                                        );
+                                                    }
+                                                    if (params.asset_admin) {
+                                                        filteredData = filteredData.filter(
+                                                            (item: AssetHistory) => item.asset_admin == params.asset_admin
+                                                        );
+                                                    }
+                                                    return Promise.resolve({ data: filteredData, success: true });
+                                                })
+                                                .catch((err) => {
+
+                                                    let filteredData = TestDetailInfo.History;
+                                                    if (params.type) {
+                                                        filteredData = filteredData.filter(
+                                                            (item: AssetHistory) => item.type == params.type
+                                                        );
+                                                    }
+                                                    if (params.initiator) {
+                                                        filteredData = filteredData.filter(
+                                                            (item: AssetHistory) => item.initiator == params.initiator
+                                                        );
+                                                    }
+                                                    if (params.asset_admin) {
+                                                        filteredData = filteredData.filter(
+                                                            (item: AssetHistory) => item.asset_admin == params.asset_admin
+                                                        );
+                                                    }
+                                                    return Promise.resolve({ data: filteredData, success: true });
+                                                })
+                                        }
+                                    // dataSource={DetailInfo?.History}
+                                    // search={{
+                                    //     defaultCollapsed: false,
+                                    //     defaultColsNumber: 1,
+                                    //     split: true,
+                                    //     span: 8,
+                                    //     searchText: "查询"
+                                    // }}
+                                    />
                                 </ProCard.TabPane>
                             </ProCard>
 
@@ -185,7 +291,7 @@ const AssetList = () => {
     const router = useRouter();
     const query = router.query;
     const FetchDetail = (AssetID: number) => {
-        request(`/api/Asset/Detail/${LoadSessionID()}/${AssetID}`, "GET")
+        request(`/api/Asset_Detail/${LoadSessionID()}/${AssetID}`, "GET")
             .then(
                 (res) => {
                     setDetailInfo(res.info);
@@ -198,7 +304,6 @@ const AssetList = () => {
                     setDetailInfo(TestDetailInfo);
                     setDetail(true);
                     if (IfCodeSessionWrong(err, router)) {
-
                         Modal.error({
                             title: "获取详情信息失败",
                             content: err.toString().substring(5),
