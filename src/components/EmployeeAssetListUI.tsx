@@ -21,7 +21,7 @@ const EmployeeAssetList = (props:EmployeeAssetListProps) => {
     const [SelectedRows, setSelectedRows] = useState<AssetData[]>([]); // 选择的所有行
     const [AssetList, setAssetList] = useState<AssetData[]>([]); // 最初获取的资产列表
     const [MyAsset, setMyAsset] = useState(1);// 当前是否显示个人所有资产，值为1则显示个人,否则显示闲置\
-    const tableRef = useRef<ActionType>(null);
+    const tableRef = useRef<ActionType>();
     // 下面是资产转移Modal的部分
     const [searchText, setSearchText] = useState(""); // 搜索框中的内容
     const [selectedEmployee, setSelectedEmployee] = useState<MemberData | null>(null); // 最后选中的员工
@@ -198,7 +198,6 @@ const EmployeeAssetList = (props:EmployeeAssetListProps) => {
         setOpen1(false);
         setOpen2(true);
     };
-    console.log(AssetList);
     return (
         <div>
             <Breadcrumb className="ant-breadcrumb">
@@ -302,7 +301,7 @@ const EmployeeAssetList = (props:EmployeeAssetListProps) => {
                     if(SelectedRows.length > 0) handleChange(SelectedRows.map((row: any) => row.ID),3,selectedEmployee?.Name,values.class);
                     else handleChange([selectedTransferAsset?selectedTransferAsset.ID:0],3,selectedEmployee?.Name,values.class);
                     setOpen2(false);
-                    if(tableRef.current?.clearSelected)tableRef.current?.clearSelected();
+                    if(tableRef.current?.clearSelected) tableRef.current?.clearSelected();
                     return true;
                 }}
             >

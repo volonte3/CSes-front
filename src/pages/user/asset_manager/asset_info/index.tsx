@@ -81,7 +81,7 @@ const App = () => {
                     <Content style={{ margin: "0 16px" }}>
 
                         <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
-                            <AssetList />
+                            <AssetList ManagerName={UserName} />
                         </div>
                     </Content>
                     <Footer style={{ textAlign: "center" }}>EAMS ©2023 Designed by CSes</Footer>
