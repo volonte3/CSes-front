@@ -1,12 +1,12 @@
 import React from "react";
-import { theme, Space, Table, Button, Modal, Menu, Tooltip, Badge } from "antd";
+import { theme, Space, Table, Button, Modal, Menu, Tooltip, Badge, Form, Select, Input } from "antd";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
 import { AssetData, AssetDetailInfo, AssetHistory } from "../utils/types"; //对列表中数据的定义在 utils/types 中
-import { ProTable, ProColumns, TableDropdown, ProCard, ProList } from "@ant-design/pro-components";
-import { DateTransform,renderStatus,renderStatusBadge } from "../utils/transformer";
+import { ProTable, ProColumns, TableDropdown, ProCard, ProList, ProForm } from "@ant-design/pro-components";
+import { DateTransform, renderStatus, renderStatusBadge } from "../utils/transformer";
 
 interface AssetListProps {
     Assets: AssetData[]
@@ -45,11 +45,23 @@ const TestDetailInfo: AssetDetailInfo = {
         },
     ],
 };
+const TestPropList: string[] = ["a", "b", "c", "d"];
+const { Option } = Select;
+
+const layout = {
+    labelCol: { span:8 },
+    wrapperCol: { span: 16 },
+};
+
+const tailLayout = {
+    wrapperCol: { offset: 16, span: 8 },
+};
 const AssetList = () => {
     const [IsSomeRowCanNotDispatch, setIsSomeRowCanNotDispatch] = useState<boolean>(false);  //退还维保
     const [SelectedRows, setSelectedRows] = useState<AssetData[]>([]);
     const [Detail, setDetail] = useState<boolean>(false);
     const [DetailInfo, setDetailInfo] = useState<AssetDetailInfo>();
+    const [PropList, setPropList] = useState<string[]>([]);
     const Historycolumns: ProColumns<AssetHistory>[] = [
 
         {
@@ -101,7 +113,7 @@ const AssetList = () => {
             render: (text: any, record) => {
                 console.log(text);
                 // TODO 不是很理解如果返回值为 undefined，前端默认会解析为 -
-                return (text!="-")?DateTransform(text):"-";
+                return (text != "-") ? DateTransform(text) : "-";
             },
         },
     ];
@@ -295,6 +307,7 @@ const AssetList = () => {
     ];
     const router = useRouter();
     const query = router.query;
+    const [PropForm] = Form.useForm();
     const FetchDetail = (AssetID: number) => {
         request(`/api/User/Asset_Detail/${LoadSessionID()}/${AssetID}`, "GET")
             .then(
@@ -358,100 +371,163 @@ const AssetList = () => {
         },
         algorithm: [theme.darkAlgorithm, theme.compactAlgorithm],
     };
-    return (
-        <ProTable
-            columns={columns}
-            options={{ reload: true, setting: false }}
-            rowKey="ID"
-            rowSelection={{
-                // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
-                // 注释该行则默认不显示下拉选项
-                selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
-                defaultSelectedRowKeys: [],
-            }}
-            tableAlertRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => {
-                setIsSomeRowCanNotDispatch(selectedRows.some(row => row.Status != 0));
-                setSelectedRows(selectedRows);
-                console.log(selectedRowKeys, selectedRows);
-                return (
-                    <Space size={4}>
-                        已选 {selectedRowKeys.length} 项
-                        <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={onCleanSelected} >
-                            取消选择
-                        </a>
-                    </Space>
-                );
-            }}
-            tableAlertOptionRender={() => {
-                return (
-                    <Space size={16} >
-                        <Button type="primary" onClick={() => hanleChange(SelectedRows.map((row: any) => row.ID), 0)}>清退资产</Button>
-                        <Button type="primary" disabled={IsSomeRowCanNotDispatch}>调拨资产</Button>
-                    </Space>
-                );
-            }}
-            request={async (params = {}) =>
-                request(`/api/Asset/Info/${LoadSessionID()}`, "GET")
-                    .then(response => {    // 将request请求的对象保存到state中
-                        // 对获取到的信息进行筛选，其中创建时间设为不可筛选项，描述、物品名称和所有者设为包含搜索，状态和ID设为严格搜索
-                        // TODO ID到底是number还是string，前后端统一一下
-                        // TODO 强等于弱等于的问题，暂时没去管
-                        let filteredData = response.Asset;
-                        console.log(filteredData);
-                        if (params.Description) {
-                            filteredData = filteredData.filter(
-                                (item: AssetData) => item.Description.includes(params.Description)
-                            );
-                        }
-                        if (params.Owner) {
-                            filteredData = filteredData.filter(
-                                (item: AssetData) => item.Owner.includes(params.Owner)
-                            );
-                        }
-                        if (params.ID) {
-                            filteredData = filteredData.filter(
-                                (item: AssetData) => item.ID == params.ID
-                            );
-                        }
-                        if (params.Name) {
-                            filteredData = filteredData.filter(
-                                (item: AssetData) => item.Name.includes(params.Name)
-                            );
-                        }
-                        if (params.Status) {
-                            filteredData = filteredData.filter(
-                                (item: AssetData) => item.Status == params.Status
-                            );
-                        }
-                        return Promise.resolve({ data: filteredData, success: true });
-                    })
-            }
-            form={{
-                // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
-                syncToUrl: (values, type) => {
-                    if (type === "get") {
-                        return {
-                            ...values,
-                            created_at: [values.startTime, values.endTime],
-                        };
-                    }
-                    return values;
-                },
-            }}
-            scroll={{ x: "100%", y: "calc(100vh - 300px)" }}
-            pagination={{
-                showSizeChanger: true
-            }}
-            search={{
-                defaultCollapsed: false,
-                defaultColsNumber: 1,
-                split: true,
-                span: 8,
-                searchText: "查询"
-            }}
-            toolBarRender={() => []}
-        />
+    const onPropChange = (value: string) => {
+        PropForm.setFieldsValue({ Prop: value });
+    };
 
+    const onFinish = (values: any) => {
+        console.log(values);
+
+    };
+
+    const onReset = () => {
+        console.log(PropForm.getFieldValue("Prop"), PropForm.getFieldValue("PropValue"));
+        PropForm.resetFields();
+    };
+    const PropSearch = () => {
+        return (
+            <Form
+                {...layout}
+                form={PropForm}
+                name="control-hooks"
+                onFinish={onFinish}
+                style={{ maxWidth: 600 }}
+
+            >
+                <ProForm.Group>
+                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                        <Form.Item name="Prop" label="自定义属性" rules={[{ required: true }]} >
+                            <Select
+                                placeholder="选择部门下资产的自定义属性"
+                                onChange={onPropChange}
+                                allowClear
+                            >
+                                {PropList.map((item) => (
+                                    <Option key={item} value={item}>
+                                        {item}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                        <Form.Item name="PropValue" label="属性值" rules={[{ required: true }]} >
+                            <Input />
+                        </Form.Item>
+                        <Form.Item {...tailLayout}>
+                            <Button htmlType="button" onClick={onReset}>
+                                重置
+                            </Button>
+                        </Form.Item>
+                    </div>
+                </ProForm.Group>
+            </Form>
+        );
+    };
+    return (
+        <>
+            <PropSearch />
+            <ProTable
+                columns={columns}
+                options={{ reload: true, setting: false }}
+                rowKey="ID"
+                rowSelection={{
+                    // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
+                    // 注释该行则默认不显示下拉选项
+                    selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
+                    defaultSelectedRowKeys: [],
+                }}
+                tableAlertRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => {
+                    setIsSomeRowCanNotDispatch(selectedRows.some(row => row.Status != 0));
+                    setSelectedRows(selectedRows);
+                    console.log(selectedRowKeys, selectedRows);
+                    return (
+                        <Space size={4}>
+                            已选 {selectedRowKeys.length} 项
+                            <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={onCleanSelected} >
+                                取消选择
+                            </a>
+                        </Space>
+                    );
+                }}
+                tableAlertOptionRender={() => {
+                    return (
+                        <Space size={16} >
+                            <Button type="primary" onClick={() => hanleChange(SelectedRows.map((row: any) => row.ID), 0)}>清退资产</Button>
+                            <Button type="primary" disabled={IsSomeRowCanNotDispatch}>调拨资产</Button>
+                        </Space>
+                    );
+                }}
+                request={async (params = {}) => {
+                    const loadSessionID = LoadSessionID();
+                    let url = `/api/Asset/Info/${loadSessionID}`;
+                    if (PropForm.getFieldValue("Prop") && PropForm.getFieldValue("PropValue")) {
+                        url += `/${PropForm.getFieldValue("Prop")}/${PropForm.getFieldValue("PropValue")}`;
+                    }
+                    return (request(url, "GET")
+                        .then(response => {    // 将request请求的对象保存到state中
+                            // 对获取到的信息进行筛选，其中创建时间设为不可筛选项，描述、物品名称和所有者设为包含搜索，状态和ID设为严格搜索
+                            // TODO ID到底是number还是string，前后端统一一下
+                            // TODO 强等于弱等于的问题，暂时没去管
+                            // setPropList(response.DepartmentProp);
+                            setPropList(TestPropList);
+                            let filteredData = response.Asset;
+                            console.log(filteredData);
+                            if (params.Description) {
+                                filteredData = filteredData.filter(
+                                    (item: AssetData) => item.Description.includes(params.Description)
+                                );
+                            }
+                            if (params.Owner) {
+                                filteredData = filteredData.filter(
+                                    (item: AssetData) => item.Owner.includes(params.Owner)
+                                );
+                            }
+                            if (params.ID) {
+                                filteredData = filteredData.filter(
+                                    (item: AssetData) => item.ID == params.ID
+                                );
+                            }
+                            if (params.Name) {
+                                filteredData = filteredData.filter(
+                                    (item: AssetData) => item.Name.includes(params.Name)
+                                );
+                            }
+                            if (params.Status) {
+                                filteredData = filteredData.filter(
+                                    (item: AssetData) => item.Status == params.Status
+                                );
+                            }
+                            return Promise.resolve({ data: filteredData, success: true });
+                        }));
+                }
+
+
+                }
+                form={{
+                    // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
+                    syncToUrl: (values, type) => {
+                        if (type === "get") {
+                            return {
+                                ...values,
+                                created_at: [values.startTime, values.endTime],
+                            };
+                        }
+                        return values;
+                    },
+                }}
+                scroll={{ x: "100%", y: "calc(100vh - 300px)" }}
+                pagination={{
+                    showSizeChanger: true
+                }}
+                search={{
+                    defaultCollapsed: false,
+                    defaultColsNumber: 1,
+                    split: true,
+                    span: 8,
+                    searchText: "查询"
+                }}
+                toolBarRender={() => []}
+            />
+        </>
     );
 };
 export default AssetList;
