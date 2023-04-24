@@ -1,11 +1,11 @@
-import { ProTable, ProColumns, TableDropdown, ModalForm, ProForm, ProFormTreeSelect } from "@ant-design/pro-components";
+import { ProTable, ProColumns, TableDropdown, ModalForm, ProForm, ProFormTreeSelect, ActionType } from "@ant-design/pro-components";
 import React from "react";
 import { Form, Input, List, MenuProps } from "antd";
 import { AssetData } from "../utils/types"; //对列表中数据的定义在 utils/types 中
 import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, Switch, Modal, Button, Radio } from "antd";
 const { Column } = Table;
 import { useRouter } from "next/router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { request } from "../utils/network";
 import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
 import { MemberData } from "../utils/types";
@@ -17,9 +17,11 @@ interface EmployeeAssetListProps {
 const EmployeeAssetList = (props:EmployeeAssetListProps) => {
     const [IsSomeRowReceiveFalse, setIsSomeRowReceiveFalse] = useState<boolean>(true); // 是否能领用
     const [IsSomeRowTransfersFalse, setIsSomeRowTransfersFalse] = useState<boolean>(true);// 是否能转移
+    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [SelectedRows, setSelectedRows] = useState<AssetData[]>([]); // 选择的所有行
     const [AssetList, setAssetList] = useState<AssetData[]>([]); // 最初获取的资产列表
-    const [MyAsset, setMyAsset] = useState(1);// 当前是否显示个人所有资产，值为1则显示个人,否则显示闲置
+    const [MyAsset, setMyAsset] = useState(1);// 当前是否显示个人所有资产，值为1则显示个人,否则显示闲置\
+    const tableRef = useRef<ActionType>(null);
     // 下面是资产转移Modal的部分
     const [searchText, setSearchText] = useState(""); // 搜索框中的内容
     const [selectedEmployee, setSelectedEmployee] = useState<MemberData | null>(null); // 最后选中的员工
@@ -37,12 +39,14 @@ const EmployeeAssetList = (props:EmployeeAssetListProps) => {
                     const newlist = response.Asset.filter((item: AssetData) => (
                         item.Owner == props.EmployeeName
                     ));
+                    console.log("fetchlist 1");
                     setAssetList(newlist);
                 }
                 if(myasset==0) {
                     const newlist = response.Asset.filter((item: AssetData) => (
                         item.Owner != props.EmployeeName && item.Status == 0
                     ));
+                    console.log("fetchlist 1");
                     setAssetList(newlist);
                 }
             });
@@ -59,7 +63,7 @@ const EmployeeAssetList = (props:EmployeeAssetListProps) => {
     }, [router, query, props]);
     // 核心的提交函数，对应资产申请api
     const handleChange = (AssetIDList: number[], operation: number, MoveTo: string = "", Type: string="") => {
-        request(`api/Asset/Apply/${LoadSessionID()}`, "POST",
+        request(`/api/Asset/Apply/${LoadSessionID()}`, "POST",
             {
                 "operation": operation,
                 "AssetList": AssetIDList,
@@ -137,13 +141,30 @@ const EmployeeAssetList = (props:EmployeeAssetListProps) => {
                         {MyAsset==0 && <Button key= "receive" title= "领用" disabled={!IsReceive} onClick={()=>handleChange([record.ID], 0)}>领用</Button>}
                         {MyAsset==1 && <Button key= "receive" title= "退库" disabled={!IsReturn} onClick={()=>handleChange([record.ID], 1)}>退库</Button>}
                         {MyAsset==1 && <Button key= "receive" title= "维保" disabled={!IsMaintenance} onClick={()=>handleChange([record.ID], 2)}>维保</Button>}
-                        {MyAsset==1 && <Button key= "receive" title= "转移" disabled={!IsTransfers} onClick={()=>{setOpen1(true);setTransferAsset(record);}}>转移</Button>}
+                        {MyAsset==1 && <Button key= "receive" title= "转移" disabled={!IsTransfers} onClick={()=>{setOpen1(true);setTransferAsset(record);GetMemberList();}}>转移</Button>}
                     </Space>
                 );
             },
         }
     ];
     // 资产转移第一步modal的相关函数
+    const GetMemberList = () => {
+        request(`/api/User/member/${LoadSessionID()}`, "GET")
+            .then((res) => {
+                const newmembers = res.member.filter((item: MemberData) =>(item.Name != props.EmployeeName));
+                // const Member = JSON.parse(res.jsonString) as MemberData;
+                setEmployee(newmembers);
+            })
+            .catch((err) => {
+                if (IfCodeSessionWrong(err, router)) {
+                    Modal.error({
+                        title: "无权获取用户列表",
+                        content: "请重新登录",
+                        onOk: () => { window.location.href = "/"; }
+                    });
+                }
+            });
+    };
     const handleSearch = (e:any) => {
         setSearchText(e.target.value);
     };
@@ -180,6 +201,11 @@ const EmployeeAssetList = (props:EmployeeAssetListProps) => {
     console.log(AssetList);
     return (
         <div>
+            <Breadcrumb className="ant-breadcrumb">
+                <Breadcrumb.Item key={0}>
+                    {MyAsset==1?"个人资产":"部门闲置资产"}
+                </Breadcrumb.Item>
+            </Breadcrumb>
             {MyAsset == 1 && <Button
                 type="primary"
                 style={{ float: "left", margin: 10 }}
@@ -204,6 +230,7 @@ const EmployeeAssetList = (props:EmployeeAssetListProps) => {
                     selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
                     defaultSelectedRowKeys: [],
                 }}
+                actionRef={tableRef}
                 tableAlertRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => {
                     setIsSomeRowReceiveFalse(selectedRows.some(row => !row.IsReceive));
                     setIsSomeRowTransfersFalse(selectedRows.some(row => !row.IsTransfers));
@@ -211,18 +238,18 @@ const EmployeeAssetList = (props:EmployeeAssetListProps) => {
                     console.log(selectedRowKeys, selectedRows);
                     return (
                         <Space size={4}>
-                        已选 {selectedRowKeys.length} 项
-                            <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={onCleanSelected} >
-                            取消选择
+                            已选 {selectedRowKeys.length} 项
+                            <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={onCleanSelected}>
+                                取消选择
                             </a>
                         </Space>
                     );
                 }}
                 tableAlertOptionRender={() => {
                     return (
-                        <Space size={16} >
-                            <Button type="primary" disabled={IsSomeRowReceiveFalse} onClick={() => handleChange(SelectedRows.map((row: any) => row.ID), 0)}>领用资产</Button>
-                            <Button type="primary" disabled={IsSomeRowTransfersFalse} onClick={() => setOpen1(true)}>转移资产</Button>
+                        <Space size={16}>
+                            {MyAsset==0 && <Button type="primary" disabled={IsSomeRowReceiveFalse} onClick={() => { handleChange(SelectedRows.map((row: any) => row.ID), 0);if(tableRef.current?.clearSelected)tableRef.current?.clearSelected();} }>领用资产</Button>}
+                            {MyAsset==1 && <Button type="primary" disabled={IsSomeRowTransfersFalse} onClick={() => { setOpen1(true); GetMemberList();}}>转移资产</Button>}
                         </Space>
                     );
                 }}
@@ -275,6 +302,7 @@ const EmployeeAssetList = (props:EmployeeAssetListProps) => {
                     if(SelectedRows.length > 0) handleChange(SelectedRows.map((row: any) => row.ID),3,selectedEmployee?.Name,values.class);
                     else handleChange([selectedTransferAsset?selectedTransferAsset.ID:0],3,selectedEmployee?.Name,values.class);
                     setOpen2(false);
+                    if(tableRef.current?.clearSelected)tableRef.current?.clearSelected();
                     return true;
                 }}
             >

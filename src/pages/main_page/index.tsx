@@ -35,7 +35,7 @@ const App = () => {
     const rolelist = ["超级管理员","系统管理员","资产管理员","员工"];
     const user_applist = ["资产查看","资产领用","资产退库","资产维保","资产转移"];
     const assetmanager_applist = ["资产审批","资产定义","资产录入","资产变更","资产查询","资产清退","资产调拨","资产统计","资产告警"];
-    const systemmanager_applist = ["用户列表","角色管理","部门管理","应用管理","操作日志","导入导出管理"];
+    const systemmanager_applist = ["用户列表","角色管理","部门管理","应用管理","操作日志","导入导出"];
     const supermanager_applist = ["业务实体管理","系统管理员列表"];
     const user_urllist = ["","","","",""];
     const assetmanager_urllist = ["","/asset/asset_define","/asset/asset_add","","","","","",""];
