@@ -1,3 +1,4 @@
+import { FC, useMemo} from "react";
 import React from "react";
 import {
     PlusOutlined,
@@ -42,9 +43,15 @@ let ListLike = [
     },
 ];
 
+interface MyDic {
+    [key: string]: string;
+}
+
 type DataItem = (typeof ListLike)[number];
 
 let AddList: DataItem[] = [];
+
+let AllProList: string[][][] = [];
 
 const waitTime = (time: number = 100) => {
     return new Promise((resolve) => {
@@ -53,6 +60,14 @@ const waitTime = (time: number = 100) => {
         }, time);
     });
 };
+
+
+interface MyFormProps {
+    inputCount: number;
+  }
+  
+  
+
 
 const App = () => {
     const [collapsed, setCollapsed] = useState(false);  //左侧边栏是否可以收起
@@ -67,10 +82,42 @@ const App = () => {
     const [Change, setChange] = useState(false);
     const [AssetID, setAssetID] = useState<number>(1);
     const [AssetList, setAssetList] = useState<{[key : number] : string}>({});
+    const [ListKey, setListKey] = useState<number>(0);
+    const [ProperList, setProperList] = useState<[]>([]);
     const router = useRouter();
     const query = router.query;
+
+    const MyForm: FC<MyFormProps> = ({ inputCount }) => {
+        const inputs = useMemo(() => {
+            const result = [];
+            for (let i = 0; i < inputCount; i++) {
+                result.push(
+                    <ProForm.Group>
+                        <ProFormText
+                            name={`property${i}`}
+                            label={ProperList[i]}
+                            placeholder={"请输入"}
+                            rules={[{ required: true, message: "这是必填项" }]}
+                        />
+                    </ProForm.Group>
+                );
+            }
+            return result;
+        }, [inputCount]);
+      
+        return (
+            <div>
+                {inputs}
+            </div>     
+        );
+    };
+
     const add = () => {
         let ok = true;
+        if (AddList.length == 0) {
+            message.warning("没有数据!");
+            return;
+        }
         for (let i = 0; i < AddList.length; i = i + 1) {
             let item = AddList[i];
             request(
@@ -90,7 +137,22 @@ const App = () => {
                     ok = false;
                     console.log(err.message);
                     Modal.error({
-                        title: "资产" + AddList[i].name +  "录入错误",
+                        title: "资产" + item.name +  "录入错误",
+                        content: err.message.substring(5),
+                    });
+                });
+            console.log(AllProList[i]);
+            let nowList = AllProList[i];
+            let body: MyDic = {};
+            for (let k = 0; k < nowList.length; k = k + 1) {
+                body[nowList[k][0]] = nowList[k][1];
+            }
+            request(`/api/Asset/WriteProp/${LoadSessionID()}`, "POST", { ...body })
+                .catch((err) => {
+                    ok = false;
+                    console.log(err.message);
+                    Modal.error({
+                        title: "资产录入错误",
                         content: err.message.substring(5),
                     });
                 });
@@ -101,9 +163,28 @@ const App = () => {
         AddList.splice(0);
         setChange((e) => !e);
     };
+
+    const changeProperList = (value: number) => {
+        request(
+            `/api/Asset/AppendType/${LoadSessionID()}/${value}`,
+            "GET"
+        )
+            .then((res) => {
+                setProperList(res.Property);
+                console.log(ProperList);
+            })
+            .catch((err) => {
+                Modal.error({
+                    title: "错误",
+                    content: err.message.substring(5),
+                });
+            });
+    };
+
     const {
         token: { colorBgContainer },
     } = theme.useToken();
+
     useEffect(() => {
         if (!router.isReady) {
             return;
@@ -228,8 +309,14 @@ const App = () => {
                                             describe: values.describe,
                                         }
                                     );
+                                    let tempList: string[][] = [];
+                                    for (let k = 0; k < ProperList.length; k = k + 1) {
+                                        tempList.push([ProperList[k], form.getFieldValue(`property${k}`)]);
+                                    }
+                                    AllProList.push(tempList);
                                     setAssetID((e) => (e+1));
                                     setChange((e) => !e);
+                                    setListKey((e) => (e+1));
                                     // console.log(AddList);
                                     // console.log("--------------------");
                                     // console.log(values.name);
@@ -265,6 +352,9 @@ const App = () => {
                                             // treeCheckable: true,
                                             // showCheckedStrategy: TreeSelect.SHOW_PARENT,
                                             placeholder: "请选择资产分类",
+                                            onChange: (value) => {
+                                                changeProperList(value);
+                                            },
                                         }}
                                     />
                                 </ProForm.Group>
@@ -275,6 +365,7 @@ const App = () => {
                                         width="lg"
                                         tooltip="如果该资产有所属的主资产，请在这里添加"
                                         valueEnum={AssetList}
+                                        showSearch={true}
                                         placeholder="请选择所属的主资产"
                                         
                                     />
@@ -316,6 +407,7 @@ const App = () => {
                                         rules={[{ required: true, message: "这是必填项" }]} 
                                     />
                                 </ProForm.Group>
+                                <MyForm inputCount={ProperList.length} />
                             </ModalForm>
                         </Col>
                         <Col offset={17}>
@@ -328,6 +420,7 @@ const App = () => {
                     <Row align="top">
                         <Col span={20}>
                             <ProList<DataItem>
+                                key={ListKey}
                                 rowKey="id"
                                 headerTitle="待录入资产列表"
                                 dataSource={dataSource}
@@ -343,16 +436,16 @@ const App = () => {
                                     title: {
                                         dataIndex: "name",
                                     },
-                                    subTitle: {
-                                        render: () => {
-                                            return (
-                                                <Space size={0}>
-                                                    <Tag color="blue">Ant Design</Tag>
-                                                    <Tag color="#5BD8A6">TechUI</Tag>
-                                                </Space>
-                                            );
-                                        },
-                                    },
+                                    // subTitle: {
+                                    //     render: () => {
+                                    //         return (
+                                    //             <Space size={0}>
+                                    //                 <Tag color="blue">Ant Design</Tag>
+                                    //                 <Tag color="#5BD8A6">TechUI</Tag>
+                                    //             </Space>
+                                    //         );
+                                    //     },
+                                    // },
                                     actions: {
                                         render: (text, row, index, action) => [
                                             <a
