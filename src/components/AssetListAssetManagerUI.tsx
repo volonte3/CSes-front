@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { theme, Space, Table, Button, Modal, Menu, Tooltip, Badge, Form, Select, Input, List } from "antd";
+import { theme, Space, Table, Button, Modal, Menu, Tooltip, Badge, Form, Select, Input, List, Divider } from "antd";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { request } from "../utils/network";
@@ -49,14 +49,22 @@ const TestPropList: string[] = ["a", "b", "c", "d"];
 const { Option } = Select;
 
 const layout = {
-    labelCol: { span:8 },
-    wrapperCol: { span: 16 },
+    labelCol: {
+        // xs: {span:24},
+        // sm: {sapn:7}
+        flex: "100px",
+    },
+    wrapperCol: {
+        xs: { span: 24 },
+        // sm: {span:17}
+        // span: "1"
+    },
 };
 
 const tailLayout = {
     wrapperCol: { offset: 16, span: 8 },
 };
-const AssetList = (props:AssetListProps) => {
+const AssetList = (props: AssetListProps) => {
     const [IsSomeRowCanNotDispatch, setIsSomeRowCanNotDispatch] = useState<boolean>(false);  //退还维保
     const [SelectedRows, setSelectedRows] = useState<AssetData[]>([]);
     const [Detail, setDetail] = useState<boolean>(false);
@@ -71,7 +79,7 @@ const AssetList = (props:AssetListProps) => {
     const [treeData, setAsset] = useState<[]>(); // 储存要转移到的部门的资产列表树
     const [Open1, setOpen1] = useState(false); // 判断是否需要打开资产转移的第一步Modal
     const [Open2, setOpen2] = useState(false); // 判断是否需要打开资产转移的第二步Modal
-    const [form] = Form.useForm<{class: string;}>(); // 第二个Modal的格式
+    const [form] = Form.useForm<{ class: string; }>(); // 第二个Modal的格式
     const Historycolumns: ProColumns<AssetHistory>[] = [
 
         {
@@ -298,7 +306,7 @@ const AssetList = (props:AssetListProps) => {
                 const options = [
                     { key: "receive", name: "清退", onClick: () => hanleChange([record.ID], 0) },
                     { key: "return", name: "退维", disabled: record.Status != 2, onClick: () => hanleChange([record.ID], 1) },
-                    { key: "maintenance", name: "调拨", disabled: record.Status != 0, onClick:()=>{setOpen1(true);setTransferAsset(record);GetMemberList();}},
+                    { key: "maintenance", name: "调拨", disabled: record.Status != 0, onClick: () => { setOpen1(true); setTransferAsset(record); GetMemberList(); } },
                 ];
                 const menuItems = options.map(option => (
                     <Menu.Item key={option.key} disabled={option.disabled} onClick={option.onClick}>
@@ -396,6 +404,7 @@ const AssetList = (props:AssetListProps) => {
     };
     const PropSearch = () => {
         return (
+            
             <Form
                 {...layout}
                 form={PropForm}
@@ -406,11 +415,14 @@ const AssetList = (props:AssetListProps) => {
             >
                 <ProForm.Group>
                     <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                        <Form.Item name="Prop" label="自定义属性" rules={[{ required: true }]} >
+                        <Form.Item name="Prop" label="自定义属性" 
+                        // rules={[{ required: true, message: "属性不能为空" }]}
+                        >
                             <Select
                                 placeholder="选择部门下资产的自定义属性"
                                 onChange={onPropChange}
                                 allowClear
+                                style={{ width: "100px" }}
                             >
                                 {PropList.map((item) => (
                                     <Option key={item} value={item}>
@@ -419,8 +431,10 @@ const AssetList = (props:AssetListProps) => {
                                 ))}
                             </Select>
                         </Form.Item>
-                        <Form.Item name="PropValue" label="属性值" rules={[{ required: true }]} >
-                            <Input />
+                        <Form.Item name="PropValue" label="属性值" 
+                        // rules={[{ required: true, message: "属性值不能为空" }]}
+                        >
+                            <Input placeholder="属性值" />
                         </Form.Item>
                         <Form.Item {...tailLayout}>
                             <Button htmlType="button" onClick={onReset}>
@@ -436,7 +450,7 @@ const AssetList = (props:AssetListProps) => {
     const GetMemberList = () => {
         request(`/api/User/member/${LoadSessionID()}`, "GET")
             .then((res) => {
-                const members = res.member.filter((item: MemberData) =>(item.Name != props.ManagerName && item.Authority == 2));
+                const members = res.member.filter((item: MemberData) => (item.Name != props.ManagerName && item.Authority == 2));
                 console.log(members);
                 setEmployee(members);
             })
@@ -450,23 +464,23 @@ const AssetList = (props:AssetListProps) => {
                 }
             });
     };
-    const handleSearch = (e:any) => {
+    const handleSearch = (e: any) => {
         setSearchText(e.target.value);
     };
-    const handleSelectEmployee = (employee:MemberData) => {
+    const handleSelectEmployee = (employee: MemberData) => {
         setSelectedEmployee(employee);
     };
     const filteredData = Employee ? Employee.filter(
         item =>
             (item.Name.includes(searchText) ||
-      item.Department.includes(searchText))
-    ):[];
+            item.Department.includes(searchText))
+    ) : [];
     const handleOk1 = () => { // 资产转移第一步的ok键，获取部门的资产分类树，同时打开第二步的modal
         request(
             "/api/Asset/DepartmentTree",
             "POST",
             {
-                SessionID:LoadSessionID(),
+                SessionID: LoadSessionID(),
                 UserName: selectedEmployee?.Name,
             }
         )
@@ -485,7 +499,9 @@ const AssetList = (props:AssetListProps) => {
     };
     return (
         <>
+            <Divider orientation="center" >自定义属性</Divider>
             <PropSearch />
+            <Divider orientation="center" >基本属性</Divider>
             <ProTable
                 columns={columns}
                 options={{ reload: true, setting: false }}
@@ -512,8 +528,8 @@ const AssetList = (props:AssetListProps) => {
                 tableAlertOptionRender={() => {
                     return (
                         <Space size={16} >
-                            <Button type="primary" onClick={() => hanleChange(SelectedRows.map((row: any) => row.ID), 0)}>清退资产</Button>
-                            <Button type="primary" disabled={IsSomeRowCanNotDispatch} onClick={() => { setOpen1(true); GetMemberList();}}>调拨资产</Button>
+                            <Button type="primary" onClick={() => {hanleChange(SelectedRows.map((row: any) => row.ID), 0);if(tableRef.current?.clearSelected) tableRef.current?.clearSelected();}}>清退资产</Button>
+                            <Button type="primary" disabled={IsSomeRowCanNotDispatch} onClick={() => { setOpen1(true); GetMemberList(); }}>调拨资产</Button>
                         </Space>
                     );
                 }}
@@ -616,22 +632,22 @@ const AssetList = (props:AssetListProps) => {
                 />
             </Modal>
             <ModalForm<{
-            class: string;
+                class: string;
             }>
                 title="请选择资产分类"
                 form={form}
                 autoFocusFirstInput
                 modalProps={{
                     destroyOnClose: true,
-                    onCancel: () => {setOpen2(false);setOpen1(true);},
+                    onCancel: () => { setOpen2(false); setOpen1(true); },
                 }}
                 submitTimeout={1000}
                 open={Open2}
                 onFinish={async (values) => {
-                    if(SelectedRows.length > 0) hanleChange(SelectedRows.map((row: any) => row.ID),2,selectedEmployee?.Name,values.class);
-                    else hanleChange([selectedTransferAsset?selectedTransferAsset.ID:0],2,selectedEmployee?.Name,values.class);
+                    if (SelectedRows.length > 0) hanleChange(SelectedRows.map((row: any) => row.ID), 2, selectedEmployee?.Name, values.class);
+                    else hanleChange([selectedTransferAsset ? selectedTransferAsset.ID : 0], 2, selectedEmployee?.Name, values.class);
                     setOpen2(false);
-                    if(tableRef.current?.clearSelected)tableRef.current?.clearSelected();
+                    if (tableRef.current?.clearSelected) tableRef.current?.clearSelected();
                     return true;
                 }}
             >
@@ -640,7 +656,7 @@ const AssetList = (props:AssetListProps) => {
                         label="资产分类"
                         name="class"
                         width="lg"
-                        rules={[{ required: true, message: "这是必选项" }]} 
+                        rules={[{ required: true, message: "这是必选项" }]}
                         fieldProps={{
                             fieldNames: {
                                 label: "title",
@@ -650,7 +666,7 @@ const AssetList = (props:AssetListProps) => {
                         }}
                     />
                 </ProForm.Group>
-                
+
             </ModalForm>
         </>
     );
