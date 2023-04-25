@@ -53,6 +53,8 @@ const App = () => {
     const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
     const [AppList, setAppList] = useState<AppData[]>();
     const rolelist = ["超级管理员","系统管理员","资产管理员","员工"];
+    const [TOREAD, setTOREAD] = useState(false);
+    const [TODO, setTODO] = useState(false);
     const {
         token: { colorBgContainer },
     } = theme.useToken();
@@ -221,6 +223,8 @@ const App = () => {
                 }
                 setEntity(res.Entity);
                 setDepartment(res.Department);
+                setTODO(res.TODO);
+                setTOREAD(res.TOREAD);
                 request(
                     "/api/Asset/tree",
                     "POST",
@@ -262,7 +266,7 @@ const App = () => {
                 </Sider>
                 <Layout className="site-layout" >
                     {contextHolder}
-                    <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department}></UserInfo>
+                    <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
                     <Content style={{ margin: "0 16px" }}>
                         <Breadcrumb style={{ margin: "16px 0" }}>
                             <Breadcrumb.Item>资产定义</Breadcrumb.Item>

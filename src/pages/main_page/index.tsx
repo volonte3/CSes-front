@@ -1,5 +1,5 @@
 import React from "react";
-import { Layout, Menu, Dropdown, Button, Divider, Space, Modal } from "antd";
+import { Layout, Menu, Dropdown, Button, Divider, Space, Modal, MenuProps, Descriptions } from "antd";
 import { UserOutlined, BellOutlined, DownOutlined, PoweroffOutlined } from "@ant-design/icons";
 import { logout, LoadSessionID, IfCodeSessionWrong } from "../../utils/CookieOperation";
 import { useRouter } from "next/router";
@@ -7,13 +7,8 @@ import { request } from "../../utils/network";
 import { useState, useEffect } from "react";
 import CardUI from "../../components/CardUI";
 import { AppData } from "../../utils/types";
+import { renderAuthority } from "../../utils/transformer";
 const { Header, Content } = Layout;
-const DropdownMenu = (
-    <Menu>
-        <Menu.Item key="1">待办事项</Menu.Item>
-        <Menu.Item key="2">已完成事项</Menu.Item>
-    </Menu>
-);
 
 const App = () => {
     const logoutSendMessage = () => {
@@ -37,10 +32,12 @@ const App = () => {
     const assetmanager_applist = ["资产审批","资产定义","资产录入","资产变更","资产查询","资产清退","资产调拨","资产统计","资产告警"];
     const systemmanager_applist = ["用户列表","角色管理","部门管理","应用管理","操作日志","导入导出"];
     const supermanager_applist = ["业务实体管理","系统管理员列表"];
-    const user_urllist = ["","","","",""];
-    const assetmanager_urllist = ["","/asset/asset_define","/asset/asset_add","","","","","",""];
     const systemmanager_urllist = ["/user/system_manager","/user/system_manager","/user/system_manager/department","/user/system_manager/application","",""];
     const supermanager_urllist = ["/user/super_manager","/user/super_manager"];
+    const [Entity, setEntity] = useState<string>(""); // 实体名称
+    const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
+    const [TOREAD, setTOREAD] = useState(false);
+    const [TODO, setTODO] = useState(false);
     const GetApp = (Authority: number) => {
         request(
             `/api/User/App/${LoadSessionID()}/${Authority}`,
@@ -73,6 +70,10 @@ const App = () => {
                 setUserApp(res.UserApp);
                 setUserAuthority(res.Authority);
                 if(res.Authority == 2 || res.Authority == 3) GetApp(res.Authority);
+                setEntity(res.Entity);
+                setDepartment(res.Department);
+                setTODO(res.TODO);
+                setTOREAD(res.TOREAD);
             })
             .catch((err) => {
                 console.log(err.message);
@@ -85,10 +86,57 @@ const App = () => {
             });
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query, state]);
-    const user_apps = UserApp.split("").filter((item, index) => index >= 0 && index <= 4).map((char) => (char === "0" ? 0 : 1));
-    const am_apps = UserApp.split("").filter((item, index) => index >= 5 && index <= 13).map((char) => (char === "0" ? 0 : 1));
+    const DropdownMenu = (
+        <Menu>
+            {UserAuthority==2 && TODO && 
+                <Menu.Item key="1" onClick={() => router.push("/user/asset_manager/apply_approval")}>
+                    您有新的待办事项
+                </Menu.Item>
+            }
+            {UserAuthority==2 && !TODO && 
+                <Menu.Item key="2">
+                    暂无新待办事项
+                </Menu.Item>
+            }
+            {TOREAD && 
+                <Menu.Item key="3" onClick={() => router.push("/user/message")}>
+                    您有新的消息
+                </Menu.Item>
+            }
+            {!TOREAD && 
+                <Menu.Item key="4">
+                    暂无新消息
+                </Menu.Item>
+            }
+        </Menu>
+    );
     const sm_apps = UserApp.split("").filter((item, index) => index >= 14 && index <= 19).map((char) => (char === "0" ? 0 : 1));
     const superm_apps = UserApp.split("").filter((item, index) => index >= 20).map((char) => (char === "0" ? 0 : 1));
+    const items: MenuProps["items"] = [
+        {
+            key: "1",
+            label: (
+                <Descriptions title={UserName} bordered>
+                    <Descriptions.Item label="身份" span={2}>
+                        <UserOutlined /> {renderAuthority(UserAuthority)}
+                    </Descriptions.Item>
+  
+                    {UserAuthority !== 0 && (
+                        <Descriptions.Item label="业务实体" span={2}>
+                            {Entity}
+                        </Descriptions.Item>
+                    )}
+
+                    {(UserAuthority === 2 || UserAuthority === 3) && (
+                        <Descriptions.Item label="部门" span={2}>
+                            {Department}
+                        </Descriptions.Item>
+                    )}
+                </Descriptions>
+            ),
+        },
+
+    ];
     if (state) {
         return (
             <Layout style={{
@@ -96,14 +144,26 @@ const App = () => {
                 backgroundImage: "url(\"LoginBackground.png\")", backgroundSize: "cover", backgroundPosition: "center"
             }}>
                 <Header style = {{background : "transparent"}}>
-                    <div className="logo">CSCompany 资产管理系统</div>
-                    <div className="right-menu">
-                        <Button type = "text" className="header_button" color="#fff" icon={<UserOutlined /> }>{UserName}</Button>
-                        <Dropdown overlay={DropdownMenu} trigger={["click"]}>
-                            <Button type = "text" className="header_button" icon={<BellOutlined />}>待办事项<DownOutlined /></Button>
-                        </Dropdown>
-                        <Button type = "text" className="header_button" icon={<PoweroffOutlined />} onClick={() => { logoutSendMessage();logout(); }}>退出登录</Button>
-                    </div>
+                    <>
+                        <div className="mainpage_logo" color="#fff" >CSCompany 资产管理系统</div>
+                        <div className="right-menu">
+                            <Dropdown  menu={{ items }}>
+                                <Button type = "text" className="header_button" icon={<UserOutlined /> }>{UserName}</Button>
+                            </Dropdown>
+                            {(UserAuthority==2 || UserAuthority==3) && (!TODO && !TOREAD) && <Dropdown overlay={DropdownMenu}>
+                                <Button type = "text" className="header_button" icon={<BellOutlined />}>消息列表<DownOutlined /></Button>
+                            </Dropdown>}
+                            {(UserAuthority==2 || UserAuthority==3) && (TODO || TOREAD) && <Dropdown overlay={DropdownMenu}>
+                                <Button type = "text" className="header_button has_unread">
+                                    <span className="badge"></span>
+                                    <BellOutlined/>
+                                    消息列表
+                                    <DownOutlined />
+                                </Button>
+                            </Dropdown>}
+                            <Button type = "text" className="header_button" icon={<PoweroffOutlined />} onClick={() => {logoutSendMessage();logout();}}>退出登录</Button>
+                        </div>
+                    </>
                 </Header>
                 <Content>
                     <div className="site-layout-content">

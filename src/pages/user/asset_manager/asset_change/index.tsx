@@ -15,8 +15,8 @@ const App = () => {
     const [collapsed, setCollapsed] = useState(false);
     const [UserName, setUserName] = useState<string>(""); // 用户名
     const [UserAuthority, setUserAuthority] = useState(2); // 用户的角色权限，0超级，1系统，2资产，3员工
-    const [UserApp, setUserApp] = useState<string>(""); // 用户显示的卡片，01串
-    const [Asset, setAsset] = useState<AssetData[]>(); // 存储加载该系统管理员管理的资产管理员和员工的信息
+    const [TOREAD, setTOREAD] = useState(false);
+    const [TODO, setTODO] = useState(false);
     const router = useRouter();
     const query = router.query;
     const [Entity, setEntity] = useState<string>(""); // 实体名称
@@ -36,7 +36,6 @@ const App = () => {
             .then((res) => {
                 setState(true);
                 setUserName(res.UserName);
-                setUserApp(res.UserApp);
                 setUserAuthority(res.Authority);
                 if(res.Authority != 2 ){
                     Modal.error({
@@ -47,6 +46,8 @@ const App = () => {
                 }
                 setEntity(res.Entity);
                 setDepartment(res.Department);
+                setTODO(res.TODO);
+                setTOREAD(res.TOREAD);
             })
             .catch((err) => {
                 console.log(err.message);
@@ -67,7 +68,7 @@ const App = () => {
                     <SiderMenu UserAuthority={UserAuthority} />
                 </Sider>
                 <Layout className="site-layout" >
-                    <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department}></UserInfo>
+                    <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
                     {/* <div>
                         <Button
                             type="primary"

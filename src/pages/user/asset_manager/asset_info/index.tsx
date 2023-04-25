@@ -19,6 +19,8 @@ const App = () => {
     const [Asset, setAsset] = useState<AssetData[]>(); // 存储加载该系统管理员管理的资产管理员和员工的信息
     const router = useRouter();
     const query = router.query;
+    const [TOREAD, setTOREAD] = useState(false);
+    const [TODO, setTODO] = useState(false);
     const [Entity, setEntity] = useState<string>(""); // 实体名称
     const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
     const {
@@ -47,6 +49,8 @@ const App = () => {
                 }
                 setEntity(res.Entity);
                 setDepartment(res.Department);
+                setTODO(res.TODO);
+                setTOREAD(res.TOREAD);
             })
             .catch((err) => {
                 console.log(err.message);
@@ -67,7 +71,7 @@ const App = () => {
                     <SiderMenu UserAuthority={UserAuthority} />
                 </Sider>
                 <Layout className="site-layout" >
-                    <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department}></UserInfo>
+                    <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
                     {/* <div>
                         <Button
                             type="primary"

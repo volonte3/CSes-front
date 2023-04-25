@@ -76,6 +76,8 @@ const App = () => {
     const [UserAuthority, setUserAuthority] = useState(2); // 用户的角色权限，0超级，1系统，2资产，3员工
     const [Entity, setEntity] = useState<string>(""); // 实体名称
     const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
+    const [TOREAD, setTOREAD] = useState(false);
+    const [TODO, setTODO] = useState(false);
     const [form] = Form.useForm<{ name: string; class: string; father: number; count: number; money: number; position: string; describe: string }>();
     const [treeData, setAsset] = useState<[]>(); // 储存资产列表树
     const [dataSource, setDataSource] = useState<DataItem[]>(AddList);
@@ -198,6 +200,8 @@ const App = () => {
                 }
                 setEntity(res.Entity);
                 setDepartment(res.Department);
+                setTODO(res.TODO);
+                setTOREAD(res.TOREAD);
             })
             .catch((err) => {
                 console.log(err.message);
@@ -258,7 +262,7 @@ const App = () => {
                     <SiderMenu UserAuthority={UserAuthority} />
                 </Sider>
                 <Layout className="site-layout" >
-                    <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department}></UserInfo>              
+                    <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>              
                     <Breadcrumb style={{ margin: "16px 0" }}>
                         <Breadcrumb.Item>资产录入</Breadcrumb.Item>
                     </Breadcrumb>
