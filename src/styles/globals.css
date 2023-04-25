@@ -49,12 +49,15 @@ a {
   height: 64px;
 }
 .ant-layout-header {
-  background: linear-gradient(to bottom, #1890ff, #fff);
+  background: linear-gradient(to bottom, #45a4fc, #fff);
   padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 100px;
+}
+.ant-layout-footer {
+  background: linear-gradient(to top, #9dddf8, #FFFFFF);
 }
 .right-menu {
   display: flex;
@@ -129,4 +132,7 @@ a {
   transform: scale(1.05);
   border: 2px solid #1890ff;
   border-radius: 4px;
+}
+.ant-layout {
+  background-color: white;
 }

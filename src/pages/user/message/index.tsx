@@ -4,17 +4,18 @@ const { Column, ColumnGroup } = Table;
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
-import { request } from "../../../../utils/network";
-import { logout, LoadSessionID } from "../../../../utils/CookieOperation";
-import ApplyApprovalList from "../../../../components/ApplyApprovalListUI";
-import UserInfo from "../../../../components/UserInfoUI";
-import SiderMenu from "../../../../components/SiderUI";
+import { request } from "../../../utils/network";
+import { logout, LoadSessionID } from "../../../utils/CookieOperation";
+import AssetChange from "../../../components/AssetChangeUI";
+import UserInfo from "../../../components/UserInfoUI";
+import { AssetData } from "../../../utils/types";
+import SiderMenu from "../../../components/SiderUI";
+import MessageUI from "../../../components/MessageUI";
 const App = () => {
     const [state, setState] = useState(true); // 用户是否处在登录状态
     const [collapsed, setCollapsed] = useState(false);
     const [UserName, setUserName] = useState<string>(""); // 用户名
     const [UserAuthority, setUserAuthority] = useState(2); // 用户的角色权限，0超级，1系统，2资产，3员工
-    const [UserApp, setUserApp] = useState<string>(""); // 用户显示的卡片，01串
     const [TOREAD, setTOREAD] = useState(false);
     const [TODO, setTODO] = useState(false);
     const router = useRouter();
@@ -24,6 +25,7 @@ const App = () => {
     const {
         token: { colorBgContainer },
     } = theme.useToken();
+
     useEffect(() => {
         if (!router.isReady) {
             return;
@@ -35,15 +37,14 @@ const App = () => {
             .then((res) => {
                 setState(true);
                 setUserName(res.UserName);
-                setUserApp(res.UserApp);
                 setUserAuthority(res.Authority);
-                if(res.Authority != 2 ){
-                    Modal.error({
-                        title: "无权访问",
-                        content: "请重新登录",
-                        onOk: () => { window.location.href = "/"; }
-                    });
-                }
+                // if(res.Authority == 0 || res.Authority == 1 ){
+                //     Modal.error({
+                //         title: "无权访问",
+                //         content: "请重新登录",
+                //         onOk: () => { window.location.href = "/"; }
+                //     });
+                // }
                 setEntity(res.Entity);
                 setDepartment(res.Department);
                 setTODO(res.TODO);
@@ -60,7 +61,7 @@ const App = () => {
             });
     }, [router, query, state]);
     if (state) {
-
+        
         return (
             <Layout style={{ minHeight: "100vh" }}>
                 <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
@@ -72,11 +73,8 @@ const App = () => {
                         <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
                     </Header>
                     <Content style={{ margin: "0 16px" }}>
-                        <Breadcrumb style={{ margin: "16px 0" }}>
-                            <Breadcrumb.Item>资产审批</Breadcrumb.Item>
-                        </Breadcrumb>
                         <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
-                            <ApplyApprovalList />
+                            <MessageUI />
                         </div>
                     </Content>
                     <Footer style={{ textAlign: "center" }}>EAMS ©2023 Designed by CSes</Footer>

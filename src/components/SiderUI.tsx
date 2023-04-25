@@ -58,6 +58,9 @@ const SiderMenu = ({ UserAuthority }: { UserAuthority: number }) => {
             <Menu.Item key={30} onClick={()=>{router.push("/main_page");}}>
                 首页
             </Menu.Item>
+            {(UserAuthority == 2 || UserAuthority == 3) && <Menu.Item key={40} onClick={()=>{router.push("/user/message");}}>
+                消息列表
+            </Menu.Item>}
             {menuItems}
         </Menu>
     );

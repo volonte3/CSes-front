@@ -128,7 +128,7 @@ const UserInfo = (props:UserinfoProps) => {
             }
             {props.Authority==2 && !props.TODO && 
                 <Menu.Item key="2">
-                    暂无新待办事项
+                    暂无待办事项
                 </Menu.Item>
             }
             {props.TOREAD && 

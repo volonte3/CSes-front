@@ -68,17 +68,9 @@ const App = () => {
                     <SiderMenu UserAuthority={UserAuthority} />
                 </Sider>
                 <Layout className="site-layout" >
-                    <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
-                    {/* <div>
-                        <Button
-                            type="primary"
-                            // icon={<PlusSquareOutlined />}
-                            style={{ float: "left", margin: 10 }}
-                        // onClick={showDrawer1}
-                        >
-                            添加部门
-                        </Button>
-                    </div> */}
+                    <Header className="ant-layout-header">
+                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
+                    </Header>
                     <Content style={{ margin: "0 16px" }}>
                         <Breadcrumb style={{ margin: "16px 0" }}>
                             <Breadcrumb.Item>资产变更</Breadcrumb.Item>

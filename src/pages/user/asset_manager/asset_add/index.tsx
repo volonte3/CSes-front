@@ -262,13 +262,16 @@ const App = () => {
                     <SiderMenu UserAuthority={UserAuthority} />
                 </Sider>
                 <Layout className="site-layout" >
-                    <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>              
+                    <Header className="ant-layout-header">
+                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
+                    </Header>              
                     <Breadcrumb style={{ margin: "16px 0" }}>
                         <Breadcrumb.Item>资产录入</Breadcrumb.Item>
                     </Breadcrumb>
-                    <Row gutter={[8, 6]}>
-                        <Col>
-                            <ModalForm<{
+                    <Content style={{ margin: "0 16px" }}>
+                        <Row gutter={[8, 6]}>
+                            <Col>
+                                <ModalForm<{
                                 name: string;
                                 class: string;
                                 father: number;
@@ -277,188 +280,189 @@ const App = () => {
                                 position: string;
                                 describe: string;
                             }>
-                                title="新建资产"
-                                trigger={
-                                    <Button type="primary">
-                                        <PlusOutlined />
+                                    title="新建资产"
+                                    trigger={
+                                        <Button type="primary">
+                                            <PlusOutlined />
                                         新建资产
-                                    </Button>
-                                }
-                                form={form}
-                                autoFocusFirstInput
-                                modalProps={{
-                                    destroyOnClose: true,
-                                    onCancel: () => console.log("run"),
-                                }}
-                                submitTimeout={1000}
-                                onFinish={async (values) => {
-                                    await waitTime(1000);
-                                    AddList.push(
-                                        {
-                                            id: AssetID.toString(),
-                                            name: values.name,
-                                            class: values.class,
-                                            father: values.father,
-                                            count: values.count,
-                                            money: values.money,
-                                            position: values.position,
-                                            describe: values.describe,
-                                        }
-                                    );
-                                    let tempList: string[][] = [];
-                                    for (let k = 0; k < ProperList.length; k = k + 1) {
-                                        tempList.push([ProperList[k], form.getFieldValue(`property${k}`)]);
+                                        </Button>
                                     }
-                                    AllProList.push(tempList);
-                                    setAssetID((e) => (e+1));
-                                    setChange((e) => !e);
-                                    setListKey((e) => (e+1));
-                                    // console.log(AddList);
-                                    // console.log("--------------------");
-                                    // console.log(values.name);
-                                    // console.log(values.class);
-                                    // console.log(values.father);
-                                    // console.log(values.count);
-                                    // console.log(values.money);
-                                    // console.log(values.position);
-                                    // console.log(values.describe);
-                                    return true;
-                                }}
-                            >
-                                <ProForm.Group>
-                                    <ProFormText 
-                                        width="lg" 
-                                        name="name" 
-                                        label="资产名称" 
-                                        placeholder="请输入名称"
-                                        rules={[{ required: true, message: "这是必填项" }]} 
-                                    />
-                                </ProForm.Group>
-                                <ProForm.Group>
-                                    <ProFormTreeSelect
-                                        label="资产分类"
-                                        name="class"
-                                        width="lg"
-                                        rules={[{ required: true, message: "这是必填项" }]} 
-                                        fieldProps={{
-                                            fieldNames: {
-                                                label: "title",
-                                            },
-                                            treeData,
-                                            // treeCheckable: true,
-                                            // showCheckedStrategy: TreeSelect.SHOW_PARENT,
-                                            placeholder: "请选择资产分类",
-                                            onChange: (value) => {
-                                                changeProperList(value);
-                                            },
-                                        }}
-                                    />
-                                </ProForm.Group>
-                                <ProForm.Group>
-                                    <ProFormSelect
-                                        name="father"
-                                        label="所属主资产"
-                                        width="lg"
-                                        tooltip="如果该资产有所属的主资产，请在这里添加"
-                                        valueEnum={AssetList}
-                                        showSearch={true}
-                                        placeholder="请选择所属的主资产"
-                                        
-                                    />
-                                </ProForm.Group>
-                                <ProForm.Group>
-                                    <ProFormDigit 
-                                        name="count" 
-                                        label="资产数量" 
-                                        width="lg"
-                                        placeholder="请输入数量"
-                                        rules={[{ required: true, message: "这是必填项" }]} 
-                                    />
-                                </ProForm.Group>
-                                <ProForm.Group>
-                                    <ProFormMoney
-                                        label="资产价值"
-                                        name="money"
-                                        locale="zh-CN"
-                                        initialValue={0.00}
-                                        min={0}
-                                        rules={[{ required: true, message: "这是必填项" }]} 
-                                    />
-                                </ProForm.Group>
-                                <ProForm.Group>
-                                    <ProFormTextArea
-                                        name="position"
-                                        label="资产位置"
-                                        width="lg"
-                                        placeholder="请输入位置"
-                                        rules={[{ required: true, message: "这是必填项" }]} 
-                                    />
-                                </ProForm.Group>
-                                <ProForm.Group>
-                                    <ProFormTextArea
-                                        name="describe"
-                                        label="资产描述"
-                                        width="lg"
-                                        placeholder="请输入描述"
-                                        rules={[{ required: true, message: "这是必填项" }]} 
-                                    />
-                                </ProForm.Group>
-                                <MyForm inputCount={ProperList.length} />
-                            </ModalForm>
-                        </Col>
-                        <Col offset={17}>
-                            <Button type="primary" icon={<CheckOutlined />} onClick={add}>
-                                录入
-                            </Button>
-                        </Col>
-                    </Row>
-                    <br></br>
-                    <Row align="top">
-                        <Col span={20}>
-                            <ProList<DataItem>
-                                key={ListKey}
-                                rowKey="id"
-                                headerTitle="待录入资产列表"
-                                dataSource={dataSource}
-                                showActions="hover"
-                                editable={{
-                                    onSave: async (key, record, originRow) => {
-                                        console.log(key, record, originRow);
+                                    form={form}
+                                    autoFocusFirstInput
+                                    modalProps={{
+                                        destroyOnClose: true,
+                                        onCancel: () => console.log("run"),
+                                    }}
+                                    submitTimeout={1000}
+                                    onFinish={async (values) => {
+                                        await waitTime(1000);
+                                        AddList.push(
+                                            {
+                                                id: AssetID.toString(),
+                                                name: values.name,
+                                                class: values.class,
+                                                father: values.father,
+                                                count: values.count,
+                                                money: values.money,
+                                                position: values.position,
+                                                describe: values.describe,
+                                            }
+                                        );
+                                        let tempList: string[][] = [];
+                                        for (let k = 0; k < ProperList.length; k = k + 1) {
+                                            tempList.push([ProperList[k], form.getFieldValue(`property${k}`)]);
+                                        }
+                                        AllProList.push(tempList);
+                                        setAssetID((e) => (e+1));
+                                        setChange((e) => !e);
+                                        setListKey((e) => (e+1));
+                                        // console.log(AddList);
+                                        // console.log("--------------------");
+                                        // console.log(values.name);
+                                        // console.log(values.class);
+                                        // console.log(values.father);
+                                        // console.log(values.count);
+                                        // console.log(values.money);
+                                        // console.log(values.position);
+                                        // console.log(values.describe);
                                         return true;
-                                    },
-                                }}
-                                onDataSourceChange={setDataSource}
-                                metas={{
-                                    title: {
-                                        dataIndex: "name",
-                                    },
-                                    // subTitle: {
-                                    //     render: () => {
-                                    //         return (
-                                    //             <Space size={0}>
-                                    //                 <Tag color="blue">Ant Design</Tag>
-                                    //                 <Tag color="#5BD8A6">TechUI</Tag>
-                                    //             </Space>
-                                    //         );
-                                    //     },
-                                    // },
-                                    actions: {
-                                        render: (text, row, index, action) => [
-                                            <a
-                                                onClick={() => {
-                                                    AddList.splice(index, 1);
-                                                    setChange((e) => !e);
-                                                }}
-                                                key="link"
-                                            >
+                                    }}
+                                >
+                                    <ProForm.Group>
+                                        <ProFormText 
+                                            width="lg" 
+                                            name="name" 
+                                            label="资产名称" 
+                                            placeholder="请输入名称"
+                                            rules={[{ required: true, message: "这是必填项" }]} 
+                                        />
+                                    </ProForm.Group>
+                                    <ProForm.Group>
+                                        <ProFormTreeSelect
+                                            label="资产分类"
+                                            name="class"
+                                            width="lg"
+                                            rules={[{ required: true, message: "这是必填项" }]} 
+                                            fieldProps={{
+                                                fieldNames: {
+                                                    label: "title",
+                                                },
+                                                treeData,
+                                                // treeCheckable: true,
+                                                // showCheckedStrategy: TreeSelect.SHOW_PARENT,
+                                                placeholder: "请选择资产分类",
+                                                onChange: (value) => {
+                                                    changeProperList(value);
+                                                },
+                                            }}
+                                        />
+                                    </ProForm.Group>
+                                    <ProForm.Group>
+                                        <ProFormSelect
+                                            name="father"
+                                            label="所属主资产"
+                                            width="lg"
+                                            tooltip="如果该资产有所属的主资产，请在这里添加"
+                                            valueEnum={AssetList}
+                                            showSearch={true}
+                                            placeholder="请选择所属的主资产"
+                                        
+                                        />
+                                    </ProForm.Group>
+                                    <ProForm.Group>
+                                        <ProFormDigit 
+                                            name="count" 
+                                            label="资产数量" 
+                                            width="lg"
+                                            placeholder="请输入数量"
+                                            rules={[{ required: true, message: "这是必填项" }]} 
+                                        />
+                                    </ProForm.Group>
+                                    <ProForm.Group>
+                                        <ProFormMoney
+                                            label="资产价值"
+                                            name="money"
+                                            locale="zh-CN"
+                                            initialValue={0.00}
+                                            min={0}
+                                            rules={[{ required: true, message: "这是必填项" }]} 
+                                        />
+                                    </ProForm.Group>
+                                    <ProForm.Group>
+                                        <ProFormTextArea
+                                            name="position"
+                                            label="资产位置"
+                                            width="lg"
+                                            placeholder="请输入位置"
+                                            rules={[{ required: true, message: "这是必填项" }]} 
+                                        />
+                                    </ProForm.Group>
+                                    <ProForm.Group>
+                                        <ProFormTextArea
+                                            name="describe"
+                                            label="资产描述"
+                                            width="lg"
+                                            placeholder="请输入描述"
+                                            rules={[{ required: true, message: "这是必填项" }]} 
+                                        />
+                                    </ProForm.Group>
+                                    <MyForm inputCount={ProperList.length} />
+                                </ModalForm>
+                            </Col>
+                            <Col offset={17}>
+                                <Button type="primary" icon={<CheckOutlined />} onClick={add}>
+                                录入
+                                </Button>
+                            </Col>
+                        </Row>
+                        <br></br>
+                        <Row align="top">
+                            <Col span={20}>
+                                <ProList<DataItem>
+                                    key={ListKey}
+                                    rowKey="id"
+                                    headerTitle="待录入资产列表"
+                                    dataSource={dataSource}
+                                    showActions="hover"
+                                    editable={{
+                                        onSave: async (key, record, originRow) => {
+                                            console.log(key, record, originRow);
+                                            return true;
+                                        },
+                                    }}
+                                    onDataSourceChange={setDataSource}
+                                    metas={{
+                                        title: {
+                                            dataIndex: "name",
+                                        },
+                                        // subTitle: {
+                                        //     render: () => {
+                                        //         return (
+                                        //             <Space size={0}>
+                                        //                 <Tag color="blue">Ant Design</Tag>
+                                        //                 <Tag color="#5BD8A6">TechUI</Tag>
+                                        //             </Space>
+                                        //         );
+                                        //     },
+                                        // },
+                                        actions: {
+                                            render: (text, row, index, action) => [
+                                                <a
+                                                    onClick={() => {
+                                                        AddList.splice(index, 1);
+                                                        setChange((e) => !e);
+                                                    }}
+                                                    key="link"
+                                                >
                                                     删除
-                                            </a>,
-                                        ],
-                                    },
-                                }}
-                            />
-                        </Col>
-                    </Row>
+                                                </a>,
+                                            ],
+                                        },
+                                    }}
+                                />
+                            </Col>
+                        </Row>
+                    </Content>
                     <Footer style={{ textAlign: "center" }}>EAMS ©2023 Designed by CSes</Footer>
                 </Layout>
             </Layout >
