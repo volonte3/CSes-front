@@ -538,15 +538,15 @@ const AssetList = (props: AssetListProps) => {
                     const loadSessionID = LoadSessionID();
                     let url = `/api/Asset/Info/${loadSessionID}`;
                     if (PropForm.getFieldValue("Prop") && PropForm.getFieldValue("PropValue")) {
-                        url += `/${PropForm.getFieldValue("Prop")}/${PropForm.getFieldValue("PropValue")}`;
+                        url = `/api/Asset/InfoProp/${loadSessionID}/${PropForm.getFieldValue("Prop")}/${PropForm.getFieldValue("PropValue")}`;
                     }
                     return (request(url, "GET")
                         .then(response => {    // 将request请求的对象保存到state中
                             // 对获取到的信息进行筛选，其中创建时间设为不可筛选项，描述、物品名称和所有者设为包含搜索，状态和ID设为严格搜索
                             // TODO ID到底是number还是string，前后端统一一下
                             // TODO 强等于弱等于的问题，暂时没去管
-                            // setPropList(response.DepartmentProp);
-                            setPropList(TestPropList);
+                            setPropList(response.DepartmentProp);
+                            // setPropList(TestPropList);
                             let filteredData = response.Asset;
                             console.log(filteredData);
                             if (params.Description) {
