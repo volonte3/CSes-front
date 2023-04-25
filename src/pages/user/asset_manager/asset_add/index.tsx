@@ -120,6 +120,12 @@ const App = () => {
         }
         for (let i = 0; i < AddList.length; i = i + 1) {
             let item = AddList[i];
+            console.log(AllProList[i]);
+            let nowList = AllProList[i];
+            let body: MyDic = {};
+            for (let k = 0; k < nowList.length; k = k + 1) {
+                body[nowList[k][0]] = nowList[k][1];
+            }
             request(
                 `/api/Asset/Append/${LoadSessionID()}`,
                 "POST",
@@ -131,6 +137,7 @@ const App = () => {
                     Describe: item.describe,
                     Value: item.money,
                     Parent: item.father? item.father: null,
+                    Property: {...body},
                 }
             )
                 .catch((err) => {
@@ -138,21 +145,6 @@ const App = () => {
                     console.log(err.message);
                     Modal.error({
                         title: "资产" + item.name +  "录入错误",
-                        content: err.message.substring(5),
-                    });
-                });
-            console.log(AllProList[i]);
-            let nowList = AllProList[i];
-            let body: MyDic = {};
-            for (let k = 0; k < nowList.length; k = k + 1) {
-                body[nowList[k][0]] = nowList[k][1];
-            }
-            request(`/api/Asset/WriteProp/${LoadSessionID()}`, "POST", { ...body })
-                .catch((err) => {
-                    ok = false;
-                    console.log(err.message);
-                    Modal.error({
-                        title: "资产录入错误",
                         content: err.message.substring(5),
                     });
                 });
