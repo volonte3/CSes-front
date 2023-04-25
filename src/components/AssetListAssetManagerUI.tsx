@@ -6,7 +6,7 @@ import { request } from "../utils/network";
 import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
 import { AssetData, AssetDetailInfo, AssetHistory, MemberData } from "../utils/types"; //对列表中数据的定义在 utils/types 中
 import { ProTable, ProColumns, TableDropdown, ProCard, ProList, ProForm, ModalForm, ProFormTreeSelect, ActionType } from "@ant-design/pro-components";
-import { DateTransform, renderStatus, renderStatusBadge } from "../utils/transformer";
+import { DateTransform, renderStatus,renderStatusChanges, renderStatusBadge } from "../utils/transformer";
 
 interface AssetListProps {
     ManagerName: string;
@@ -108,7 +108,19 @@ const AssetList = (props: AssetListProps) => {
                 3: {
                     text: "转移",
                     status: "Processing",
-                }
+                },
+                4: {
+                    text: "清退",
+                    status: "Default",
+                },
+                5: {
+                    text: "退维",
+                    status: "Success",
+                },
+                6: {
+                    text: "调拨",
+                    status: "Processing",
+                },
             },
         },
         {

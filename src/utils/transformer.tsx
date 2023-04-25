@@ -59,11 +59,49 @@ const renderStatusBadge = (Status: any): "success" | "processing" | "error" | "d
     case 4:
         label = "default";
         break;
+    case 5:
+        label = "success";
+        break;
+    case 6:
+        label = "processing";
+        break;
     default:
+        label = "default";
         break;
     }
     return label;
 };
+const renderStatusChanges = (Status:number|undefined) =>{
+    let label = "";
+    switch (Status) {
+    case 0:
+        label = "领用";
+        break;
+        
+    case 1:
+        label = "退库";
+        break;
+    case 2:
+        label = "维保";
+        break;
+    case 3:
+        label = "转移";
+        break;
+    case 4:
+        label = "清退";
+        break;
+    case 5:
+        label = "退维";
+        break;
+    case 6:
+        label = "调拨";
+        break;
+    default:
+        label = "其它";
+        break;
+    }
+    return label;
+} ;
 const DateTransform=(text:string|undefined)=>{
     if (text==undefined) return undefined;
     const date = new Date(text);
@@ -80,5 +118,6 @@ export {
     renderAuthority,
     renderStatus,
     DateTransform,
-    renderStatusBadge
+    renderStatusBadge,
+    renderStatusChanges
 };
