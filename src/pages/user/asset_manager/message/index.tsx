@@ -4,13 +4,11 @@ const { Column, ColumnGroup } = Table;
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
-import { request } from "../../../utils/network";
-import { logout, LoadSessionID } from "../../../utils/CookieOperation";
-import AssetChange from "../../../components/AssetChangeUI";
-import UserInfo from "../../../components/UserInfoUI";
-import { AssetData } from "../../../utils/types";
-import SiderMenu from "../../../components/SiderUI";
-import MessageUI from "../../../components/MessageUI";
+import { request } from "../../../../utils/network";
+import { LoadSessionID } from "../../../../utils/CookieOperation";
+import UserInfo from "../../../../components/UserInfoUI";
+import SiderMenu from "../../../../components/SiderUI";
+import MessageUI from "../../../../components/MessageUI";
 const App = () => {
     const [state, setState] = useState(true); // 用户是否处在登录状态
     const [collapsed, setCollapsed] = useState(false);

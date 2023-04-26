@@ -4,18 +4,16 @@ const { Column, ColumnGroup } = Table;
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
-import { request } from "../../../utils/network";
-import { logout, LoadSessionID } from "../../../utils/CookieOperation";
-import AssetChange from "../../../components/AssetChangeUI";
-import UserInfo from "../../../components/UserInfoUI";
-import { AssetData } from "../../../utils/types";
-import SiderMenu from "../../../components/SiderUI";
-import MessageUI from "../../../components/MessageUI";
+import { request } from "../../../../utils/network";
+import {LoadSessionID } from "../../../../utils/CookieOperation";
+import UserInfo from "../../../../components/UserInfoUI";
+import SiderMenu from "../../../../components/SiderUI";
+import MessageUI from "../../../../components/MessageUI";
 const App = () => {
     const [state, setState] = useState(true); // 用户是否处在登录状态
     const [collapsed, setCollapsed] = useState(false);
     const [UserName, setUserName] = useState<string>(""); // 用户名
-    const [UserAuthority, setUserAuthority] = useState(2); // 用户的角色权限，0超级，1系统，2资产，3员工
+    const [UserAuthority, setUserAuthority] = useState(3); // 用户的角色权限，0超级，1系统，2资产，3员工
     const [TOREAD, setTOREAD] = useState(false);
     const [TODO, setTODO] = useState(false);
     const router = useRouter();
