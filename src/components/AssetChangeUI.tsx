@@ -225,6 +225,7 @@ const AssetChange = () => {
                         </ModalForm>
                     </div>);
             },
+            search:false
         },
     ];
     const router = useRouter();
