@@ -121,6 +121,14 @@ const AssetList = (props: AssetListProps) => {
                     text: "调拨",
                     status: "Processing",
                 },
+                7:{
+                    text: "录入",
+                    status: "Success",
+                },
+                8:{
+                    text: "变更",
+                    status: "Warning",
+                }
             },
         },
         {
