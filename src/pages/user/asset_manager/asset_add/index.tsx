@@ -86,6 +86,7 @@ const App = () => {
     const [AssetList, setAssetList] = useState<{[key : number] : string}>({});
     const [ListKey, setListKey] = useState<number>(0);
     const [ProperList, setProperList] = useState<[]>([]);
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
     const query = router.query;
 
@@ -115,6 +116,7 @@ const App = () => {
     };
 
     const add = () => {
+        setLoading(true);
         let ok = true;
         if (AddList.length == 0) {
             message.warning("没有数据!");
@@ -143,6 +145,7 @@ const App = () => {
                 }
             )
                 .catch((err) => {
+                    setLoading(false);
                     ok = false;
                     console.log(err.message);
                     Modal.error({
@@ -153,6 +156,7 @@ const App = () => {
         }
         if (ok) {
             message.success("提交成功");
+            setLoading(false);
         }
         AddList.splice(0);
         setChange((e) => !e);
@@ -410,7 +414,7 @@ const App = () => {
                                 </ModalForm>
                             </Col>
                             <Col offset={17}>
-                                <Button type="primary" icon={<CheckOutlined />} onClick={add}>
+                                <Button loading={loading} type="primary" icon={<CheckOutlined />} onClick={add}>
                                 录入
                                 </Button>
                             </Col>

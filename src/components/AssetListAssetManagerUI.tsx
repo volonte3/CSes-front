@@ -80,6 +80,7 @@ const AssetList = (props: AssetListProps) => {
     const [Open1, setOpen1] = useState(false); // 判断是否需要打开资产转移的第一步Modal
     const [Open2, setOpen2] = useState(false); // 判断是否需要打开资产转移的第二步Modal
     const [form] = Form.useForm<{ class: string; }>(); // 第二个Modal的格式
+    const [loading, setLoading] = useState(false);
     const Historycolumns: ProColumns<AssetHistory>[] = [
 
         {
@@ -366,6 +367,7 @@ const AssetList = (props: AssetListProps) => {
         }
     }, [router, query, DetailInfo]);
     const hanleChange = (AssetIDList: number[], operation: number, MoveTo: string = "", Type = "") => {
+        setLoading(true);
         request(`/api/Asset/Manage/${LoadSessionID()}`, "POST",
             {
                 "operation": operation,
@@ -375,6 +377,7 @@ const AssetList = (props: AssetListProps) => {
             }
         )
             .then(() => {
+                setLoading(false);
                 Modal.success({
                     title: "操作成功",
                     content: "成功更改资产状态",
@@ -383,6 +386,7 @@ const AssetList = (props: AssetListProps) => {
             })
             .catch(
                 (err: string) => {
+                    setLoading(false);
                     if (IfCodeSessionWrong(err, router)) {
                         Modal.error({
                             title: "申请失败",
@@ -540,8 +544,8 @@ const AssetList = (props: AssetListProps) => {
                 tableAlertOptionRender={() => {
                     return (
                         <Space size={16} >
-                            <Button type="primary" onClick={() => {hanleChange(SelectedRows.map((row: any) => row.ID), 0);if(tableRef.current?.clearSelected) tableRef.current?.clearSelected();}}>清退资产</Button>
-                            <Button type="primary" disabled={IsSomeRowCanNotDispatch} onClick={() => { setOpen1(true); GetMemberList(); }}>调拨资产</Button>
+                            <Button type="primary" loading = {loading} onClick={() => {hanleChange(SelectedRows.map((row: any) => row.ID), 0);if(tableRef.current?.clearSelected) tableRef.current?.clearSelected();}}>清退资产</Button>
+                            <Button type="primary" loading = {loading} disabled={IsSomeRowCanNotDispatch} onClick={() => { setOpen1(true); GetMemberList(); }}>调拨资产</Button>
                         </Space>
                     );
                 }}

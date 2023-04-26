@@ -31,6 +31,7 @@ const EmployeeAssetList = (props:EmployeeAssetListProps) => {
     const [Open1, setOpen1] = useState(false); // 判断是否需要打开资产转移的第一步Modal
     const [Open2, setOpen2] = useState(false); // 判断是否需要打开资产转移的第二步Modal
     const [form] = Form.useForm<{class: string;}>(); // 第二个Modal的格式
+    const [loading, setloading] = useState(false);
     const fetchList = (myasset: number) => { // 传入1代表显示个人资产，传入0代表显示闲置资产
         setMyAsset(myasset);
         request(`/api/Asset/Info/${LoadSessionID()}`, "GET")
@@ -63,6 +64,7 @@ const EmployeeAssetList = (props:EmployeeAssetListProps) => {
     }, [router, query, props]);
     // 核心的提交函数，对应资产申请api
     const handleChange = (AssetIDList: number[], operation: number, MoveTo: string = "", Type: string="") => {
+        setloading(true);
         request(`/api/Asset/Apply/${LoadSessionID()}`, "POST",
             {
                 "operation": operation,
@@ -72,7 +74,8 @@ const EmployeeAssetList = (props:EmployeeAssetListProps) => {
             }
         )
             .then(() => {
-
+                setloading(false);
+                setOpen2(false);
                 Modal.success({
                     title: "申请成功",
                     content: "成功提交请求",
@@ -138,10 +141,10 @@ const EmployeeAssetList = (props:EmployeeAssetListProps) => {
                 const { IsReceive, IsReturn, IsMaintenance, IsTransfers } = record;
                 return (
                     <Space>
-                        {MyAsset==0 && <Button key= "receive" title= "领用" disabled={!IsReceive} onClick={()=>handleChange([record.ID], 0)}>领用</Button>}
-                        {MyAsset==1 && <Button key= "receive" title= "退库" disabled={!IsReturn} onClick={()=>handleChange([record.ID], 1)}>退库</Button>}
-                        {MyAsset==1 && <Button key= "receive" title= "维保" disabled={!IsMaintenance} onClick={()=>handleChange([record.ID], 2)}>维保</Button>}
-                        {MyAsset==1 && <Button key= "receive" title= "转移" disabled={!IsTransfers} onClick={()=>{setOpen1(true);setTransferAsset(record);GetMemberList();}}>转移</Button>}
+                        {MyAsset==0 && <Button loading = {loading} key= "receive" title= "领用" disabled={!IsReceive} onClick={()=>handleChange([record.ID], 0)}>领用</Button>}
+                        {MyAsset==1 && <Button loading = {loading} key= "receive" title= "退库" disabled={!IsReturn} onClick={()=>handleChange([record.ID], 1)}>退库</Button>}
+                        {MyAsset==1 && <Button loading = {loading} key= "receive" title= "维保" disabled={!IsMaintenance} onClick={()=>handleChange([record.ID], 2)}>维保</Button>}
+                        {MyAsset==1 && <Button loading = {loading} key= "receive" title= "转移" disabled={!IsTransfers} onClick={()=>{setOpen1(true);setTransferAsset(record);GetMemberList();}}>转移</Button>}
                     </Space>
                 );
             },
@@ -247,7 +250,7 @@ const EmployeeAssetList = (props:EmployeeAssetListProps) => {
                 tableAlertOptionRender={() => {
                     return (
                         <Space size={16}>
-                            {MyAsset==0 && <Button type="primary" disabled={IsSomeRowReceiveFalse} onClick={() => { handleChange(SelectedRows.map((row: any) => row.ID), 0);if(tableRef.current?.clearSelected)tableRef.current?.clearSelected();} }>领用资产</Button>}
+                            {MyAsset==0 && <Button loading = {loading} type="primary" disabled={IsSomeRowReceiveFalse} onClick={() => { handleChange(SelectedRows.map((row: any) => row.ID), 0);if(tableRef.current?.clearSelected)tableRef.current?.clearSelected();} }>领用资产</Button>}
                             {MyAsset==1 && <Button type="primary" disabled={IsSomeRowTransfersFalse} onClick={() => { setOpen1(true); GetMemberList();}}>转移资产</Button>}
                         </Space>
                     );
@@ -297,10 +300,10 @@ const EmployeeAssetList = (props:EmployeeAssetListProps) => {
                 }}
                 submitTimeout={1000}
                 open={Open2}
+                loading={loading}
                 onFinish={async (values) => {
                     if(SelectedRows.length > 0) handleChange(SelectedRows.map((row: any) => row.ID),3,selectedEmployee?.Name,values.class);
                     else handleChange([selectedTransferAsset?selectedTransferAsset.ID:0],3,selectedEmployee?.Name,values.class);
-                    setOpen2(false);
                     if(tableRef.current?.clearSelected) tableRef.current?.clearSelected();
                     return true;
                 }}

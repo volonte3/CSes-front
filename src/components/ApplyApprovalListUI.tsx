@@ -12,7 +12,9 @@ interface AssetListProps {
     Assets: ApplyApprovalData[]
 }
 const ApplyApprovalList = () => {
+    const [Loading, setLoading] = useState(false);
     const handleApproval = (type: boolean, approval_id: string) => {
+        setLoading(true);
         request(`/api/Asset/Approval/${LoadSessionID()}`, "POST",
             {
                 "IsApproval": type,
@@ -24,6 +26,7 @@ const ApplyApprovalList = () => {
                     title: "批复成功",
                     content: type?"成功批准请求":"成功驳回请求",
                 });
+                setLoading(false);
                 ref.current?.reload();  //重新渲染表格
             })
             .catch(
@@ -94,8 +97,8 @@ const ApplyApprovalList = () => {
             render: (text, record, _, action) => {
                 return (
                     <Space>
-                        <Button type="primary" disabled={!record.Valid} onClick={()=>{handleApproval(true,record.ApplyID);}}>同意申请</Button>
-                        <Button danger onClick={()=>{handleApproval(false,record.ApplyID);}}>驳回申请</Button>
+                        <Button loading= {Loading} type="primary" disabled={!record.Valid} onClick={()=>{handleApproval(true,record.ApplyID);}}>同意申请</Button>
+                        <Button loading= {Loading} danger onClick={()=>{handleApproval(false,record.ApplyID);}}>驳回申请</Button>
                     </Space>
                 );
             }

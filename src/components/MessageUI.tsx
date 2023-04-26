@@ -32,6 +32,7 @@ const MessageUI = () => {
     const [changekey, setchangekey] = useState(Date.now());
     const [newinfo, setnewinfo] = useState(true);
     const tableRef = useRef<ActionType>();
+    const [loading, setloading] = useState(false);
     const columns: ProColumns<MessageData>[] = [
         {
             title: "消息编号",
@@ -75,12 +76,12 @@ const MessageUI = () => {
             render: (_: any, record) => {
                 if(record.Is_Read == false){
                     return (
-                        <Button type="primary" key = "0" onClick={()=>handleChange(record.ID)}>设为已读</Button>
+                        <Button loading={loading} type="primary" key = "0" onClick={()=>handleChange(record.ID)}>设为已读</Button>
                     );
                 }
                 else if(record.Is_Read == true){
                     return (
-                        <Button key = "0" onClick={()=>handleChange(record.ID)}>设为未读</Button>
+                        <Button loading={loading} key = "0" onClick={()=>handleChange(record.ID)}>设为未读</Button>
                     );
                 }
                     
@@ -122,6 +123,7 @@ const MessageUI = () => {
         }
     };
     const handleChange = (ID:number) => {
+        setloading(true);
         request(`/api/User/Message/New/${LoadSessionID()}`, "PUT",
             {
                 "ID":ID
@@ -132,6 +134,7 @@ const MessageUI = () => {
                     title: "操作成功",
                     content: "成功更改消息状态",
                 });
+                setloading(false);
                 if(newinfo) fetchList(0);
                 else fetchList(1);
             })
@@ -143,6 +146,7 @@ const MessageUI = () => {
                             content: err.toString().substring(5),
                         });
                     }
+                    setloading(false);
                 }
             );
     };

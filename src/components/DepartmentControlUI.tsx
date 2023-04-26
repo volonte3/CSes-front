@@ -259,7 +259,7 @@ const DepartmentUI = () => {
                         <Input onChange={handleUserAdd} />
                     </Form.Item>
                     <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                        <Button type="primary" htmlType="submit" onClick={() => {if(UserName) CreateNewUser(DepartmentPath, UserName);}}>
+                        <Button type="primary" htmlType="submit" loading = {Loading} onClick={() => {if(UserName) CreateNewUser(DepartmentPath, UserName);}}>
                             确认提交
                         </Button>
                     </Form.Item>
