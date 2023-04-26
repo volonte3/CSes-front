@@ -79,7 +79,7 @@ const ApplicationUI = () => {
     
     const RemoveApp = (Authority: number, AppName: string) => {
         request(
-            `/api/User/department/delete/${LoadSessionID()}/${Authority}/${AppName}`,
+            `/api/User/App/delete/${LoadSessionID()}/${Authority}/${AppName}`,
             "DELETE"
         )
             .then((res) => {

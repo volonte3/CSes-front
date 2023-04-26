@@ -99,12 +99,12 @@ const App = () => {
                 </Menu.Item>
             }
             {TOREAD && 
-                <Menu.Item key="3" onClick={() => router.push("/user/message")}>
+                <Menu.Item key="3" onClick={() => {if(UserAuthority == 3) router.push("/user/employee/message");else router.push("/user/asset_manager/message");}}>
                     您有新的消息
                 </Menu.Item>
             }
             {!TOREAD && 
-                <Menu.Item key="4">
+                <Menu.Item key="4" onClick={() => {if(UserAuthority == 3) router.push("/user/employee/message");else router.push("/user/asset_manager/message");}}>
                     暂无新消息
                 </Menu.Item>
             }
