@@ -14,6 +14,7 @@ import MenuItem from "antd/es/menu/MenuItem";
 import MemberList from "../../../../components/MemberList";
 import DepartmentUI from "../../../../components/DepartmentControlUI";
 import  UserInfo  from "../../../../components/UserInfoUI";
+import ApplicationUI from "../../../../components/ApplicationUI";
 import SiderMenu from "../../../../components/SiderUI";
 
 
@@ -68,7 +69,7 @@ const App = () => {
                 });
             });
     }, [state, router]);
-
+   
     if (state) {
         return (
             <Layout style={{ minHeight: "100vh" }}>
@@ -80,7 +81,7 @@ const App = () => {
                     <Header className="ant-layout-header">
                         <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
                     </Header>
-                    <DepartmentUI/>
+                    <ApplicationUI/>
                     <Footer style={{ textAlign: "center" }}>EAMS ©2023 Designed by CSes</Footer>
                 </Layout>
             </Layout >

@@ -21,7 +21,7 @@ const LoginUI = (props: LoginScreenProps) => {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
     const loginSendMessage = () => {
-
+        setLoading(true);
         request(
             "/api/User/login",
             "POST",
@@ -31,7 +31,7 @@ const LoginUI = (props: LoginScreenProps) => {
                 Password: CryptoJS.MD5(Password).toString(),
             }
         )
-            .then(() => router.push("/main_page"))
+            .then(() => {router.push("/main_page"); setLoading(false);})
             // .catch((err) => alert(FAILURE_PREFIX + err));
             .catch((err) => ErrorInfo(err));
     };

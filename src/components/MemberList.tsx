@@ -13,19 +13,9 @@ import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
 import MenuItem from "antd/es/menu/MenuItem";
 import { renderAuthority } from "../utils/transformer";
 import type { ColumnsType } from "antd/es/table";
-interface MemberData {
-    Name: string;
-    Department: string;
-    Authority: number;
-    lock: boolean;
-}
-interface DataType {
-    key: React.Key;
-    Name: string;
-    Department: string;
-    Authority: number;
-    lock: boolean;
-}
+import { DataType, MemberData } from "../utils/types";
+
+
 interface MemberListProps {
     Members: MemberData[] | undefined;
     department_page: boolean;
@@ -41,7 +31,7 @@ const MemberList = (props: MemberListProps) => {
     const [ChangeAuthorityValue, setChangeAuthorityValue] = useState(2);
     const [isRemakeModalOpen, setIsRemakeModalOpen] = useState(false);
     const [NowUser, setNowUser] = useState("");
-    const [NowAuthority, setNowAuthority] = useState("");
+    const [NowAuthority, setNowAuthority] = useState(0);
     const [LockLoading, setLockLoading] = useState(false);
     const [data, setData] = useState<DataType[] | undefined>(); // 存储加载该系统管理员管理的资产管理员和员工的信息
     const [IsRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
@@ -59,7 +49,6 @@ const MemberList = (props: MemberListProps) => {
                             Authority: res.member[i].Authority,
                             lock: res.member[i].lock
                         });
-                        console.log(i);
                     }
                     setData(now_data);
                 });
@@ -79,7 +68,6 @@ const MemberList = (props: MemberListProps) => {
                             Authority: res.member[i].Authority,
                             lock: res.member[i].lock
                         });
-                        console.log(i);
                     }
                     setData(now_data);
                 })
@@ -95,7 +83,7 @@ const MemberList = (props: MemberListProps) => {
     };
     const showRemakeModal = (UserName: string, Authority: number) => {
         setNowUser(UserName);
-        setNowAuthority(renderAuthority(Authority));
+        setNowAuthority(Authority);
         setIsRemakeModalOpen(true);
     };
 
@@ -114,9 +102,11 @@ const MemberList = (props: MemberListProps) => {
         setIsRemoveModalOpen(false);
     };
     const showRemoveModal = (UserName: string, Authority: number) => {
+        console.log("UserName",UserName);
         setNowUser(UserName);
+        console.log("NowUser",NowUser);
         setIsRemoveModalOpen(true);
-        setNowAuthority(renderAuthority(Authority));
+        setNowAuthority(Authority);
     };
     const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
         console.log("selectedRowKeys changed: ", newSelectedRowKeys);
@@ -241,10 +231,10 @@ const MemberList = (props: MemberListProps) => {
         FetchMemberList();
         console.log("ChangeAuthorityValue has been updated:", ChangeAuthorityValue);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [router, query, ChangeAuthorityValue]);
+    }, [router, query, ChangeAuthorityValue, props]);
     return (
         <div>
-            <Table /* rowSelection={props.department_page ? rowSelection : undefined}*/ dataSource={data}>
+            <Table /* rowSelection={props.department_page ? rowSelection : undefined}*/ dataSource={data} rowKey={"Name"}>
                 <Column title="姓名" dataIndex="Name" key="Name" />
                 <Column title="所属部门" dataIndex="Department" key="Department" />
                 <Column
@@ -275,8 +265,8 @@ const MemberList = (props: MemberListProps) => {
                             <Modal title="重置密码" open={isRemakeModalOpen} onOk={() => { RemakePassword(record.Name); }} onCancel={handleRemakeCancel} mask={false}>
                                 将 {NowAuthority} {NowUser} 密码重置为 yiqunchusheng
                             </Modal>
-                            <Button danger onClick={() => { showRemoveModal(record.Name, record.Authority); }}>删除员工</Button>
-                            <Modal title="删除员工" open={IsRemoveModalOpen} onOk={() => { RemoveUser(record.Name, record.Authority); }} onCancel={handleRemoveCancel} mask={false}>
+                            <Button danger onClick={() => { console.log("record.Name:",record.Name);console.log("record.Authority:",record.Authority);showRemoveModal(record.Name, record.Authority); }}>删除员工</Button>
+                            <Modal title="删除员工" open={IsRemoveModalOpen} onOk={() => {console.log("NowUserWhileRemove",NowUser);RemoveUser(NowUser, NowAuthority); }} onCancel={handleRemoveCancel} mask={false}>
                                 请确认删除 {NowAuthority} {NowUser}
                             </Modal>
                             {record.Authority == 3 && <Button type="text" onClick={() => { ChangeAuthority(record.Name, record.Authority); }} icon={<UpOutlined />}>提拔为资产管理员</Button>}

@@ -33,19 +33,37 @@ a {
   font-weight: bold;
   margin: 0;
 }
-.logo {
-  font-size: 50px;
+.mainpage_logo {
+  font-size: 30px;
   font-weight: bold;
-  color: #fff;
-  margin-right: 500px;
+  color: rgb(11, 11, 11);
+  margin-right: 200px;
+  
 }
-
+.logo {
+  font-size: 20px;
+  font-weight: bold;
+  color: rgb(11, 11, 11);
+  flex-shrink: 0;
+  flex-basis: auto;
+  height: 64px;
+}
+.ant-layout-header {
+  background: linear-gradient(to bottom, #45a4fc, #fff);
+  display: flex;
+  align-items: center;
+  /* justify-content: space-between; */
+  height: 100px;
+}
+.ant-layout-footer {
+  background: linear-gradient(to top, #9dddf8, #FFFFFF);
+}
 .right-menu {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 16px;
-  
+  margin-left: auto !important;
 }
 
 .site-layout-content {
@@ -72,7 +90,24 @@ a {
   font-size: 16px;
   font-weight: bold;
   background: none;
+  position: relative; /* 相对定位以便设置红点 */
 }
+
+.header_button .badge {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #FF4136;
+  z-index: 1 !important;
+}
+
+.header_button.has_unread .badge {
+  display: block;
+}
+
 /* 面包屑容器 */
 .ant-breadcrumb {
   font-size: 22px; /* 增加字体大小 */
@@ -91,4 +126,12 @@ a {
   left: -1px; /* 调整位置 */
   font-size: 22px; /* 增加字体大小 */
   font-weight: bold; /* 加粗字体 */
+}
+.employee-item.selected {
+  transform: scale(1.05);
+  border: 2px solid #1890ff;
+  border-radius: 4px;
+}
+.ant-layout {
+  background-color: white;
 }

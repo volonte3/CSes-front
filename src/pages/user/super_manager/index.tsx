@@ -11,6 +11,7 @@ import { useState, useEffect } from "react";
 import { request } from "../../../utils/network";
 import { LoadSessionID, logout, IfCodeSessionWrong } from "../../../utils/CookieOperation";
 import UserInfo from "../../../components/UserInfoUI";
+import SiderMenu from "../../../components/SiderUI";
 
 
 type MenuItem = Required<MenuProps>["items"][number];
@@ -59,7 +60,8 @@ const App = () => {
     const [Entity, setEntity] = useState<string>(""); // 实体名称
     const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
     const router = useRouter();
-
+    const [TOREAD, setTOREAD] = useState(false);
+    const [TODO, setTODO] = useState(false);
     const items: MenuProps["items"] = [
         {
             key: "2",
@@ -170,8 +172,17 @@ const App = () => {
                 setUserName(res.UserName);
                 setUserApp(res.UserApp);
                 setUserAuthority(res.Authority);
+                if(res.Authority != 0 ){
+                    Modal.error({
+                        title: "无权访问",
+                        content: "请重新登录",
+                        onOk: () => { window.location.href = "/"; }
+                    });
+                }
                 setEntity(res.Entity);
                 setDepartment(res.Department);
+                setTODO(res.TODO);
+                setTOREAD(res.TOREAD);
             })
             .catch((err) => {
                 console.log(err.message);
@@ -211,23 +222,11 @@ const App = () => {
             <Layout style={{ minHeight: "100vh" }}>
                 <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
                     <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }} />
-                    <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline" items={items_} />
+                    <SiderMenu UserAuthority={UserAuthority} />
                 </Sider>
                 <Layout className="site-layout" >
-                    <Header style={{ padding: 16, background: colorBgContainer }}>
-                        {/* <Row justify="end">
-                            <Dropdown menu={{ items }} >
-                                <a onClick={(e) => e.preventDefault()}>
-                                    <Space>
-                                        {UserName}
-                                        <DownOutlined />
-                                    </Space>
-                                </a>
-                            </Dropdown>
-
-                        </Row> */}
-                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department}></UserInfo>
-
+                    <Header className="ant-layout-header">
+                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
                     </Header>
                     <Content style={{ margin: "0 16px" }}>
                         <Button

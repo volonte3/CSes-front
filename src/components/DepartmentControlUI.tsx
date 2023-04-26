@@ -10,23 +10,9 @@ import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { IfCodeSessionWrong, LoadSessionID } from "../utils/CookieOperation";
 import MemberList from "../components/MemberList";
-interface MemberData {
-    Name: string;
-    Department: string;
-    Authority: number;
-    lock: boolean;
-}
-interface DepartmentData {
-    DepartmentName: string;
-    DepartmentPath: string;
-    DepartmentId: number;
-}
-interface DepartmentPathData {
-    Name: string;
-    Path: string;
-}
+import { DepartmentData, DepartmentPathData, MemberData } from "../utils/types";
+
 const DepartmentUI = () => {
-    const [refreshing, setRefreshing] = useState(false);
     const [open1, setOpen1] = useState(false);    //添加部门侧边栏的显示
     const [open2, setOpen2] = useState(false);    //创建员工侧边栏的显示
     const [DepartmentName, setDepartmentName] = useState(""); //注册新部门名
@@ -66,27 +52,22 @@ const DepartmentUI = () => {
         console.log("Success:", values);
     };
     const fetchList = (Path: string) => {
-        setRefreshing(true);
         request(
             `/api/User/department/${LoadSessionID()}/${Path}`,
             "GET"
         )
             .then((res) => {
-                setRefreshing(false);
                 setLeafDepartment(res.is_leaf);
-                if (res.is_leaf == true) {
+                if (res.is_leaf) {
                     setMemberList(res.member);
                     setDepartmentPathList(res.route);
                 }
                 else {
                     setDepartmentList(res.Department);
                     setDepartmentPathList(res.route);
-                    console.log("DepartmentPathList");
-                    console.log(DepartmentPathList);
                 }
             })
             .catch((err) => {
-                setRefreshing(false);
                 console.log(err.message);
                 Modal.error({
                     title: "无法获取对应部门信息",
@@ -156,8 +137,8 @@ const DepartmentUI = () => {
                 let answer: string = `成功创建员工 ${UserName}`;
                 Modal.success({ title: "创建成功", content: answer });
                 onClose1();
-                setLoading(false);
                 fetchList(DepartmentPath);
+                setLoading(false);
             })
             .catch((err: string) => {
                 if (IfCodeSessionWrong(err, router)) {
@@ -205,12 +186,8 @@ const DepartmentUI = () => {
         fetchList(DepartmentPath);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query]);
-    return  refreshing ? (
-        <p> Loading... </p>
-    ) : (
-        
+    return(
         <Content style={{ margin: "0 16px" }}>
-
             <Breadcrumb className="ant-breadcrumb">
                 {DepartmentPathList && DepartmentPathList.map((path, index) => (
                     <Breadcrumb.Item key={index} onClick={() => { setDepartmentPath(path.Path);fetchList(path.Path);}}>
@@ -282,7 +259,7 @@ const DepartmentUI = () => {
                         <Input onChange={handleUserAdd} />
                     </Form.Item>
                     <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                        <Button type="primary" htmlType="submit" onClick={() => {if(UserName) CreateNewUser(DepartmentPath, UserName);}}>
+                        <Button type="primary" htmlType="submit" loading = {Loading} onClick={() => {if(UserName) CreateNewUser(DepartmentPath, UserName);}}>
                             确认提交
                         </Button>
                     </Form.Item>
