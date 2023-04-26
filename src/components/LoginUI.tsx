@@ -90,15 +90,7 @@ const LoginUI = (props: LoginScreenProps) => {
               width={200}
               src="LoginBackground.png"
             ></img> */}
-                        <Form.Item>
-                            <Form.Item name="remember" valuePropName="checked" noStyle>
-                                <Checkbox>Remember me</Checkbox>
-                            </Form.Item>
-
-                            {/* <a href="/" style={{ float: "right" }}>
-                Forgot password
-                            </a> */}
-                        </Form.Item>
+                        
 
                         <Form.Item >
                             <div style={{ display: "flex", justifyContent: "center" }}>
