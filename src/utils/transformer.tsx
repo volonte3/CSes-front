@@ -44,26 +44,32 @@ const renderStatus = (Status: any): string => {
 const renderStatusBadge = (Status: any): "success" | "processing" | "error" | "default" | "warning" | undefined => {
     let label: "success" | "processing" | "error" | "default" | "warning" | undefined;
     switch (Status) {
-    case 0:
+    case 0:     //领用
         label = "success";
         break;
-    case 1:
+    case 1:     //退库
         label = "error";
         break;
-    case 2:
+    case 2:     //维保
         label = "warning";
         break;
-    case 3:
+    case 3:     //转移 
         label = "processing";
         break;
-    case 4:
+    case 4:     //清退
         label = "default";
         break;
-    case 5:
+    case 5:     //退维
         label = "success";
         break;
-    case 6:
+    case 6:     //调拨
         label = "processing";
+        break;
+    case 7:     //录入
+        label = "success";
+        break;
+    case 8:     //变更
+        label = "warning";
         break;
     default:
         label = "default";
@@ -95,6 +101,12 @@ const renderStatusChanges = (Status:number|undefined) =>{
         break;
     case 6:
         label = "调拨";
+        break;
+    case 7:
+        label = "录入";
+        break;
+    case 8:
+        label = "变更";
         break;
     default:
         label = "其它";
