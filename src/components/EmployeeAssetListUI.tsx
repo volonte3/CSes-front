@@ -208,6 +208,7 @@ const EmployeeAssetList = (props:EmployeeAssetListProps) => {
                     {MyAsset==1?"个人资产":"部门闲置资产"}
                 </Breadcrumb.Item>
             </Breadcrumb>
+            <div style={{height:"15px"}}></div>
             {MyAsset == 1 && <Button
                 type="primary"
                 style={{ float: "left", margin: 10 }}
@@ -222,6 +223,7 @@ const EmployeeAssetList = (props:EmployeeAssetListProps) => {
             >
                 显示个人资产
             </Button>}
+            <div style={{height:"20px"}}></div>
             <ProTable 
                 columns={columns}
                 options={false}

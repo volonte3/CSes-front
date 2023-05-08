@@ -526,7 +526,7 @@ const AssetList = (props: AssetListProps) => {
             <Divider orientation="center" >自定义属性</Divider>
             <PropSearch />
             <Divider orientation="center" >基本属性</Divider>
-            <ProTable
+            <ProTable className="ant-pro-table"
                 columns={columns}
                 options={{ reload: true, setting: false }}
                 rowKey="ID"

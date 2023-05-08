@@ -166,7 +166,7 @@ const MessageUI = () => {
         algorithm: [theme.darkAlgorithm, theme.compactAlgorithm],
     };
     return (
-        <>
+        <div className="Div">
             <Breadcrumb style={{ margin: "16px 0" }}>
                 <Breadcrumb.Item>消息列表</Breadcrumb.Item>
                 {newinfo && <Breadcrumb.Item>最新消息</Breadcrumb.Item>}
@@ -202,7 +202,7 @@ const MessageUI = () => {
                 <Button onClick={() => handleChange(-1)}>全部已读</Button>
             </Space>
             
-        </>
+        </div>
     );
 };
 export default MessageUI;

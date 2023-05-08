@@ -1,11 +1,11 @@
-import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, Switch, Modal, Button } from "antd";
+import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, Switch, Modal, Button, Card } from "antd";
 import Sider from "antd/es/layout/Sider";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { IfCodeSessionWrong, LoadSessionID } from "../utils/CookieOperation";
 import { request } from "../utils/network";
 import { AppData } from "../utils/types";
-
+import c7w from "../../public/c7w.jpg";
 const SiderMenu = ({ UserAuthority }: { UserAuthority: number }) => {
     const [AppList, setAppList] = useState<AppData[]>(); // 储存所有已有应用的信息
     const router = useRouter();
@@ -54,18 +54,23 @@ const SiderMenu = ({ UserAuthority }: { UserAuthority: number }) => {
         </Menu.Item>
     )):[];
     return (
-        <Menu theme="dark" mode="inline">
-            <Menu.Item key={30} onClick={()=>{router.push("/main_page");}}>
+        <>
+            <div className="blank">
+                
+            </div>
+            <Menu mode="inline">
+                <Menu.Item key={30} onClick={()=>{router.push("/main_page");}}>
                 首页
-            </Menu.Item>
-            {UserAuthority == 3 && <Menu.Item key={40} onClick={()=>{router.push("/user/employee/message");}}>
+                </Menu.Item>
+                {UserAuthority == 3 && <Menu.Item key={40} onClick={()=>{router.push("/user/employee/message");}}>
                 消息列表
-            </Menu.Item>}
-            {UserAuthority == 2 && <Menu.Item key={40} onClick={()=>{router.push("/user/asset_manager/message");}}>
+                </Menu.Item>}
+                {UserAuthority == 2 && <Menu.Item key={40} onClick={()=>{router.push("/user/asset_manager/message");}}>
                 消息列表
-            </Menu.Item>}
-            {menuItems}
-        </Menu>
+                </Menu.Item>}
+                {menuItems}
+            </Menu>
+        </>
     );
 };
 export default SiderMenu;

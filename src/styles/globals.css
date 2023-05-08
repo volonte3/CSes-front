@@ -41,22 +41,80 @@ a {
   
 }
 .logo {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: bold;
-  color: rgb(11, 11, 11);
+  color: hsl(0, 0%, 4%);
   flex-shrink: 0;
   flex-basis: auto;
   height: 64px;
 }
+/* .ant-layout {
+  border-radius: 50px;
+  margin-bottom: 20PX;
+  margin-top: 20PX;
+  margin-right: 20px;
+  margin-left: 20px;
+  background: linear-gradient(to bottom, #58fbeb, rgb(248, 247, 247));
+} */
 .ant-layout-header {
-  background: linear-gradient(to bottom, #45a4fc, #fff);
+  /* background: linear-gradient(to bottom, #45a4fc, #fff); */
   display: flex;
   align-items: center;
   /* justify-content: space-between; */
   height: 100px;
+  border-radius: 10px;
+  margin-bottom: 10PX;
+  margin-top: 30PX;
+  margin-right: 30px;
+  /* background: linear-gradient(to bottom, rgb(163, 216, 251), #fff); */
+  background-color: #fff;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  /* background: transparent; */
 }
-.ant-layout-footer {
-  background: linear-gradient(to top, #9dddf8, #FFFFFF);
+.ant-layout-content {
+  /* display: flex; */
+  align-items: center;
+  /* justify-content: space-between; */
+  border-radius: 10px;
+  margin-bottom: 30PX;
+  margin-top: 10px;
+  margin-right:30px;
+  background-color: #fff;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+.sidebar.ant-layout-sider{
+  margin-top: 30px;
+  margin-right: 20PX;
+  margin-bottom: 30px;
+  margin-left: 30px;
+  /* background: transparent; */
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+.ant-menu{
+  /* background: linear-gradient(to right, rgb(163, 216, 251), #fff); */
+  height:80%;
+  /* background: transparent; */
+} 
+.ant-menu-item{
+  font-size: large;
+  /* justify-items:center; */
+  padding:25px;
+  font-weight: 800;
+}
+.Div {
+  background-color: #fff;
+  border-radius: 20px;
+  
+}
+.ant-pro-table {
+  /* display: flex; */
+  align-items: center;
+  /* justify-content: space-between; */
+  border-radius: 20px;
+  margin-bottom: 10PX;
+  margin-top: 10PX;
 }
 .right-menu {
   display: flex;
@@ -71,6 +129,7 @@ a {
   flex-wrap: wrap;
   gap: 32px;
   margin: 48px 0;
+  border-radius: 20px;
 }
 
 .title {
@@ -111,6 +170,7 @@ a {
 /* 面包屑容器 */
 .ant-breadcrumb {
   font-size: 22px; /* 增加字体大小 */
+  font-weight: 800;
 }
 
 /* 面包屑项 */
@@ -132,6 +192,13 @@ a {
   border: 2px solid #1890ff;
   border-radius: 4px;
 }
-.ant-layout {
-  background-color: white;
+.blank {
+  height: 100px;
 }
+/* .ant-layout {
+  background-color: white;
+} */
+
+/*side bar css*/
+
+
