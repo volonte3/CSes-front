@@ -259,236 +259,237 @@ const App = () => {
     }, [router, query, state, Change]);
     if (state) {
         return (
-            <Layout style={{ minHeight: "100vh" }} >
-                <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-                    <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }} />
-                    <SiderMenu UserAuthority={UserAuthority} />
-                </Sider>
-                <Layout className="site-layout" >
-                    {contextHolder}
-                    <Header className="ant-layout-header">
-                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
-                    </Header>
-                    <Content style={{ margin: "0 16px" }}>
-                        <Breadcrumb style={{ margin: "16px 0" }}>
-                            <Breadcrumb.Item>资产定义</Breadcrumb.Item>
-                        </Breadcrumb>
-                        <Row gutter={[8,6]}>
-                            <Col>
-                                <Button 
-                                    type="primary"
-                                    style={{ float: "left", margin: 10 }}
-                                    icon={<EditOutlined />} 
-                                    disabled={ButtonDisable} 
-                                    block 
-                                    onClick={() => {initvalue(); setOpenAdd(true);}}
-                                >
+            <div className="Div">
+                <Layout style={{ minHeight: "100vh" }}>
+                    <Sider className= "sidebar" width="10%">
+                        <SiderMenu UserAuthority={UserAuthority} />
+                    </Sider>
+                    <Layout className="site-layout" >
+                        {contextHolder}
+                        <Header className="ant-layout-header">
+                            <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
+                        </Header>
+                        <Content>
+                            <Breadcrumb style={{ margin: "30px" }}>
+                                <Breadcrumb.Item>资产定义</Breadcrumb.Item>
+                            </Breadcrumb>
+                            <Row style={{ margin: "30px" }} gutter={[8,6]}>
+                                <Col>
+                                    <Button 
+                                        type="primary"
+                                        style={{ float: "left"}}
+                                        icon={<EditOutlined />} 
+                                        disabled={ButtonDisable} 
+                                        block 
+                                        onClick={() => {initvalue(); setOpenAdd(true);}}
+                                    >
                                     在其下创建
-                                </Button>
-                            </Col>
-                            <Col>
-                                <Button 
-                                    type="primary"
-                                    style={{ float: "left", margin: 10 }}
-                                    icon={<ScissorOutlined />} 
-                                    disabled={ButtonDisable} 
-                                    block 
-                                    onClick={() => {initvalue(); setOpenModify(true);}}
-                                >
+                                    </Button>
+                                </Col>
+                                <Col>
+                                    <Button 
+                                        type="primary"
+                                        style={{ float: "left"}}
+                                        icon={<ScissorOutlined />} 
+                                        disabled={ButtonDisable} 
+                                        block 
+                                        onClick={() => {initvalue(); setOpenModify(true);}}
+                                    >
                                     修改
-                                </Button>
-                            </Col>
-                            <Col>
-                                <Button 
-                                    type="primary"
-                                    style={{ float: "left", margin: 10 }}
-                                    icon={<DeleteOutlined />} 
-                                    disabled={ButtonDisable} 
-                                    danger 
-                                    block 
-                                    onClick={() => {delete_asset();}}
-                                >
+                                    </Button>
+                                </Col>
+                                <Col>
+                                    <Button 
+                                        type="primary"
+                                        style={{ float: "left"}}
+                                        icon={<DeleteOutlined />} 
+                                        disabled={ButtonDisable} 
+                                        danger 
+                                        block 
+                                        onClick={() => {delete_asset();}}
+                                    >
                                     删除
-                                </Button>
-                            </Col>
-                            <Col offset={9}>
-                                <ModalForm<{
+                                    </Button>
+                                </Col>
+                                <Col offset={9}>
+                                    <ModalForm<{
                                 property: string;
                                 }>
-                                    title="增加自定义属性"
-                                    trigger={
-                                        <Button type="primary" disabled={ButtonDisable}>
-                                            <PlusOutlined />
+                                        title="增加自定义属性"
+                                        trigger={
+                                            <Button type="primary" disabled={ButtonDisable}>
+                                                <PlusOutlined />
                                             增加自定义属性
-                                        </Button>
-                                    }
-                                    form={form}
-                                    autoFocusFirstInput
-                                    modalProps={{
-                                        destroyOnClose: true,
-                                        onCancel: () => console.log("run"),
-                                    }}
-                                    submitTimeout={1000}
-                                    onFinish={async (values) => {
-                                        await waitTime(1000);
-                                        console.log(values.property);
-                                        console.log(value);
-                                        request(
-                                            `/api/Asset/DefineProp/${LoadSessionID()}`,
-                                            "POST",
-                                            {
-                                                AssetClassID: value,
-                                                Property: [values.property],
-                                            }
-                                        )
-                                            .then((res) => {
-                                                message.success("添加成功");
-                                            })
-                                            .catch((err) => {
-                                                Modal.error({
-                                                    title: "错误",
-                                                    content: err.message.substring(5),
+                                            </Button>
+                                        }
+                                        form={form}
+                                        autoFocusFirstInput
+                                        modalProps={{
+                                            destroyOnClose: true,
+                                            onCancel: () => console.log("run"),
+                                        }}
+                                        submitTimeout={1000}
+                                        onFinish={async (values) => {
+                                            await waitTime(1000);
+                                            console.log(values.property);
+                                            console.log(value);
+                                            request(
+                                                `/api/Asset/DefineProp/${LoadSessionID()}`,
+                                                "POST",
+                                                {
+                                                    AssetClassID: value,
+                                                    Property: [values.property],
+                                                }
+                                            )
+                                                .then((res) => {
+                                                    message.success("添加成功");
+                                                })
+                                                .catch((err) => {
+                                                    Modal.error({
+                                                        title: "错误",
+                                                        content: err.message.substring(5),
+                                                    });
                                                 });
-                                            });
-                                        return true;
-                                    }}
-                                >
-                                    <ProForm.Group>
-                                        <ProFormText
-                                            width="md"
-                                            name="property"
-                                            label="属性名称"
-                                            placeholder="请输入名称"
-                                            rules={[{ required: true, message: "这是必填项" }]} 
-                                        />
-                                    </ProForm.Group>
-                                </ModalForm>
-                            </Col>
-                        </Row>
-                        <Row align="top">
-                            <Col span={18}>
-                                <TreeSelect
-                                    style={{ width: "100%" }}
-                                    size="large"
-                                    value={value}
-                                    dropdownStyle={{ maxHeight: 1600, overflow: "auto" }}
-                                    treeData={Asset}
-                                    placeholder="查看或修改资产"
-                                    treeDefaultExpandAll
-                                    onChange={onChange}
-                                />
-                            </Col>
-                        </Row>
-                    </Content>
-                    <Drawer
-                        title="增加资产"
-                        width={420}
-                        onClose={onClose}
-                        destroyOnClose={true}
-                        open={openAdd}
-                        bodyStyle={{ paddingBottom: 80 }}
-                        extra={
-                            <Space>
-                                <Button onClick={onClose}>取消</Button>
-                                <Button onClick={() => {submit();}} type="primary" >
+                                            return true;
+                                        }}
+                                    >
+                                        <ProForm.Group>
+                                            <ProFormText
+                                                width="md"
+                                                name="property"
+                                                label="属性名称"
+                                                placeholder="请输入名称"
+                                                rules={[{ required: true, message: "这是必填项" }]} 
+                                            />
+                                        </ProForm.Group>
+                                    </ModalForm>
+                                </Col>
+                            </Row>
+                            <Row style={{ margin: "30px" }} align="top">
+                                <Col span={18}>
+                                    <TreeSelect
+                                        style={{ width: "100%" }}
+                                        size="large"
+                                        value={value}
+                                        dropdownStyle={{ maxHeight: 1600, overflow: "auto" }}
+                                        treeData={Asset}
+                                        placeholder="查看或修改资产"
+                                        treeDefaultExpandAll
+                                        onChange={onChange}
+                                    />
+                                </Col>
+                            </Row>
+                    
+                            <Drawer
+                                title="增加资产"
+                                width={420}
+                                onClose={onClose}
+                                destroyOnClose={true}
+                                open={openAdd}
+                                bodyStyle={{ paddingBottom: 80 }}
+                                extra={
+                                    <Space>
+                                        <Button onClick={onClose}>取消</Button>
+                                        <Button onClick={() => {submit();}} type="primary" >
                                 提交
-                                </Button>
-                            </Space>
-                        }
-                    >
-                        <Form layout="vertical" initialValues={[]}>
-                            <Row>
-                                <Form.Item
-                                    name="assetname"
-                                    label="资产名称"
-                                    rules={[{ required: true, message: "必填项" }]}
-                                >
-                                    <Input placeholder="请输入要增加的资产名称" onChange={(e) => setAssetName(e.target.value)}/>
-                                </Form.Item>
-                            </Row>
-                            <Row>
-                                <Form.Item
-                                    name="owner"
-                                    label="是否为品类"
-                                    rules={[{ required: true, message: "必选项" }]}
-                                >
-                                    <Select placeholder="请选择该资产是否为品类" onChange={handlechange1}>
-                                        <Option value="yes">是</Option>
-                                        <Option value="no">否</Option>
-                                    </Select>
-                                </Form.Item>
-                            </Row>
-                            <Row>
-                                <Form.Item
-                                    name="style"
-                                    label="具体类型"
-                                    hidden={openDetail}
-                                    rules={[{ required: true, message: "必选项" }]}
-                                >
-                                    <Select placeholder="请选择品类的具体类型" onChange={handlechange2} defaultValue={"shuliang"}>
-                                        <Option value="shuliang">数量型品类</Option>
-                                        <Option value="tiaomu">条目型品类</Option>
-                                    </Select>
-                                </Form.Item>
-                            </Row>
-                        </Form>
-                    </Drawer>
-                    <Drawer
-                        title="修改资产"
-                        width={420}
-                        onClose={onClose}
-                        destroyOnClose={true}
-                        open={openModify}
-                        bodyStyle={{ paddingBottom: 80 }}
-                        extra={
-                            <Space>
-                                <Button onClick={onClose}>取消</Button>
-                                <Button onClick={() => {modify();}} type="primary" >
+                                        </Button>
+                                    </Space>
+                                }
+                            >
+                                <Form layout="vertical" initialValues={[]}>
+                                    <Row>
+                                        <Form.Item
+                                            name="assetname"
+                                            label="资产名称"
+                                            rules={[{ required: true, message: "必填项" }]}
+                                        >
+                                            <Input placeholder="请输入要增加的资产名称" onChange={(e) => setAssetName(e.target.value)}/>
+                                        </Form.Item>
+                                    </Row>
+                                    <Row>
+                                        <Form.Item
+                                            name="owner"
+                                            label="是否为品类"
+                                            rules={[{ required: true, message: "必选项" }]}
+                                        >
+                                            <Select placeholder="请选择该资产是否为品类" onChange={handlechange1}>
+                                                <Option value="yes">是</Option>
+                                                <Option value="no">否</Option>
+                                            </Select>
+                                        </Form.Item>
+                                    </Row>
+                                    <Row>
+                                        <Form.Item
+                                            name="style"
+                                            label="具体类型"
+                                            hidden={openDetail}
+                                            rules={[{ required: true, message: "必选项" }]}
+                                        >
+                                            <Select placeholder="请选择品类的具体类型" onChange={handlechange2} defaultValue={"shuliang"}>
+                                                <Option value="shuliang">数量型品类</Option>
+                                                <Option value="tiaomu">条目型品类</Option>
+                                            </Select>
+                                        </Form.Item>
+                                    </Row>
+                                </Form>
+                            </Drawer>
+                            <Drawer
+                                title="修改资产"
+                                width={420}
+                                onClose={onClose}
+                                destroyOnClose={true}
+                                open={openModify}
+                                bodyStyle={{ paddingBottom: 80 }}
+                                extra={
+                                    <Space>
+                                        <Button onClick={onClose}>取消</Button>
+                                        <Button onClick={() => {modify();}} type="primary" >
                                 提交
-                                </Button>
-                            </Space>
-                        }
-                    >
-                        <Form layout="vertical">
-                            <Row>
-                                <Form.Item
-                                    name="assetname"
-                                    label="资产名称"
-                                    rules={[{ required: true, message: "必填项" }]}
-                                >
-                                    <Input placeholder="请输入要修改的资产名称" onChange={(e) => setAssetName(e.target.value)}/>
-                                </Form.Item>
-                            </Row>
-                            <Row>
-                                <Form.Item
-                                    name="owner"
-                                    label="是否为品类"
-                                    rules={[{ required: true, message: "必选项" }]}
-                                >
-                                    <Select placeholder="请选择该资产是否为品类" onChange={handlechange1}>
-                                        <Option value="yes">是</Option>
-                                        <Option value="no">否</Option>
-                                    </Select>
-                                </Form.Item>
-                            </Row>
-                            <Row>
-                                <Form.Item
-                                    name="style"
-                                    label="具体类型"
-                                    hidden={openDetail}
-                                    rules={[{ required: true, message: "必选项" }]}
-                                >
-                                    <Select placeholder="请选择品类的具体类型" onChange={handlechange2} defaultValue={"shuliang"}>
-                                        <Option value="shuliang">数量型品类</Option>
-                                        <Option value="tiaomu">条目型品类</Option>
-                                    </Select>
-                                </Form.Item>
-                            </Row>
-                        </Form>
-                    </Drawer>
-                    <Footer style={{ textAlign: "center" }}>EAMS ©2023 Designed by CSes</Footer>
+                                        </Button>
+                                    </Space>
+                                }
+                            >
+                                <Form layout="vertical">
+                                    <Row>
+                                        <Form.Item
+                                            name="assetname"
+                                            label="资产名称"
+                                            rules={[{ required: true, message: "必填项" }]}
+                                        >
+                                            <Input placeholder="请输入要修改的资产名称" onChange={(e) => setAssetName(e.target.value)}/>
+                                        </Form.Item>
+                                    </Row>
+                                    <Row>
+                                        <Form.Item
+                                            name="owner"
+                                            label="是否为品类"
+                                            rules={[{ required: true, message: "必选项" }]}
+                                        >
+                                            <Select placeholder="请选择该资产是否为品类" onChange={handlechange1}>
+                                                <Option value="yes">是</Option>
+                                                <Option value="no">否</Option>
+                                            </Select>
+                                        </Form.Item>
+                                    </Row>
+                                    <Row>
+                                        <Form.Item
+                                            name="style"
+                                            label="具体类型"
+                                            hidden={openDetail}
+                                            rules={[{ required: true, message: "必选项" }]}
+                                        >
+                                            <Select placeholder="请选择品类的具体类型" onChange={handlechange2} defaultValue={"shuliang"}>
+                                                <Option value="shuliang">数量型品类</Option>
+                                                <Option value="tiaomu">条目型品类</Option>
+                                            </Select>
+                                        </Form.Item>
+                                    </Row>
+                                </Form>
+                            </Drawer>
+                        </Content>
+                    </Layout>
                 </Layout>
-            </Layout>
+            </div>
         );
     }
 };

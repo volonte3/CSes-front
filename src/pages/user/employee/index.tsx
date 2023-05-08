@@ -66,16 +66,14 @@ const App = () => {
 
         return (
             <Layout style={{ minHeight: "100vh" }}>
-                <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-                    <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }} />
+                <Sider className= "sidebar" width="10%">
                     <SiderMenu UserAuthority={UserAuthority} />
                 </Sider>
                 <Layout className="site-layout" >
                     <Header className="ant-layout-header">
                         <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
                     </Header>
-                    <Content style={{ margin: "0 16px" }}>
-
+                    <Content>
                         <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
                             <EmployeeAssetList EmployeeName={UserName}  />
                         </div>

@@ -65,26 +65,26 @@ const App = () => {
     if (state) {
 
         return (
-            <Layout style={{ minHeight: "100vh" }}>
-                <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-                    <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }} />
-                    <SiderMenu UserAuthority={UserAuthority} />
-                </Sider>
-                <Layout className="site-layout" >
-                    <Header className="ant-layout-header">
-                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
-                    </Header>
-                    <Content style={{ margin: "0 16px" }}>
-                        <Breadcrumb style={{ margin: "16px 0" }}>
-                            <Breadcrumb.Item>资产列表</Breadcrumb.Item>
-                        </Breadcrumb>
-                        <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
-                            <AssetList ManagerName={UserName} />
-                        </div>
-                    </Content>
-                    <Footer style={{ textAlign: "center" }}>EAMS ©2023 Designed by CSes</Footer>
+            <div className="Div">
+                <Layout style={{ minHeight: "100vh" }}>
+                    <Sider className= "sidebar" width="10%">
+                        <SiderMenu UserAuthority={UserAuthority} />
+                    </Sider>
+                    <Layout className="site-layout" >
+                        <Header className="site-header">
+                            <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
+                        </Header>
+                        <Content>
+                            <Breadcrumb style={{ margin: "30px" }}>
+                                <Breadcrumb.Item>资产列表</Breadcrumb.Item>
+                            </Breadcrumb>
+                            <div className="Div">
+                                <AssetList ManagerName={UserName} />
+                            </div>
+                        </Content>
+                    </Layout>
                 </Layout>
-            </Layout>
+            </div>
         );
     }
 };

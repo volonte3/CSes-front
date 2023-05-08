@@ -261,19 +261,18 @@ const App = () => {
         }
         return (
             <Layout style={{ minHeight: "100vh" }}>
-                <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-                    <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }} />
+                <Sider className= "sidebar" width="10%">
                     <SiderMenu UserAuthority={UserAuthority} />
                 </Sider>
                 <Layout className="site-layout" >
                     <Header className="ant-layout-header">
                         <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
-                    </Header>              
-                    <Breadcrumb style={{ margin: "16px 0" }}>
-                        <Breadcrumb.Item>资产录入</Breadcrumb.Item>
-                    </Breadcrumb>
-                    <Content style={{ margin: "0 16px" }}>
-                        <Row gutter={[8, 6]}>
+                    </Header>   
+                    <Content>           
+                        <Breadcrumb style={{ margin: "30px" }}>
+                            <Breadcrumb.Item>资产录入</Breadcrumb.Item>
+                        </Breadcrumb>
+                        <Row gutter={[8, 6]} style={{ margin: "25px" }}>
                             <Col>
                                 <ModalForm<{
                                 name: string;
@@ -467,7 +466,6 @@ const App = () => {
                             </Col>
                         </Row>
                     </Content>
-                    <Footer style={{ textAlign: "center" }}>EAMS ©2023 Designed by CSes</Footer>
                 </Layout>
             </Layout >
         );
