@@ -87,5 +87,17 @@ export interface AssetDetailInfo{
     Owner:string,
     Description:string,
     CreateTime:string,
-    History:AssetHistory[]
+    History:AssetHistory[],
+    PropertyName:string[],
+    PropertyValue:string[]
+}
+
+export interface LabelVisable{
+    Name:boolean,
+    ID:boolean,
+    Status:boolean,
+    Owner:boolean,
+    Description:boolean,
+    CreateTime:boolean,
+
 }
