@@ -8,11 +8,9 @@ import { useState, useEffect } from "react";
 import CardUI from "../../components/CardUI";
 import { AppData } from "../../utils/types";
 import { renderAuthority } from "../../utils/transformer";
-import Sider from "antd/es/layout/Sider";
 import SiderMenu from "../../components/SiderUI";
 import UserInfo from "../../components/UserInfoUI";
-const { Header, Content } = Layout;
-
+const { Header, Content, Footer, Sider } = Layout;
 const App = () => {
     const logoutSendMessage = () => {
         request(

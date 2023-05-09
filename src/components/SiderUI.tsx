@@ -56,11 +56,11 @@ const SiderMenu = ({ UserAuthority }: { UserAuthority: number }) => {
     return (
         <>
             <div className="blank">
-                
+                <img src="/c7w.jpg" className="img_style"/>
             </div>
             <Menu mode="inline">
                 <Menu.Item key={30} onClick={()=>{router.push("/main_page");}}>
-                首页
+                    {"首页"}
                 </Menu.Item>
                 {UserAuthority == 3 && <Menu.Item key={40} onClick={()=>{router.push("/user/employee/message");}}>
                 消息列表

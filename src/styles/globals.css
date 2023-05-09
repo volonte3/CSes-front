@@ -194,11 +194,16 @@ a {
 }
 .blank {
   height: 100px;
+  justify-content: center;
 }
 /* .ant-layout {
   background-color: white;
 } */
 
 /*side bar css*/
-
-
+.img_style {
+  height: 90px;
+  width: 90px;
+  padding: 10px;
+  margin-left: 30px;
+}
