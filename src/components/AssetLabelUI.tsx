@@ -1,16 +1,16 @@
-import { AssetDetailInfo, LabelVisable } from "../utils/types";
+import { AssetDetailInfo, LabelVisible } from "../utils/types";
 import { ProCard } from "@ant-design/pro-components";
 import { DateTransform, renderStatus, renderValue } from "../utils/transformer";
 import { QRCode } from "react-qr-svg"; // 引入生成二维码的组件
 import { Row, Col } from "antd";
 
 const qrcodeData = "https://example.com"; // 二维码的链接地址
-function getVisibleKeys(obj: LabelVisable): (keyof LabelVisable)[] {
-    return Object.keys(obj).filter(key => obj[key as keyof LabelVisable]) as (keyof LabelVisable)[];
+function getVisibleKeys(obj: LabelVisible): (keyof LabelVisible)[] {
+    return Object.keys(obj).filter(key => obj[key as keyof LabelVisible]) as (keyof LabelVisible)[];
 };
-const LabelDef = (props: { DetailInfo: AssetDetailInfo | undefined, labelVisable: LabelVisable }) => {
-    // const visibleKeys = Object.keys(props.labelVisable).filter(key => props.labelVisable[key]) as (keyof LabelVisable)[];
-    const visableKeys = getVisibleKeys(props.labelVisable);
+const LabelDef = (props: { DetailInfo: AssetDetailInfo | undefined, LabelVisible: LabelVisible }) => {
+    // const visibleKeys = Object.keys(props.LabelVisible).filter(key => props.LabelVisible[key]) as (keyof LabelVisible)[];
+    const visableKeys = getVisibleKeys(props.LabelVisible);
     const rows = [];
     for (let i = 0; i < visableKeys.length; i += 2) {
         const key1 = visableKeys[i];

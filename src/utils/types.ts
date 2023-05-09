@@ -89,10 +89,11 @@ export interface AssetDetailInfo{
     CreateTime:string,
     History:AssetHistory[],
     PropertyName:string[],
-    PropertyValue:string[]
+    // PropertyValue:string[],
+    LabelVisible:LabelVisible
 }
 
-export interface LabelVisable{
+export interface LabelVisible{
     Name:boolean,
     ID:boolean,
     Status:boolean,
