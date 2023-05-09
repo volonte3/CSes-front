@@ -220,22 +220,19 @@ const App = () => {
     if (state) {
         return (
             <Layout style={{ minHeight: "100vh" }}>
-                <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-                    <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }} />
+                <Sider className= "sidebar" width="10%">
                     <SiderMenu UserAuthority={UserAuthority} />
                 </Sider>
                 <Layout className="site-layout" >
                     <Header className="ant-layout-header">
                         <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
                     </Header>
-                    <Content style={{ margin: "0 16px" }}>
+                    <Content>
                         <Button
                             type="primary"
                             icon={<PlusSquareOutlined />}
-                            style={{ float: "left", margin: 10 }}
+                            style={{ float: "left", margin: 30 }}
                             onClick={showDrawer}
-                        // loading={loadings[1]}
-                        // onClick={() => enterLoading(1)}
                         >
                             添加业务实体
                         </Button>
@@ -286,10 +283,8 @@ const App = () => {
                                     )}
                                 />
                             </Table>
-
                         </div>
                     </Content>
-                    <Footer style={{ textAlign: "center" }}>EAMS ©2023 Designed by CSes</Footer>
                 </Layout>
             </Layout >
         );
