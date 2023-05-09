@@ -8,6 +8,9 @@ import { useState, useEffect } from "react";
 import CardUI from "../../components/CardUI";
 import { AppData } from "../../utils/types";
 import { renderAuthority } from "../../utils/transformer";
+import Sider from "antd/es/layout/Sider";
+import SiderMenu from "../../components/SiderUI";
+import UserInfo from "../../components/UserInfoUI";
 const { Header, Content } = Layout;
 
 const App = () => {
@@ -139,186 +142,171 @@ const App = () => {
     ];
     if (state) {
         return (
-            <Layout style={{
-                display: "flex", justifyContent: "center", alignItems: "center", height: "100vh",
-                backgroundImage: "url(\"LoginBackground.png\")", backgroundSize: "cover", backgroundPosition: "center"
-            }}>
-                <Header style = {{background : "transparent"}}>
-                    <>
-                        <div className="mainpage_logo" color="#fff" >CSCompany 资产管理系统</div>
-                        <div className="right-menu">
-                            <Dropdown  menu={{ items }}>
-                                <Button type = "text" className="header_button" icon={<UserOutlined /> }>{UserName}</Button>
-                            </Dropdown>
-                            {(UserAuthority==2 || UserAuthority==3) && (!TODO && !TOREAD) && <Dropdown overlay={DropdownMenu}>
-                                <Button type = "text" className="header_button" icon={<BellOutlined />}>消息列表<DownOutlined /></Button>
-                            </Dropdown>}
-                            {(UserAuthority==2 || UserAuthority==3) && (TODO || TOREAD) && <Dropdown overlay={DropdownMenu}>
-                                <Button type = "text" className="header_button has_unread">
-                                    <span className="badge"></span>
-                                    <BellOutlined/>
-                                    消息列表
-                                    <DownOutlined />
-                                </Button>
-                            </Dropdown>}
-                            <Button type = "text" className="header_button" icon={<PoweroffOutlined />} onClick={() => {logoutSendMessage();logout();}}>退出登录</Button>
+            <Layout style={{ minHeight: "100vh" }}>
+                <Sider className= "sidebar" width="10%">
+                    <SiderMenu UserAuthority={UserAuthority} />
+                </Sider>
+                <Layout className="site-layout" >
+                    <Header className="ant-layout-header">
+                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
+                    </Header>
+                    <Content>
+                        <div className="site-layout-content">
+                            <div className="title">您的权限：{rolelist[UserAuthority]}</div>
+                            <div className="title">应用导航:</div>
+                            <div style={{margin:"40px"}}>
+                                {UserAuthority == 0 && <Space size="large" wrap>{
+                                    supermanager_applist.map((name, index) => (
+                                        < CardUI 
+                                            key={index} 
+                                            state={superm_apps[index]} 
+                                            appname={name} img={name+".jpg"}
+                                            url={supermanager_urllist[index]}
+                                            internal={true}
+                                        />
+                                    ))
+                                }</Space>}
+                                {UserAuthority == 1 && <Space direction="vertical" size="middle" style={{ display: "flex" }}>{
+                                    <>
+                                        <Space size="large" wrap>{
+                                            systemmanager_applist.filter((item, id) => id <= 2).map((name, index) => (
+                                                < CardUI 
+                                                    key={index} 
+                                                    state={sm_apps[index]} 
+                                                    appname={name} 
+                                                    img={name+".jpg"}
+                                                    url={systemmanager_urllist[index]}
+                                                    internal={true}
+                                                />
+                                            ))
+                                        }</Space>
+                                        <Space size="large" wrap>{
+                                            systemmanager_applist.filter((item, index) => 3 <= index).map((name, index) => (
+                                                < CardUI 
+                                                    key={index} 
+                                                    state={sm_apps[index+3]} 
+                                                    appname={name} 
+                                                    img={name+".jpg"}
+                                                    url={systemmanager_urllist[index+3]}
+                                                    internal={true}
+                                                />
+                                            ))
+                                        }</Space>
+                                    </>
+                                }</Space>}
+                                {UserAuthority == 2 && <Space direction="vertical" size="middle" style={{ display: "flex" }}>{
+                                    <>
+                                        {AppList && <Space size="large" wrap>{
+                                            AppList.filter((item) => item.IsInternal).filter((item, index) => index<3).map((app, index) => (
+                                                < CardUI 
+                                                    key={index} 
+                                                    state={app.IsLock ? 0 : 1} 
+                                                    appname={app.AppName} 
+                                                    img={app.AppName+".jpg"}
+                                                    url={app.AppUrl}
+                                                    internal={true}
+                                                />
+                                            ))
+                                        }</Space>}
+                                        {AppList && <Space size="large" wrap>{
+                                            AppList.filter((item) => item.IsInternal).filter((item, index) => index<6 && index>2).map((app, index) => (
+                                                < CardUI 
+                                                    key={index} 
+                                                    state={app.IsLock ? 0 : 1} 
+                                                    appname={app.AppName} 
+                                                    img={app.AppName+".jpg"}
+                                                    url={app.AppUrl}
+                                                    internal={true}
+                                                />
+                                            ))
+                                        }</Space>}
+                                        {AppList && <Space size="large" wrap>{
+                                            AppList.filter((item) => item.IsInternal).filter((item, index) => index>=6).map((app, index) => (
+                                                < CardUI 
+                                                    key={index} 
+                                                    state={app.IsLock ? 0 : 1} 
+                                                    appname={app.AppName} 
+                                                    img={app.AppName+".jpg"}
+                                                    url={app.AppUrl}
+                                                    internal={true}
+                                                />
+                                            ))
+                                        }</Space>}
+                                    </>
+                                }</Space>}
+                                {UserAuthority == 3 && <Space direction="vertical" size="middle" style={{ display: "flex" }}>{
+                                    <>
+                                        {AppList && <Space size="large" wrap>{
+                                            AppList.filter((item) => item.IsInternal).filter((item, index) => index<3).map((app, index) => (
+                                                < CardUI 
+                                                    key={index} 
+                                                    state={app.IsLock ? 0 : 1} 
+                                                    appname={app.AppName} 
+                                                    img={app.AppName+".jpg"}
+                                                    url={app.AppUrl}
+                                                    internal={true}
+                                                />
+                                            ))
+                                        }</Space>}
+                                        {AppList && <Space size="large" wrap>{
+                                            AppList.filter((item) => item.IsInternal).filter((item, index) => index<6 && index>2).map((app, index) => (
+                                                < CardUI 
+                                                    key={index} 
+                                                    state={app.IsLock ? 0 : 1} 
+                                                    appname={app.AppName} 
+                                                    img={app.AppName+".jpg"}
+                                                    url={app.AppUrl}
+                                                    internal={true}
+                                                />
+                                            ))
+                                        }</Space>}
+                                    </>
+                                }</Space>}
+                                {AppList && AppList.filter((item) => !item.IsInternal).length>0 && <div className="title">外部应用</div>}
+                                <Space direction="vertical" size="middle" style={{ display: "flex" }}>{
+                                    <>
+                                        {AppList && <Space size="large" wrap>{
+                                            AppList.filter((item) => !item.IsInternal).filter((item, index) => index<3).map((app, index) => (
+                                                < CardUI 
+                                                    key={index} 
+                                                    state={app.IsLock ? 0 : 1} 
+                                                    appname={app.AppName} 
+                                                    img={app.AppName+".jpg"}
+                                                    url={app.AppUrl}
+                                                    internal={false}
+                                                />
+                                            ))
+                                        }</Space>}
+                                        {AppList && <Space size="large" wrap>{
+                                            AppList.filter((item) => !item.IsInternal).filter((item, index) => index<6 && index>2).map((app, index) => (
+                                                < CardUI 
+                                                    key={index} 
+                                                    state={app.IsLock ? 0 : 1} 
+                                                    appname={app.AppName} 
+                                                    img={app.AppName+".jpg"}
+                                                    url={app.AppUrl}
+                                                    internal={false}
+                                                />
+                                            ))
+                                        }</Space>}
+                                        {AppList && <Space size="large" wrap>{
+                                            AppList.filter((item) => !item.IsInternal).filter((item, index) => index>=6).map((app, index) => (
+                                                < CardUI 
+                                                    key={index} 
+                                                    state={app.IsLock ? 0 : 1} 
+                                                    appname={app.AppName} 
+                                                    img={app.AppName+".jpg"}
+                                                    url={app.AppUrl}
+                                                    internal={false}
+                                                />
+                                            ))
+                                        }</Space>}
+                                    </>
+                                }</Space>
+                            </div>
                         </div>
-                    </>
-                </Header>
-                <Content>
-                    <div className="site-layout-content">
-                        <div className="title">您的权限：{rolelist[UserAuthority]}</div>
-                        <div className="title">应用导航</div>
-                        {UserAuthority == 0 && <Space size="large" wrap>{
-                            supermanager_applist.map((name, index) => (
-                                < CardUI 
-                                    key={index} 
-                                    state={superm_apps[index]} 
-                                    appname={name} img={name+".jpg"}
-                                    url={supermanager_urllist[index]}
-                                    internal={true}
-                                />
-                            ))
-                        }</Space>}
-                        {UserAuthority == 1 && <Space direction="vertical" size="middle" style={{ display: "flex" }}>{
-                            <>
-                                <Space size="large" wrap>{
-                                    systemmanager_applist.filter((item, id) => id <= 2).map((name, index) => (
-                                        < CardUI 
-                                            key={index} 
-                                            state={sm_apps[index]} 
-                                            appname={name} 
-                                            img={name+".jpg"}
-                                            url={systemmanager_urllist[index]}
-                                            internal={true}
-                                        />
-                                    ))
-                                }</Space>
-                                <Space size="large" wrap>{
-                                    systemmanager_applist.filter((item, index) => 3 <= index).map((name, index) => (
-                                        < CardUI 
-                                            key={index} 
-                                            state={sm_apps[index+3]} 
-                                            appname={name} 
-                                            img={name+".jpg"}
-                                            url={systemmanager_urllist[index+3]}
-                                            internal={true}
-                                        />
-                                    ))
-                                }</Space>
-                            </>
-                        }</Space>}
-                        {UserAuthority == 2 && <Space direction="vertical" size="middle" style={{ display: "flex" }}>{
-                            <>
-                                {AppList && <Space size="large" wrap>{
-                                    AppList.filter((item) => item.IsInternal).filter((item, index) => index<3).map((app, index) => (
-                                        < CardUI 
-                                            key={index} 
-                                            state={app.IsLock ? 0 : 1} 
-                                            appname={app.AppName} 
-                                            img={app.AppName+".jpg"}
-                                            url={app.AppUrl}
-                                            internal={true}
-                                        />
-                                    ))
-                                }</Space>}
-                                {AppList && <Space size="large" wrap>{
-                                    AppList.filter((item) => item.IsInternal).filter((item, index) => index<6 && index>2).map((app, index) => (
-                                        < CardUI 
-                                            key={index} 
-                                            state={app.IsLock ? 0 : 1} 
-                                            appname={app.AppName} 
-                                            img={app.AppName+".jpg"}
-                                            url={app.AppUrl}
-                                            internal={true}
-                                        />
-                                    ))
-                                }</Space>}
-                                {AppList && <Space size="large" wrap>{
-                                    AppList.filter((item) => item.IsInternal).filter((item, index) => index>=6).map((app, index) => (
-                                        < CardUI 
-                                            key={index} 
-                                            state={app.IsLock ? 0 : 1} 
-                                            appname={app.AppName} 
-                                            img={app.AppName+".jpg"}
-                                            url={app.AppUrl}
-                                            internal={true}
-                                        />
-                                    ))
-                                }</Space>}
-                            </>
-                        }</Space>}
-                        {UserAuthority == 3 && <Space direction="vertical" size="middle" style={{ display: "flex" }}>{
-                            <>
-                                {AppList && <Space size="large" wrap>{
-                                    AppList.filter((item) => item.IsInternal).filter((item, index) => index<3).map((app, index) => (
-                                        < CardUI 
-                                            key={index} 
-                                            state={app.IsLock ? 0 : 1} 
-                                            appname={app.AppName} 
-                                            img={app.AppName+".jpg"}
-                                            url={app.AppUrl}
-                                            internal={true}
-                                        />
-                                    ))
-                                }</Space>}
-                                {AppList && <Space size="large" wrap>{
-                                    AppList.filter((item) => item.IsInternal).filter((item, index) => index<6 && index>2).map((app, index) => (
-                                        < CardUI 
-                                            key={index} 
-                                            state={app.IsLock ? 0 : 1} 
-                                            appname={app.AppName} 
-                                            img={app.AppName+".jpg"}
-                                            url={app.AppUrl}
-                                            internal={true}
-                                        />
-                                    ))
-                                }</Space>}
-                            </>
-                        }</Space>}
-                        {AppList && AppList.filter((item) => !item.IsInternal).length>0 && <div className="title">外部应用</div>}
-                        <Space direction="vertical" size="middle" style={{ display: "flex" }}>{
-                            <>
-                                {AppList && <Space size="large" wrap>{
-                                    AppList.filter((item) => !item.IsInternal).filter((item, index) => index<3).map((app, index) => (
-                                        < CardUI 
-                                            key={index} 
-                                            state={app.IsLock ? 0 : 1} 
-                                            appname={app.AppName} 
-                                            img={app.AppName+".jpg"}
-                                            url={app.AppUrl}
-                                            internal={false}
-                                        />
-                                    ))
-                                }</Space>}
-                                {AppList && <Space size="large" wrap>{
-                                    AppList.filter((item) => !item.IsInternal).filter((item, index) => index<6 && index>2).map((app, index) => (
-                                        < CardUI 
-                                            key={index} 
-                                            state={app.IsLock ? 0 : 1} 
-                                            appname={app.AppName} 
-                                            img={app.AppName+".jpg"}
-                                            url={app.AppUrl}
-                                            internal={false}
-                                        />
-                                    ))
-                                }</Space>}
-                                {AppList && <Space size="large" wrap>{
-                                    AppList.filter((item) => !item.IsInternal).filter((item, index) => index>=6).map((app, index) => (
-                                        < CardUI 
-                                            key={index} 
-                                            state={app.IsLock ? 0 : 1} 
-                                            appname={app.AppName} 
-                                            img={app.AppName+".jpg"}
-                                            url={app.AppUrl}
-                                            internal={false}
-                                        />
-                                    ))
-                                }</Space>}
-                            </>
-                        }</Space>
-                    </div>
-                </Content>
+                    </Content>
+                </Layout>
             </Layout>
         );
     }
