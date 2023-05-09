@@ -24,6 +24,7 @@ import { request } from "../../../../utils/network";
 import { LoadSessionID } from "../../../../utils/CookieOperation";
 import UserInfo from "../../../../components/UserInfoUI";
 import SiderMenu from "../../../../components/SiderUI";
+import AssetAddFromExcelUI from "../../../../components/AssetAddFromExcelUI";
 
 interface DepartmentData {
     DepartmentName: string;
@@ -169,7 +170,6 @@ const App = () => {
         )
             .then((res) => {
                 setProperList(res.Property);
-                console.log(ProperList);
             })
             .catch((err) => {
                 Modal.error({
@@ -418,7 +418,11 @@ const App = () => {
                                 </Button>
                             </Col>
                         </Row>
-                        <br></br>
+                        <Row>
+                            <Col style={{ margin: "30px" }}>
+                                <AssetAddFromExcelUI/>
+                            </Col>
+                        </Row>
                         <Row align="top">
                             <Col span={20}>
                                 <ProList<DataItem>
