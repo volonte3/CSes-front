@@ -13,8 +13,8 @@ const AssetAddFromExcelUI = () => {
     const handleOk = () => {
         setConfirmLoading(true);
         setTimeout(() => {
-          setOpen(false);
-          setConfirmLoading(false);
+            setOpen(false);
+            setConfirmLoading(false);
         }, 2000);
         
     };
@@ -24,7 +24,7 @@ const AssetAddFromExcelUI = () => {
     };
 
     const handleCancel = () => {
-        console.log('Clicked cancel button');
+        console.log("Clicked cancel button");
         setOpen(false);
     };
 
