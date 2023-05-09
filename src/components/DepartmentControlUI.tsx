@@ -187,8 +187,8 @@ const DepartmentUI = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query]);
     return(
-        <Content style={{ margin: "0 16px" }}>
-            <Breadcrumb className="ant-breadcrumb">
+        <Content>
+            <Breadcrumb className="ant-breadcrumb" style={{margin: 30 }}>
                 {DepartmentPathList && DepartmentPathList.map((path, index) => (
                     <Breadcrumb.Item key={index} onClick={() => { setDepartmentPath(path.Path);fetchList(path.Path);}}>
                         {path.Name}
@@ -198,7 +198,7 @@ const DepartmentUI = () => {
             {DepartmentPath != "000000000" && <Button
                 type="primary"
                 icon={<PlusSquareOutlined />}
-                style={{ float: "left", margin: 10 }}
+                style={{ float: "left", margin: 30 }}
                 onClick={() => {GoUp(DepartmentPath);}}
             >
                 回到上一级目录
@@ -206,7 +206,7 @@ const DepartmentUI = () => {
             <Button
                 type="primary"
                 icon={<PlusSquareOutlined />}
-                style={{ float: "left", margin: 10 }}
+                style={{ float: "left", margin: 30 }}
                 onClick={showDrawer1}
             >
                 添加部门
@@ -214,7 +214,7 @@ const DepartmentUI = () => {
             {IsLeafDepartment && <Button
                 type="primary"
                 icon={<PlusSquareOutlined />}
-                style={{ float: "left", margin: 10 }}
+                style={{ float: "left", margin: 30 }}
                 onClick={showDrawer2}
             >
                 新增员工

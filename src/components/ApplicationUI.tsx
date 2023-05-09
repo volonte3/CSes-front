@@ -141,17 +141,17 @@ const ApplicationUI = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query]);
     return(
-        <Content style={{ margin: "0 16px" }}>
+        <Content>
             {Authority == 3 && <Button
                 type="primary"
-                style={{ float: "left", margin: 10 }}
+                style={{ float: "left", margin: 30 }}
                 onClick={() => {handleUser();}}
             >
                 切换到资产管理员应用列表
             </Button>}
             {Authority == 2 && <Button
                 type="primary"
-                style={{ float: "left", margin: 10 }}
+                style={{ float: "left", margin: 30 }}
                 onClick={() => {handleAM();}}
             >
                 切换到普通员工应用列表
@@ -159,12 +159,12 @@ const ApplicationUI = () => {
             <Button
                 type="primary"
                 icon={<PlusSquareOutlined />}
-                style={{ float: "left", margin: 10 }}
+                style={{ float: "left", margin: 30 }}
                 onClick={()=>setOpen(true)}
             >
                 添加应用
             </Button>
-            <Drawer title="添加应用" placement="right" onClose={onClose} open={Open}>
+            <Drawer title="添加应用"  placement="right" onClose={onClose} open={Open}>
                 <Form
                     name="basic"
                     labelCol={{ span: 8 }}
