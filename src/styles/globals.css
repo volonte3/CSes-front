@@ -207,3 +207,13 @@ a {
   padding: 10px;
   margin-left: 30px;
 }
+.img_style_card {
+  height: 90px;
+  width: 90px;
+  padding: 10px;
+  margin-left: 200px;
+}
+.ant-pro-card-hoverable {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  height: 150px;
+}
