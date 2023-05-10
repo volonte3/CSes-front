@@ -78,6 +78,19 @@ const App = () => {
                 setUserApp(res.UserApp);
                 setUserAuthority(res.Authority);
                 if(res.Authority == 2 || res.Authority == 3) GetApp(res.Authority);
+                else if (res.Authority == 0){
+                    let userapp:AppData[]=[{IsInternal:true, IsLock: false, AppName:"业务实体管理", AppUrl:"/user/super_manager"},
+                        {IsInternal:true, IsLock: false, AppName:"系统管理员列表", AppUrl:"/user/super_manager"}];
+                    setAppList(userapp);
+                }
+                else if (res.Authority == 1){
+                    let userapp:AppData[]=[{IsInternal:true, IsLock: false, AppName:"用户列表", AppUrl:"/user/system_manager"},
+                        {IsInternal:true, IsLock: false, AppName:"角色管理", AppUrl:"/user/system_manager"},
+                        {IsInternal:true, IsLock: false, AppName:"部门管理", AppUrl:"/user/system_manager/department"},
+                        {IsInternal:true, IsLock: false, AppName:"应用管理", AppUrl:"/user/system_manager/application"},
+                        {IsInternal:true, IsLock: false, AppName:"操作日志", AppUrl:"empty"}];
+                    setAppList(userapp);
+                }
                 setEntity(res.Entity);
                 setDepartment(res.Department);
                 setTODO(res.TODO);
@@ -118,6 +131,28 @@ const App = () => {
             }
         </Menu>
     );
+    const [modalopen, setModal] = useState(false);
+    const handle_cancel = () => {
+        setModal(false);
+    };
+    const data = AppList ? AppList.map((item) => ({
+        content: (
+            <div style={{display:"flex"}} onClick={()=>{if(item.IsLock) setModal(true);
+            else if(item.IsInternal) router.push(item.AppUrl);
+            else {window.location.href=item.AppUrl;}}}>
+                {item.IsInternal && <img className="img_style_card" alt="" src={"/" + item.AppName + ".jpg"}/>}
+                {!item.IsInternal && <img className="img_style_card" alt="" src="/跳转.jpg"/>}
+                <div>
+                    <h1 className="card__title">{item.AppName}</h1>
+                    {!item.IsLock && <h1 className="card__description">点击前往</h1>}
+                    {item.IsLock && <h1 className="card__description_ban">已禁用</h1>}
+                </div>
+            </div>
+        ),
+    })):[];
+    const [cardActionProps, setCardActionProps] = useState<"actions" | "extra">(
+        "actions",
+    );
     const sm_apps = UserApp.split("").filter((item, index) => index >= 14 && index <= 19).map((char) => (char === "0" ? 0 : 1));
     const superm_apps = UserApp.split("").filter((item, index) => index >= 20).map((char) => (char === "0" ? 0 : 1));
     const items: MenuProps["items"] = [
@@ -156,10 +191,50 @@ const App = () => {
                         <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
                     </Header>
                     <Content>
-                        
+                        <h1 className="main_page_headword">{"Welcome "+rolelist[UserAuthority]+"  "+UserName+"!"}</h1>
+                        <h1 className="main_page_headword">应用导航</h1>
+                        <ProList<any>
+                            ghost={ghost}
+                            itemCardProps={{
+                                ghost,
+                            }}
+                            showActions="hover"
+                            rowSelection={{}}
+                            grid={{ gutter: 16, column: 3 }}
+                            onItem={(record: AppData) => {
+                                return {
+                                    onMouseEnter: () => {
+                                        console.log(record);
+                                    },
+                                    onClick: () => {
+                                        // console.log(record);
+                                        console.log(record.AppUrl);
+                                    },
+                                };
+                            }}
+                            metas={{
+                                content: {},
+                                // actions: {cardActionProps}
+                            }}
+                            dataSource={data}
+                        />
                     </Content>
                 </Layout>
-            </Layout>    
+                <Modal
+                    title="抱歉，该功能已被您的管理员禁用"
+                    centered
+                    open={modalopen}
+                    onCancel={handle_cancel}
+                    footer={[
+                        <Button key="ok" type="primary" onClick={handle_cancel}>
+                      确定
+                        </Button>,
+                    ]}
+                >
+                    <p>请联系管理员申请解封</p>
+                </Modal>
+            </Layout>
+            
         );
     }
 };

@@ -23,16 +23,12 @@ a {
 }
 
 .card__icon {
-  width: 80px;
-  height: 80px;
+  width: 150px;
+  height: 150px;
   margin-right: 0px;
 }
 
-.card__title {
-  font-size: 18px;
-  font-weight: bold;
-  margin: 0;
-}
+
 .mainpage_logo {
   font-size: 30px;
   font-weight: bold;
@@ -210,10 +206,37 @@ a {
 .img_style_card {
   height: 90px;
   width: 90px;
-  padding: 10px;
-  margin-left: 200px;
+  margin-left: 15px;
+}
+.card__title {
+  font-size: 24px;
+  font-weight: normal;
+  margin-left: 50px;
+  margin-top:-5px
+}
+.card__description {
+  font-size: 15px;
+  font-weight: bold;
+  margin-bottom: 80px;
+  margin-left: 50px;
+  color: #0a79e1;
+}
+.card__description_ban {
+  font-size: 15px;
+  font-weight: bold;
+  margin-bottom: 80px;
+  margin-left: 50px;
+  color: #cdcecf;
 }
 .ant-pro-card-hoverable {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   height: 150px;
+}
+.ant-pro-card-body {
+  padding:0px
+}
+.main_page_headword {
+  font-size: 30px; /* 增加字体大小 */
+  font-weight: bold; /* 加粗字体 */
+  margin-left: 40px;
 }
