@@ -15,6 +15,7 @@ import {
     ProFormSelect,
     ProFormMoney,
     ProList,
+    ProFormUploadButton,
 } from "@ant-design/pro-components";
 import { Layout, Menu, theme, Modal, Button, Breadcrumb, Row, Col, Form, message, Tag, Space } from "antd";
 import { useRouter } from "next/router";
@@ -25,6 +26,8 @@ import { LoadSessionID } from "../../../../utils/CookieOperation";
 import UserInfo from "../../../../components/UserInfoUI";
 import SiderMenu from "../../../../components/SiderUI";
 import AssetAddFromExcelUI from "../../../../components/AssetAddFromExcelUI";
+import OSS from "ali-oss";
+import { UploadChangeParam, UploadFile } from "antd/lib/upload/interface";
 
 interface DepartmentData {
     DepartmentName: string;
@@ -90,6 +93,54 @@ const App = () => {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
     const query = router.query;
+
+
+    const [file, setFile] = useState<File|null>(null);
+
+    const handleFileChange = (e: any) => {
+        const file = e.target.files[0];
+        setFile(file);
+        // 在这里处理获取到的文件
+        console.log("上传的文件:", file);
+    };
+
+    const handleUpload = async () => {
+    // 创建 OSS 客户端实例
+        const client = new OSS({
+            region: "oss-cn-beijing",
+            accessKeyId: "LTAI5tNdCBrFK5BGXqTiMhwG",
+            accessKeySecret: "vZpHyptCPojSG1uNGucDtWcqzMOEeF",
+            bucket: "cs-company",
+            secure: true,
+        });
+
+        const headers = {
+            // 添加跨域请求头
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            // 其他自定义请求头
+            "x-oss-storage-class": "Standard",
+            "x-oss-object-acl": "public-read",
+            "x-oss-tagging": "Tag1=1&Tag2=2",
+            "x-oss-forbid-overwrite": "true",
+        };
+
+        try {
+            const filename = form.getFieldValue("name");
+            const fileExtension = file?.name.split(".").pop(); // 获取文件的原始扩展名
+            const path = "photos/" + filename + "." + fileExtension;
+            // 上传文件到 OSS
+            console.log(file);
+            const result = await client.put(path, file, {headers});
+            // 打印上传成功的文件信息
+            console.log("上传成功", result);
+        } catch (e) {
+            // 打印上传失败的错误信息
+            console.error("上传失败", e);
+        }
+    };
+
 
     const MyForm: FC<MyFormProps> = ({ inputCount }) => {
         const inputs = useMemo(() => {
@@ -299,6 +350,7 @@ const App = () => {
                                     submitTimeout={1000}
                                     onFinish={async (values) => {
                                         await waitTime(1000);
+                                        handleUpload();
                                         AddList.push(
                                             {
                                                 id: AssetID.toString(),
@@ -409,12 +461,18 @@ const App = () => {
                                             rules={[{ required: true, message: "这是必填项" }]} 
                                         />
                                     </ProForm.Group>
+                                    <ProForm.Group>
+                                        <div>
+                                            资产图片
+                                        </div>
+                                        <input type="file" onChange={handleFileChange} />
+                                    </ProForm.Group>
                                     <MyForm inputCount={ProperList.length} />
                                 </ModalForm>
                             </Col>
                             <Col offset={17}>
                                 <Button loading={loading} type="primary" icon={<CheckOutlined />} onClick={add}>
-                                录入
+                                    录入
                                 </Button>
                             </Col>
                         </Row>
