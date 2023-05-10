@@ -1,13 +1,13 @@
 import React, { useRef } from "react";
-import { theme, Space, Table, Button, Modal, Menu, Tooltip, Badge, Form, Select, Input, List, Divider, Checkbox, Col, Row   } from "antd";
+import { theme, Space, Table, Button, Modal, Menu, Tooltip, Badge, Form, Select, Input, List, Divider, Checkbox, Col, Row } from "antd";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
-import { AssetData, AssetDetailInfo, AssetHistory, MemberData, LabelVisable } from "../utils/types"; //对列表中数据的定义在 utils/types 中
+import { AssetData, AssetDetailInfo, AssetHistory, MemberData, LabelVisible } from "../utils/types"; //对列表中数据的定义在 utils/types 中
 import { ProTable, ProColumns, TableDropdown, ProCard, ProList, ProForm, ModalForm, ProFormTreeSelect, ActionType } from "@ant-design/pro-components";
-import { DateTransform, renderStatus,renderStatusChanges, renderStatusBadge,renderValue } from "../utils/transformer";
-import  LabelDef  from "./AssetLabelUI";
+import { DateTransform, renderStatus, renderStatusChanges, renderStatusBadge, renderValue } from "../utils/transformer";
+import LabelDef from "./AssetLabelUI";
 interface AssetListProps {
     ManagerName: string;
 }
@@ -44,17 +44,16 @@ const TestDetailInfo: AssetDetailInfo = {
             Asset_Admin: "王五",
         },
     ],
-    PropertyName:["大小","高低"],
-    PropertyValue:["100","200"],
-};
-const TestLabelVisable:LabelVisable = {
-    Name:true,
-    ID:true,
-    Status:true,
-    Owner:true,
-    Description:true,
-    CreateTime:false,
-
+    PropertyName: ["大小", "高低"],
+    // PropertyValue: ["100", "200"],
+    LabelVisible: {
+        Name: true,
+        ID: true,
+        Status: true,
+        Owner: true,
+        Description: true,
+        CreateTime: false,
+    }
 };
 const TestPropList: string[] = ["a", "b", "c", "d"];
 const { Option } = Select;
@@ -87,7 +86,7 @@ const AssetList = (props: AssetListProps) => {
     const [IsSomeRowCanNotDispatch, setIsSomeRowCanNotDispatch] = useState<boolean>(false);  //退还维保
     const [SelectedRows, setSelectedRows] = useState<AssetData[]>([]);
     const [Detail, setDetail] = useState<boolean>(false);
-    const [DetailInfo, setDetailInfo] = useState<AssetDetailInfo>();
+    const [DetailInfo, setDetailInfo] = useState<AssetDetailInfo>(TestDetailInfo);
     const [PropList, setPropList] = useState<string[]>([]);
     const tableRef = useRef<ActionType>(null);
     // 资产调拨的内容
@@ -100,7 +99,6 @@ const AssetList = (props: AssetListProps) => {
     const [Open2, setOpen2] = useState(false); // 判断是否需要打开资产转移的第二步Modal
     const [form] = Form.useForm<{ class: string; }>(); // 第二个Modal的格式
     const [loading, setLoading] = useState(false);
-    const [labelVisable,setlabelVisable] = useState(TestLabelVisable);
     const Historycolumns: ProColumns<AssetHistory>[] = [
 
         {
@@ -142,11 +140,11 @@ const AssetList = (props: AssetListProps) => {
                     text: "调拨",
                     status: "Processing",
                 },
-                7:{
+                7: {
                     text: "录入",
                     status: "Success",
                 },
-                8:{
+                8: {
                     text: "变更",
                     status: "Warning",
                 }
@@ -176,9 +174,27 @@ const AssetList = (props: AssetListProps) => {
             },
         },
     ];
-    const handleLabelVisabelChange = (key:keyof LabelVisable)=>{
-        setlabelVisable({ ...labelVisable, [key]: !labelVisable[key] });
-        console.log(labelVisable);
+    const handleLabelVisabelChange = (key: keyof LabelVisible) => {
+        setDetailInfo((prevDetailInfo) => ({
+            ...prevDetailInfo,
+            LabelVisible: {
+                ...prevDetailInfo.LabelVisible,
+                [key]: !prevDetailInfo.LabelVisible[key],
+            },
+        }));
+        console.log(DetailInfo.LabelVisible);
+    };
+    const UpdateLabel = (DetailInfo:AssetDetailInfo)=>{
+        request(`/api/Asset/Label/${LoadSessionID()}/${DetailInfo?.ID}`, "POST",DetailInfo.LabelVisible);
+        // {
+        //     "Name":DetailInfo.LabelVisible.Name,
+        //     "ID":DetailInfo.LabelVisible.ID,
+        //     "Status":DetailInfo.LabelVisible.Status,
+        //     "Owner":DetailInfo.LabelVisible.Owner,
+        //     "Description":DetailInfo.LabelVisible.Description,
+        //     "CreateTime":DetailInfo.LabelVisible.CreateTime,
+        // }
+            
     };
     const columns: ProColumns<AssetData>[] = [
         {
@@ -202,7 +218,7 @@ const AssetList = (props: AssetListProps) => {
                             open={Detail}
                             onCancel={() => { setDetail(false); }}
                             footer={[
-                                <Button key="ok" type="primary" onClick={() => { setDetail(false); }}>
+                                <Button key="ok" type="primary" onClick={() => {UpdateLabel(DetailInfo); setDetail(false);}}>
                                     确定
                                 </Button>,
                             ]}
@@ -290,25 +306,25 @@ const AssetList = (props: AssetListProps) => {
                                     />
                                 </ProCard.TabPane>
                                 <ProCard.TabPane key="LabelDef" tab="标签定义">
-                                    <LabelDef DetailInfo={DetailInfo} labelVisable={labelVisable}/> 
+                                    <LabelDef DetailInfo={DetailInfo} LabelVisible={DetailInfo.LabelVisible} />
                                     <Row>
                                         <Col span={8}>
-                                            <Checkbox value="Name" onChange={(e)=>{handleLabelVisabelChange("Name");}} defaultChecked={labelVisable["Name"]}>资产名称</Checkbox>
+                                            <Checkbox value="Name" onChange={(e) => { handleLabelVisabelChange("Name"); }} defaultChecked={DetailInfo.LabelVisible["Name"]}>资产名称</Checkbox>
                                         </Col>
                                         <Col span={8}>
-                                            <Checkbox value="ID" onChange={(e)=>{handleLabelVisabelChange("ID");}} defaultChecked={labelVisable["ID"]}>ID</Checkbox>
+                                            <Checkbox value="ID" onChange={(e) => { handleLabelVisabelChange("ID"); }} defaultChecked={DetailInfo.LabelVisible["ID"]}>ID</Checkbox>
                                         </Col>
                                         <Col span={8}>
-                                            <Checkbox value="Status"  onChange={(e)=>{handleLabelVisabelChange("Status");}} defaultChecked={labelVisable["Status"]}>状态</Checkbox>
+                                            <Checkbox value="Status" onChange={(e) => { handleLabelVisabelChange("Status"); }} defaultChecked={DetailInfo.LabelVisible["Status"]}>状态</Checkbox>
                                         </Col>
                                         <Col span={8}>
-                                            <Checkbox value="Owner" onChange={(e)=>{handleLabelVisabelChange("Owner");}} defaultChecked={labelVisable["Owner"]}>当前所有者</Checkbox>
+                                            <Checkbox value="Owner" onChange={(e) => { handleLabelVisabelChange("Owner"); }} defaultChecked={DetailInfo.LabelVisible["Owner"]}>当前所有者</Checkbox>
                                         </Col>
                                         <Col span={8}>
-                                            <Checkbox value="Description" onChange={(e)=>{handleLabelVisabelChange("Description");}} defaultChecked={labelVisable["Description"]}>资产描述</Checkbox>
+                                            <Checkbox value="Description" onChange={(e) => { handleLabelVisabelChange("Description"); }} defaultChecked={DetailInfo.LabelVisible["Description"]}>资产描述</Checkbox>
                                         </Col>
                                         <Col span={8}>
-                                            <Checkbox value="CreateTime" onChange={(e)=>{handleLabelVisabelChange("CreateTime");}} defaultChecked={labelVisable["CreateTime"]}>创建时间</Checkbox>
+                                            <Checkbox value="CreateTime" onChange={(e) => { handleLabelVisabelChange("CreateTime"); }} defaultChecked={DetailInfo.LabelVisible["CreateTime"]}>创建时间</Checkbox>
                                         </Col>
                                     </Row>
                                 </ProCard.TabPane>
@@ -399,6 +415,8 @@ const AssetList = (props: AssetListProps) => {
             .then(
                 (res) => {
                     setDetailInfo(res.Asset_Detail);
+                    console.log(res.Asset_Detail);
+                    console.log(DetailInfo);
                     setDetail(true);
 
                 }
@@ -475,7 +493,7 @@ const AssetList = (props: AssetListProps) => {
     };
     const PropSearch = () => {
         return (
-            
+
             <Form
                 {...layout}
                 form={PropForm}
@@ -486,7 +504,7 @@ const AssetList = (props: AssetListProps) => {
             >
                 <ProForm.Group>
                     <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                        <Form.Item name="Prop" label="自定义属性" 
+                        <Form.Item name="Prop" label="自定义属性"
                         // rules={[{ required: true, message: "属性不能为空" }]}
                         >
                             <Select
@@ -502,7 +520,7 @@ const AssetList = (props: AssetListProps) => {
                                 ))}
                             </Select>
                         </Form.Item>
-                        <Form.Item name="PropValue" label="属性值" 
+                        <Form.Item name="PropValue" label="属性值"
                         // rules={[{ required: true, message: "属性值不能为空" }]}
                         >
                             <Input placeholder="属性值" />
@@ -542,8 +560,7 @@ const AssetList = (props: AssetListProps) => {
         setSelectedEmployee(employee);
     };
     const filteredData = Employee ? Employee.filter(
-        item =>
-            (item.Name.includes(searchText) ||
+        item =>(item.Name.includes(searchText) ||
             item.Department.includes(searchText))
     ) : [];
     const handleOk1 = () => { // 资产转移第一步的ok键，获取部门的资产分类树，同时打开第二步的modal
@@ -599,8 +616,8 @@ const AssetList = (props: AssetListProps) => {
                 tableAlertOptionRender={() => {
                     return (
                         <Space size={16} >
-                            <Button type="primary" loading = {loading} onClick={() => {hanleChange(SelectedRows.map((row: any) => row.ID), 0);if(tableRef.current?.clearSelected) tableRef.current?.clearSelected();}}>清退资产</Button>
-                            <Button type="primary" loading = {loading} disabled={IsSomeRowCanNotDispatch} onClick={() => { setOpen1(true); GetMemberList(); }}>调拨资产</Button>
+                            <Button type="primary" loading={loading} onClick={() => { hanleChange(SelectedRows.map((row: any) => row.ID), 0); if (tableRef.current?.clearSelected) tableRef.current?.clearSelected(); }}>清退资产</Button>
+                            <Button type="primary" loading={loading} disabled={IsSomeRowCanNotDispatch} onClick={() => { setOpen1(true); GetMemberList(); }}>调拨资产</Button>
                         </Space>
                     );
                 }}
