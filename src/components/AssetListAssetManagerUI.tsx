@@ -7,7 +7,9 @@ import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
 import { AssetData, AssetDetailInfo, AssetHistory, MemberData, LabelVisible } from "../utils/types"; //对列表中数据的定义在 utils/types 中
 import { ProTable, ProColumns, TableDropdown, ProCard, ProList, ProForm, ModalForm, ProFormTreeSelect, ActionType } from "@ant-design/pro-components";
 import { DateTransform, renderStatus, renderStatusChanges, renderStatusBadge, renderValue } from "../utils/transformer";
+import { DownloadOutlined } from "@ant-design/icons";
 import LabelDef from "./AssetLabelUI";
+import OSS from "ali-oss";
 interface AssetListProps {
     ManagerName: string;
 }
@@ -99,6 +101,8 @@ const AssetList = (props: AssetListProps) => {
     const [Open2, setOpen2] = useState(false); // 判断是否需要打开资产转移的第二步Modal
     const [form] = Form.useForm<{ class: string; }>(); // 第二个Modal的格式
     const [loading, setLoading] = useState(false);
+    const [AllowDownload, setAllowDownload] = useState(false);   //下载标签按钮是否允许点击
+    const [LabelChangeVisible,setLabelChangeVisible] = useState(false);
     const Historycolumns: ProColumns<AssetHistory>[] = [
 
         {
@@ -174,7 +178,34 @@ const AssetList = (props: AssetListProps) => {
             },
         },
     ];
+    const downloadLabel = async () => {
+        const ossClient = new OSS({
+            accessKeyId: "LTAI5tMmQshPLDwoQEMm8Xd7",
+            accessKeySecret: "YG0kjDviIqxkz9GtTZGTLhhlVsPqID",
+            region: "oss-cn-beijing",
+            bucket: "cs-company",
+            secure: true // true for https
+        });
+
+        try {
+            console.log(ossClient);
+            const response = ossClient.get("/test/sprint4交付需求.png");
+            console.log(response);
+            const blob = new Blob([(await response).content], (await response).res.headers);
+            const url = URL.createObjectURL(blob);
+            console.log(url);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "image.png";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.log(error);
+        }
+    };
     const handleLabelVisabelChange = (key: keyof LabelVisible) => {
+        setAllowDownload(false);
         setDetailInfo((prevDetailInfo) => ({
             ...prevDetailInfo,
             LabelVisible: {
@@ -184,17 +215,12 @@ const AssetList = (props: AssetListProps) => {
         }));
         console.log(DetailInfo.LabelVisible);
     };
-    const UpdateLabel = (DetailInfo:AssetDetailInfo)=>{
-        request(`/api/Asset/Label/${LoadSessionID()}/${DetailInfo?.ID}`, "POST",DetailInfo.LabelVisible);
-        // {
-        //     "Name":DetailInfo.LabelVisible.Name,
-        //     "ID":DetailInfo.LabelVisible.ID,
-        //     "Status":DetailInfo.LabelVisible.Status,
-        //     "Owner":DetailInfo.LabelVisible.Owner,
-        //     "Description":DetailInfo.LabelVisible.Description,
-        //     "CreateTime":DetailInfo.LabelVisible.CreateTime,
-        // }
-            
+    const UpdateLabel = (DetailInfo: AssetDetailInfo, AllowDownload:boolean) => {
+        request(`/api/Asset/Label/${LoadSessionID()}/${DetailInfo?.ID}`, "POST", DetailInfo.LabelVisible)
+            .then(
+                ()=>{setAllowDownload(AllowDownload);}
+            );
+
     };
     const columns: ProColumns<AssetData>[] = [
         {
@@ -216,9 +242,15 @@ const AssetList = (props: AssetListProps) => {
                         <Modal title="资产详细信息"
                             centered
                             open={Detail}
-                            onCancel={() => { setDetail(false); }}
+                            onCancel={() => { setDetail(false); setLabelChangeVisible(false); setAllowDownload(false);}}
                             footer={[
-                                <Button key="ok" type="primary" onClick={() => {UpdateLabel(DetailInfo); setDetail(false);}}>
+                                LabelChangeVisible && (<Button key="update" shape = "round" type="default" onClick={()=>{UpdateLabel(DetailInfo,true);}} >
+                                    更新
+                                </Button>),
+                                LabelChangeVisible && (<Button key = "download" shape = "round" onClick={downloadLabel} icon={<DownloadOutlined />} disabled={!AllowDownload}>
+                                    下载标签
+                                </Button>),
+                                <Button key="ok" type="primary" onClick={() => { UpdateLabel(DetailInfo,false); setDetail(false); setLabelChangeVisible(false);}}>
                                     确定
                                 </Button>,
                             ]}
@@ -305,9 +337,13 @@ const AssetList = (props: AssetListProps) => {
                                     // }}
                                     />
                                 </ProCard.TabPane>
-                                <ProCard.TabPane key="LabelDef" tab="标签定义">
+                                <ProCard.TabPane key="LabelDef" tab="标签定义" >
                                     <LabelDef DetailInfo={DetailInfo} LabelVisible={DetailInfo.LabelVisible} />
-                                    <Row>
+                                    <br></br>
+                                    <div style={{ textAlign: "center" }}>
+                                        {!LabelChangeVisible && <Button type="dashed" onClick={()=>setLabelChangeVisible(true)} block={true}> 编辑标签 </Button>}
+                                    </div>    
+                                    {LabelChangeVisible && <Row>
                                         <Col span={8}>
                                             <Checkbox value="Name" onChange={(e) => { handleLabelVisabelChange("Name"); }} defaultChecked={DetailInfo.LabelVisible["Name"]}>资产名称</Checkbox>
                                         </Col>
@@ -326,7 +362,19 @@ const AssetList = (props: AssetListProps) => {
                                         <Col span={8}>
                                             <Checkbox value="CreateTime" onChange={(e) => { handleLabelVisabelChange("CreateTime"); }} defaultChecked={DetailInfo.LabelVisible["CreateTime"]}>创建时间</Checkbox>
                                         </Col>
-                                    </Row>
+
+                                        {/* <Col span={8} style={{ textAlign: "center" }}>
+                                            <Button key="update" type="default" onClick={() => { UpdateLabel(DetailInfo); setAllowDownload(true); }} >
+                                                更新
+                                            </Button>,
+                                        </Col>
+                                        <Col span={8} style={{ textAlign: "center" }}>
+                                            <Button key="download" onClick={downloadLabel} icon={<DownloadOutlined />} disabled={!AllowDownload}>
+                                                下载文件
+                                            </Button>,
+                                        </Col> */}
+                                    </Row>}
+
                                 </ProCard.TabPane>
                             </ProCard>
 
@@ -560,7 +608,7 @@ const AssetList = (props: AssetListProps) => {
         setSelectedEmployee(employee);
     };
     const filteredData = Employee ? Employee.filter(
-        item =>(item.Name.includes(searchText) ||
+        item => (item.Name.includes(searchText) ||
             item.Department.includes(searchText))
     ) : [];
     const handleOk1 = () => { // 资产转移第一步的ok键，获取部门的资产分类树，同时打开第二步的modal

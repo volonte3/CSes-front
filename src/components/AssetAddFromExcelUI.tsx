@@ -41,7 +41,8 @@ const AssetAddFromExcelUI = () => {
                     const workbook = XLSX.read(data, { type: "array" });
                     const Sheet = workbook.Sheets["Sheet1"];
                     const Data_json = XLSX.utils.sheet_to_json(Sheet);
-                    console.log(Data_json[0]);
+                    const Data_list = Array.from(Data_json.values()) as any[];
+                    console.log(Data_list[0]);
                     resolve();
                 } else {
                     reject(new Error("Failed to read file data"));

@@ -1,4 +1,4 @@
-import {LabelVisable,AssetDetailInfo} from "./types";
+import {LabelVisible,AssetDetailInfo} from "./types";
 const renderAuthority = (identity: number): string => {
     let label = "";
     switch (identity) {
@@ -127,7 +127,7 @@ const DateTransform=(text:string|undefined)=>{
     return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
 
 };
-const renderValue = (key: keyof LabelVisable, detailInfo?: AssetDetailInfo) => {
+const renderValue = (key: keyof LabelVisible, detailInfo?: AssetDetailInfo) => {
     switch (key) {
     case "Name": return detailInfo?.Name;
     case "ID": return detailInfo?.ID;
