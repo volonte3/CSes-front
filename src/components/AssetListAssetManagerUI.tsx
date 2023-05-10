@@ -188,14 +188,14 @@ const AssetList = (props: AssetListProps) => {
             console.log(ossClient);
             const response = ossClient.get("/test/sprint4交付需求.png");
             console.log("+++++++++++++++++++++++++++++++++");
-            const blob = new Blob([response.content], { type: response.res.headers["image/png"] });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = "Downloads";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            // const blob = new Blob([response.content], { type: response.res.headers["image/png"] });
+            // const url = URL.createObjectURL(blob);
+            // const link = document.createElement("a");
+            // link.href = url;
+            // link.download = "Downloads";
+            // document.body.appendChild(link);
+            // link.click();
+            // document.body.removeChild(link);
         } catch (error) {
             console.log("=================================");
             console.log(error);
