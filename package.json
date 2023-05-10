@@ -18,6 +18,7 @@
     "@types/react-cookies": "^0.1.0",
     "@types/react-router-dom": "^5.3.3",
     "@types/xlsx": "^0.0.36",
+    "ali-oss": "^6.17.1",
     "antd": "^5.3.1",
     "axios": "^1.2.0",
     "crypto-js": "^4.1.1",
