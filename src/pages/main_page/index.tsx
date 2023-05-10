@@ -88,7 +88,7 @@ const App = () => {
                         {IsInternal:true, IsLock: false, AppName:"角色管理", AppUrl:"/user/system_manager"},
                         {IsInternal:true, IsLock: false, AppName:"部门管理", AppUrl:"/user/system_manager/department"},
                         {IsInternal:true, IsLock: false, AppName:"应用管理", AppUrl:"/user/system_manager/application"},
-                        {IsInternal:true, IsLock: false, AppName:"操作日志", AppUrl:"empty"}];
+                        {IsInternal:true, IsLock: false, AppName:"操作日志", AppUrl:"/user/system_manager/log"}];
                     setAppList(userapp);
                 }
                 setEntity(res.Entity);
@@ -140,8 +140,12 @@ const App = () => {
             <div style={{display:"flex"}} onClick={()=>{if(item.IsLock) setModal(true);
             else if(item.IsInternal) router.push(item.AppUrl);
             else {window.location.href=item.AppUrl;}}}>
-                {item.IsInternal && <img className="img_style_card" alt="" src={"/" + item.AppName + ".jpg"}/>}
-                {!item.IsInternal && <img className="img_style_card" alt="" src="/跳转.jpg"/>}
+                {item.IsInternal && 
+                // eslint-disable-next-line @next/next/no-img-element
+                <img className="img_style_card" alt="" src={"/" + item.AppName + ".jpg"}/>}
+                {!item.IsInternal && 
+                // eslint-disable-next-line @next/next/no-img-element
+                <img className="img_style_card" alt="" src="/跳转.jpg"/>}
                 <div>
                     <h1 className="card__title">{item.AppName}</h1>
                     {!item.IsLock && <h1 className="card__description">点击前往</h1>}
