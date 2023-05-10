@@ -8,6 +8,7 @@ import { AssetData, AssetDetailInfo, AssetHistory, MemberData, LabelVisible } fr
 import { ProTable, ProColumns, TableDropdown, ProCard, ProList, ProForm, ModalForm, ProFormTreeSelect, ActionType } from "@ant-design/pro-components";
 import { DateTransform, renderStatus, renderStatusChanges, renderStatusBadge, renderValue } from "../utils/transformer";
 import LabelDef from "./AssetLabelUI";
+import OSS from "ali-oss";
 interface AssetListProps {
     ManagerName: string;
 }
@@ -174,6 +175,32 @@ const AssetList = (props: AssetListProps) => {
             },
         },
     ];
+    const downloadFile = async () => {
+        const ossClient = new OSS({
+            accessKeyId: "LTAI5tMmQshPLDwoQEMm8Xd7",
+            accessKeySecret: "YG0kjDviIqxkz9GtTZGTLhhlVsPqID",
+            region: "oss-cn-beijing",
+            bucket: "cs-company",
+            secure: true // true for https
+        });
+
+        try {
+            console.log(ossClient);
+            const response = ossClient.get("/test/sprint4交付需求.png");
+            console.log("+++++++++++++++++++++++++++++++++");
+            const blob = new Blob([response.content], { type: response.res.headers["image/png"] });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "Downloads";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.log("=================================");
+            console.log(error);
+        }
+    };
     const handleLabelVisabelChange = (key: keyof LabelVisible) => {
         setDetailInfo((prevDetailInfo) => ({
             ...prevDetailInfo,
@@ -184,8 +211,8 @@ const AssetList = (props: AssetListProps) => {
         }));
         console.log(DetailInfo.LabelVisible);
     };
-    const UpdateLabel = (DetailInfo:AssetDetailInfo)=>{
-        request(`/api/Asset/Label/${LoadSessionID()}/${DetailInfo?.ID}`, "POST",DetailInfo.LabelVisible);
+    const UpdateLabel = (DetailInfo: AssetDetailInfo) => {
+        request(`/api/Asset/Label/${LoadSessionID()}/${DetailInfo?.ID}`, "POST", DetailInfo.LabelVisible);
         // {
         //     "Name":DetailInfo.LabelVisible.Name,
         //     "ID":DetailInfo.LabelVisible.ID,
@@ -194,7 +221,7 @@ const AssetList = (props: AssetListProps) => {
         //     "Description":DetailInfo.LabelVisible.Description,
         //     "CreateTime":DetailInfo.LabelVisible.CreateTime,
         // }
-            
+
     };
     const columns: ProColumns<AssetData>[] = [
         {
@@ -218,7 +245,7 @@ const AssetList = (props: AssetListProps) => {
                             open={Detail}
                             onCancel={() => { setDetail(false); }}
                             footer={[
-                                <Button key="ok" type="primary" onClick={() => {UpdateLabel(DetailInfo); setDetail(false);}}>
+                                <Button key="ok" type="primary" onClick={() => { UpdateLabel(DetailInfo); setDetail(false); }}>
                                     确定
                                 </Button>,
                             ]}
@@ -327,6 +354,9 @@ const AssetList = (props: AssetListProps) => {
                                             <Checkbox value="CreateTime" onChange={(e) => { handleLabelVisabelChange("CreateTime"); }} defaultChecked={DetailInfo.LabelVisible["CreateTime"]}>创建时间</Checkbox>
                                         </Col>
                                     </Row>
+                                    <div>
+                                        <button onClick={downloadFile}>下载文件</button>
+                                    </div>
                                 </ProCard.TabPane>
                             </ProCard>
 
@@ -560,7 +590,7 @@ const AssetList = (props: AssetListProps) => {
         setSelectedEmployee(employee);
     };
     const filteredData = Employee ? Employee.filter(
-        item =>(item.Name.includes(searchText) ||
+        item => (item.Name.includes(searchText) ||
             item.Department.includes(searchText))
     ) : [];
     const handleOk1 = () => { // 资产转移第一步的ok键，获取部门的资产分类树，同时打开第二步的modal
