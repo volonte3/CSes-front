@@ -240,3 +240,16 @@ a {
   font-weight: bold; /* 加粗字体 */
   margin-left: 40px;
 }
+.log_title {
+  font-size: 18px;
+  font-weight: normal;
+  margin-bottom: 30px;
+  margin-left: -10px;
+}
+.log_title_select {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 50px;
+  margin-left: -10px;
+  color: #0a79e1;
+}
