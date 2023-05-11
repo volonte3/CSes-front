@@ -58,6 +58,7 @@
     "jest-environment-jsdom": "^29.3.1",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.1",
+    "next-transpile-modules": "^10.0.0",
     "react-scripts": "5.0.1",
     "sort-by": "^1.2.0",
     "ts-jest": "^29.0.3",

@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+const withTM = require("next-transpile-modules")([
+    "antd-mobile",
+]);
+const nextConfig = withTM({
     reactStrictMode: false, /* @note: To prevent duplicated call of useEffect */
     swcMinify: true,
 
@@ -10,6 +13,6 @@ const nextConfig = {
             destination: "http://CS-Company-backend-dev-CSes.app.secoder.net/:path*"
         }];
     }
-};
+});
 
 module.exports = nextConfig;
