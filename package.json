@@ -21,6 +21,7 @@
     "@types/xlsx": "^0.0.36",
     "ali-oss": "^6.17.1",
     "antd": "^5.3.1",
+    "antd-mobile": "^5.30.0",
     "axios": "^1.2.0",
     "crypto-js": "^4.1.1",
     "jest-sonar-reporter": "^2.0.0",
