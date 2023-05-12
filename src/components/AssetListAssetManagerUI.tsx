@@ -102,7 +102,7 @@ const AssetList = (props: AssetListProps) => {
     const [form] = Form.useForm<{ class: string; }>(); // 第二个Modal的格式
     const [loading, setLoading] = useState(false);
     const [AllowDownload, setAllowDownload] = useState(false);   //下载标签按钮是否允许点击
-    const [LabelChangeVisible,setLabelChangeVisible] = useState(false);
+    const [LabelChangeVisible, setLabelChangeVisible] = useState(false);
     const Historycolumns: ProColumns<AssetHistory>[] = [
 
         {
@@ -179,6 +179,39 @@ const AssetList = (props: AssetListProps) => {
         },
     ];
     const downloadLabel = async () => {
+        // var LabelDownloadPath = "";
+        request(`/api/Asset/Label/${LoadSessionID()}/${DetailInfo?.ID}`, "GET")
+            .then(
+                (res) => {
+                    console.log(res.name);
+                    ossClient.get(res.name)
+                        .then(response => {
+                            return response;
+                        })
+                        .then(response => {
+                            const blob = new Blob([response.content], response.res.headers);
+                            const url = URL.createObjectURL(blob);
+                            console.log(url);
+                            const link = document.createElement("a");
+                            link.href = url;
+                            link.download = `label_${DetailInfo.ID}.png`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        })
+                        .catch(error => {
+                            console.log(error);
+                        });
+                }
+            )
+            .catch(err => {
+                if (IfCodeSessionWrong(err, router)) {
+                    Modal.error({
+                        title: "下载标签失败",
+                        content: err.toString().substring(5),
+                    });
+                }
+            });
         const ossClient = new OSS({
             accessKeyId: "LTAI5tMmQshPLDwoQEMm8Xd7",
             accessKeySecret: "YG0kjDviIqxkz9GtTZGTLhhlVsPqID",
@@ -187,22 +220,7 @@ const AssetList = (props: AssetListProps) => {
             secure: true // true for https
         });
 
-        try {
-            console.log(ossClient);
-            const response = ossClient.get("/test/sprint4交付需求.png");
-            console.log(response);
-            const blob = new Blob([(await response).content], (await response).res.headers);
-            const url = URL.createObjectURL(blob);
-            console.log(url);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = "image.png";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        } catch (error) {
-            console.log(error);
-        }
+
     };
     const handleLabelVisabelChange = (key: keyof LabelVisible) => {
         setAllowDownload(false);
@@ -215,10 +233,10 @@ const AssetList = (props: AssetListProps) => {
         }));
         console.log(DetailInfo.LabelVisible);
     };
-    const UpdateLabel = (DetailInfo: AssetDetailInfo, AllowDownload:boolean) => {
+    const UpdateLabel = (DetailInfo: AssetDetailInfo, AllowDownload: boolean) => {
         request(`/api/Asset/Label/${LoadSessionID()}/${DetailInfo?.ID}`, "POST", DetailInfo.LabelVisible)
             .then(
-                ()=>{setAllowDownload(AllowDownload);}
+                () => { setAllowDownload(AllowDownload); }
             );
 
     };
@@ -242,15 +260,15 @@ const AssetList = (props: AssetListProps) => {
                         <Modal title="资产详细信息"
                             centered
                             open={Detail}
-                            onCancel={() => { setDetail(false); setLabelChangeVisible(false); setAllowDownload(false);}}
+                            onCancel={() => { setDetail(false); setLabelChangeVisible(false); setAllowDownload(false); }}
                             footer={[
-                                LabelChangeVisible && (<Button key="update" shape = "round" type="default" onClick={()=>{UpdateLabel(DetailInfo,true);}} >
+                                LabelChangeVisible && (<Button key="update" shape="round" type="default" onClick={() => { UpdateLabel(DetailInfo, true); }} >
                                     更新
                                 </Button>),
-                                LabelChangeVisible && (<Button key = "download" shape = "round" onClick={downloadLabel} icon={<DownloadOutlined />} disabled={!AllowDownload}>
+                                LabelChangeVisible && (<Button key="download" shape="round" onClick={downloadLabel} icon={<DownloadOutlined />} disabled={!AllowDownload}>
                                     下载标签
                                 </Button>),
-                                <Button key="ok" type="primary" onClick={() => { UpdateLabel(DetailInfo,false); setDetail(false); setLabelChangeVisible(false);}}>
+                                <Button key="ok" type="primary" onClick={() => { UpdateLabel(DetailInfo, false); setDetail(false); setLabelChangeVisible(false); }}>
                                     确定
                                 </Button>,
                             ]}
@@ -341,8 +359,8 @@ const AssetList = (props: AssetListProps) => {
                                     <LabelDef DetailInfo={DetailInfo} LabelVisible={DetailInfo.LabelVisible} />
                                     <br></br>
                                     <div style={{ textAlign: "center" }}>
-                                        {!LabelChangeVisible && <Button type="dashed" onClick={()=>setLabelChangeVisible(true)} block={true}> 编辑标签 </Button>}
-                                    </div>    
+                                        {!LabelChangeVisible && <Button type="dashed" onClick={() => setLabelChangeVisible(true)} block={true}> 编辑标签 </Button>}
+                                    </div>
                                     {LabelChangeVisible && <Row>
                                         <Col span={8}>
                                             <Checkbox value="Name" onChange={(e) => { handleLabelVisabelChange("Name"); }} defaultChecked={DetailInfo.LabelVisible["Name"]}>资产名称</Checkbox>
