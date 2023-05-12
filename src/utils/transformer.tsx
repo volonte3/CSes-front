@@ -138,11 +138,23 @@ const renderValue = (key: keyof LabelVisible, detailInfo?: AssetDetailInfo) => {
     default: return detailInfo?.[key];
     }
 };
+const renderKey = (key: keyof LabelVisible) => {
+    switch (key) {
+    case "Name": return "资产名称";
+    case "ID": return "ID";
+    case "Status": return "状态";
+    case "Owner": return "当前所有者";
+    case "Description": return "资产描述";
+    case "CreateTime": return "创建时间";
+    default: return "";
+    }
+};
 export {
     renderAuthority,
     renderStatus,
     DateTransform,
     renderStatusBadge,
     renderStatusChanges,
-    renderValue
+    renderValue,
+    renderKey
 };

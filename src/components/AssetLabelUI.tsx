@@ -1,6 +1,6 @@
 import { AssetDetailInfo, LabelVisible } from "../utils/types";
 import { ProCard } from "@ant-design/pro-components";
-import { DateTransform, renderStatus, renderValue } from "../utils/transformer";
+import { DateTransform, renderStatus, renderValue, renderKey } from "../utils/transformer";
 import { QRCode } from "react-qr-svg"; // 引入生成二维码的组件
 import { Row, Col } from "antd";
 
@@ -17,8 +17,8 @@ const LabelDef = (props: { DetailInfo: AssetDetailInfo | undefined, LabelVisible
         const key2 = visableKeys[i + 1];
         const value1 = renderValue(key1, props.DetailInfo);
         const value2 = renderValue(key2, props.DetailInfo);
-        const col1 = <ProCard title={key1}>{value1}</ProCard>;
-        const col2 = <ProCard title={key2}>{value2}</ProCard>;
+        const col1 = <ProCard title={renderKey(key1)}>{value1}</ProCard>;
+        const col2 = <ProCard title={renderKey(key2)}>{value2}</ProCard>;
         rows.push([col1, col2]);
     }
     return (

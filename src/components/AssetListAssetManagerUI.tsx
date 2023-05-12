@@ -5,8 +5,8 @@ import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
 import { AssetData, AssetDetailInfo, AssetHistory, MemberData, LabelVisible } from "../utils/types"; //对列表中数据的定义在 utils/types 中
-import { ProTable, ProColumns, TableDropdown, ProCard, ProList, ProForm, ModalForm, ProFormTreeSelect, ActionType } from "@ant-design/pro-components";
-import { DateTransform, renderStatus, renderStatusChanges, renderStatusBadge, renderValue } from "../utils/transformer";
+import { ProTable, ProColumns, TableDropdown, ProCard, ProForm, ModalForm, ProFormTreeSelect, ActionType } from "@ant-design/pro-components";
+import { DateTransform, renderStatus, renderStatusChanges, renderStatusBadge, renderKey } from "../utils/transformer";
 import { DownloadOutlined } from "@ant-design/icons";
 import LabelDef from "./AssetLabelUI";
 import OSS from "ali-oss";
@@ -84,6 +84,7 @@ const LabelOptions = [
     { label: "Description", value: "Description" },
     { label: "CreateTime", value: "CreateTime" },
 ];
+const labelArray = ["Name", "ID", "Status", "Owner", "Description", "CreateTime"];
 const AssetList = (props: AssetListProps) => {
     const [IsSomeRowCanNotDispatch, setIsSomeRowCanNotDispatch] = useState<boolean>(false);  //退还维保
     const [SelectedRows, setSelectedRows] = useState<AssetData[]>([]);
@@ -278,9 +279,10 @@ const AssetList = (props: AssetListProps) => {
                             <ProCard
                                 tabs={{
                                     type: "card",
+                                    onChange: (key) => { setLabelChangeVisible(false); }
                                 }}
                             >
-                                <ProCard.TabPane key="Info" tab="资产信息">
+                                <ProCard.TabPane key="Info" tab="资产信息" >
                                     <ProCard split="horizontal">
                                         <ProCard split="vertical">
                                             <ProCard title="资产名称">{DetailInfo?.Name}</ProCard>
@@ -298,7 +300,7 @@ const AssetList = (props: AssetListProps) => {
                                         </ProCard>
                                     </ProCard>
                                 </ProCard.TabPane>
-                                <ProCard.TabPane key="History" tab="历史记录">
+                                <ProCard.TabPane key="History" tab="历史记录" >
                                     <ProTable
                                         columns={Historycolumns}
                                         options={false}
@@ -362,35 +364,18 @@ const AssetList = (props: AssetListProps) => {
                                         {!LabelChangeVisible && <Button type="dashed" onClick={() => setLabelChangeVisible(true)} block={true}> 编辑标签 </Button>}
                                     </div>
                                     {LabelChangeVisible && <Row>
-                                        <Col span={8}>
-                                            <Checkbox value="Name" onChange={(e) => { handleLabelVisabelChange("Name"); }} defaultChecked={DetailInfo.LabelVisible["Name"]}>资产名称</Checkbox>
-                                        </Col>
-                                        <Col span={8}>
-                                            <Checkbox value="ID" onChange={(e) => { handleLabelVisabelChange("ID"); }} defaultChecked={DetailInfo.LabelVisible["ID"]}>ID</Checkbox>
-                                        </Col>
-                                        <Col span={8}>
-                                            <Checkbox value="Status" onChange={(e) => { handleLabelVisabelChange("Status"); }} defaultChecked={DetailInfo.LabelVisible["Status"]}>状态</Checkbox>
-                                        </Col>
-                                        <Col span={8}>
-                                            <Checkbox value="Owner" onChange={(e) => { handleLabelVisabelChange("Owner"); }} defaultChecked={DetailInfo.LabelVisible["Owner"]}>当前所有者</Checkbox>
-                                        </Col>
-                                        <Col span={8}>
-                                            <Checkbox value="Description" onChange={(e) => { handleLabelVisabelChange("Description"); }} defaultChecked={DetailInfo.LabelVisible["Description"]}>资产描述</Checkbox>
-                                        </Col>
-                                        <Col span={8}>
-                                            <Checkbox value="CreateTime" onChange={(e) => { handleLabelVisabelChange("CreateTime"); }} defaultChecked={DetailInfo.LabelVisible["CreateTime"]}>创建时间</Checkbox>
-                                        </Col>
 
-                                        {/* <Col span={8} style={{ textAlign: "center" }}>
-                                            <Button key="update" type="default" onClick={() => { UpdateLabel(DetailInfo); setAllowDownload(true); }} >
-                                                更新
-                                            </Button>,
-                                        </Col>
-                                        <Col span={8} style={{ textAlign: "center" }}>
-                                            <Button key="download" onClick={downloadLabel} icon={<DownloadOutlined />} disabled={!AllowDownload}>
-                                                下载文件
-                                            </Button>,
-                                        </Col> */}
+                                        {labelArray.map(label => (
+                                            <Col span={8} key={label}>
+                                                <Checkbox
+                                                    value={label}
+                                                    onChange={(e) => handleLabelVisabelChange(label as keyof LabelVisible)}
+                                                    defaultChecked={DetailInfo.LabelVisible[label as keyof LabelVisible]}
+                                                >
+                                                    {renderKey(label as keyof LabelVisible)}
+                                                </Checkbox>
+                                            </Col>
+                                        ))}
                                     </Row>}
 
                                 </ProCard.TabPane>
