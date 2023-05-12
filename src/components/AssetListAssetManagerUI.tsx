@@ -386,6 +386,12 @@ const AssetList = (props: AssetListProps) => {
             },
         },
         {
+            title: "类别",
+            dataIndex: "Class",
+            key: "Class",
+            search: false
+        },
+        {
             title: "状态",
             dataIndex: "Status",
             key: "Status",

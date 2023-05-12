@@ -194,6 +194,8 @@ const AssetPage = () => {
                         search={false}
                         rowKey="ID"
                         dataSource={DetailInfo?.History}
+                        scroll={{ x: 500 }}
+        
                     />
                 </Collapse.Panel>
             </Collapse>
