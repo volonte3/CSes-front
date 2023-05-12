@@ -69,7 +69,7 @@ const AssetPage = () => {
         if (!router.isReady) {
             return;
         }
-        request(`/api/User/Asset_Detail/${LoadSessionID()}/${id}`, "GET")
+        request(`/api/User/QR_Asset_Detail/${id}`, "GET")
             .then(
                 (res) => {
                     setDetailInfo(res.Asset_Detail);
