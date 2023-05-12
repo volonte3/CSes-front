@@ -1,10 +1,10 @@
 import { useRouter } from "next/router";
 import { Collapse, Card, Toast, List } from "antd-mobile";
-import { ProCard } from "@ant-design/pro-components";
+import { ProCard, ProTable, ProColumns } from "@ant-design/pro-components";
 import { request } from "../../utils/network";
 import { LoadSessionID, IfCodeSessionWrong } from "../../utils/CookieOperation";
 import { useState, useEffect } from "react";
-import { AssetDetailInfo } from "../../utils/types"; //对列表中数据的定义在 utils/types 中
+import { AssetDetailInfo,AssetHistory } from "../../utils/types"; //对列表中数据的定义在 utils/types 中
 import { Modal, Badge } from "antd";
 import { DateTransform, renderStatus, renderStatusBadge } from "../../utils/transformer";
 const TestDetailInfo: AssetDetailInfo = {
@@ -55,7 +55,8 @@ const AssetPage = () => {
     const router = useRouter();
     const query = router.query;
     const id = query.id;
-    const [DetailInfo, setDetailInfo] = useState<AssetDetailInfo>(TestDetailInfo);
+    const [DetailInfo, setDetailInfo] = useState<AssetDetailInfo>();
+    const [NoUpdate,setNoUpdate] = useState(false);
     // const location = useLocation();
     // const queryParams = new URLSearchParams(location.search);
     // const id = queryParams.get("id");
@@ -65,25 +66,103 @@ const AssetPage = () => {
         value: "$1,000",
         description: "Asset Description",
     };
+    const Historycolumns: ProColumns<AssetHistory>[] = [
+
+        {
+            title: "审批号",
+            dataIndex: "ID",
+            search: false
+        },
+        {
+            title: "申请类型",
+            dataIndex: "Type",
+            key: "Type",
+            valueType: "select",
+            valueEnum: {
+                0: {
+                    text: "领用",
+                    status: "Success",
+                },
+                1: {
+                    text: "退库",
+                    status: "Error",
+                },
+                2: {
+                    text: "维保",
+                    status: "Warning",
+                },
+                3: {
+                    text: "转移",
+                    status: "Processing",
+                },
+                4: {
+                    text: "清退",
+                    status: "Default",
+                },
+                5: {
+                    text: "退维",
+                    status: "Success",
+                },
+                6: {
+                    text: "调拨",
+                    status: "Processing",
+                },
+                7: {
+                    text: "录入",
+                    status: "Success",
+                },
+                8: {
+                    text: "变更",
+                    status: "Warning",
+                }
+            },
+        },
+        {
+            title: "发起者",
+            dataIndex: "Initiator",
+        },
+        {
+            title: "参与者",
+            dataIndex: "Participant",
+            search: false,
+        },
+        {
+            title: "审批人",
+            dataIndex: "Asset_Admin",
+        },
+        {
+            title: "审批时间",
+            dataIndex: "Review_Time",
+            search: false,
+            render: (text: any, record:any) => {
+                console.log(text);
+                // TODO 不是很理解如果返回值为 undefined，前端默认会解析为 -
+                return (text != "-") ? DateTransform(text) : "-";
+            },
+        },
+    ];
     useEffect(() => {
         if (!router.isReady) {
             return;
         }
-        request(`/api/User/QR_Asset_Detail/${id}`, "GET")
-            .then(
-                (res) => {
-                    setDetailInfo(res.Asset_Detail);
-                    console.log(res.Asset_Detail);
-                    console.log(DetailInfo);
-
-                }
-            )
-            .catch(
-                (err: string) => {
-                    setDetailInfo(TestDetailInfo);
-                }
-            );
-    }, [router, query, id, DetailInfo]);
+        if(!NoUpdate){
+            request(`/api/User/QR_Asset_Detail/${id}`, "GET")
+                .then(
+                    (res) => {
+                        setDetailInfo(res.Asset_Detail);
+                        setNoUpdate(true);
+                        console.log(res.Asset_Detail);
+                        console.log(DetailInfo);
+    
+                    }
+                )
+                .catch(
+                    (err: string) => {
+                        setDetailInfo(TestDetailInfo);
+                    }
+                );
+        }
+    }, [router, query, id, DetailInfo,NoUpdate]);
 
     return (
         <div>
@@ -107,6 +186,15 @@ const AssetPage = () => {
                             </ProCard>
                         </ProCard>
                     </ProCard>
+                </Collapse.Panel>
+                <Collapse.Panel key="2" title="历史记录">
+                    <ProTable
+                        columns={Historycolumns}
+                        options={false}
+                        search={false}
+                        rowKey="ID"
+                        dataSource={DetailInfo?.History}
+                    />
                 </Collapse.Panel>
             </Collapse>
         </div>
