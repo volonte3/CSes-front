@@ -135,6 +135,8 @@ const renderValue = (key: keyof LabelVisible, detailInfo?: AssetDetailInfo) => {
     case "Owner": return detailInfo?.Owner;
     case "Description": return detailInfo?.Description;
     case "CreateTime": return DateTransform(detailInfo?.CreateTime);
+    case "Class": return detailInfo?.Class;
+    
     default: return detailInfo?.[key];
     }
 };
@@ -146,6 +148,7 @@ const renderKey = (key: keyof LabelVisible) => {
     case "Owner": return "当前所有者";
     case "Description": return "资产描述";
     case "CreateTime": return "创建时间";
+    case "Class": return "资产类别";
     default: return "";
     }
 };

@@ -14,6 +14,7 @@ const TestDetailInfo: AssetDetailInfo = {
     Owner: "张三",
     Description: "这是一个测试资产",
     CreateTime: "2022-04-23",
+    Class:"一本好书",
     History: [
         {
             Review_Time: "2022-04-23",
@@ -49,6 +50,7 @@ const TestDetailInfo: AssetDetailInfo = {
         Owner: true,
         Description: true,
         CreateTime: false,
+        Class:true,
     }
 };
 const AssetPage = () => {
@@ -71,7 +73,8 @@ const AssetPage = () => {
         {
             title: "审批号",
             dataIndex: "ID",
-            search: false
+            search: false,
+            // fixed:"left"
         },
         {
             title: "申请类型",
@@ -139,6 +142,7 @@ const AssetPage = () => {
                 // TODO 不是很理解如果返回值为 undefined，前端默认会解析为 -
                 return (text != "-") ? DateTransform(text) : "-";
             },
+            // fixed:"right"
         },
     ];
     useEffect(() => {
@@ -177,6 +181,7 @@ const AssetPage = () => {
                             </ProCard>
                             <ProCard split="vertical">
                                 <ProCard title="当前所有者">{DetailInfo?.Owner}</ProCard>
+                                <ProCard title="资产类别">{DetailInfo?.Class}</ProCard>
                                 <ProCard title="状态">
                                     <Badge status={renderStatusBadge(DetailInfo?.Status)} text={renderStatus(DetailInfo?.Status)} />
                                 </ProCard>
@@ -194,7 +199,7 @@ const AssetPage = () => {
                         search={false}
                         rowKey="ID"
                         dataSource={DetailInfo?.History}
-                        scroll={{ x: 500 }}
+                        scroll={{ x: 300 }}
         
                     />
                 </Collapse.Panel>

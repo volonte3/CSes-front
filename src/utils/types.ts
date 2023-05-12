@@ -90,6 +90,7 @@ export interface AssetDetailInfo{
     History:AssetHistory[],
     PropertyName:string[],
     // PropertyValue:string[],
+    Class:string,
     LabelVisible:LabelVisible
 }
 
@@ -100,5 +101,5 @@ export interface LabelVisible{
     Owner:boolean,
     Description:boolean,
     CreateTime:boolean,
-
+    Class: boolean,
 }
