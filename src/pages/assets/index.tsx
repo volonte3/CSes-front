@@ -194,7 +194,7 @@ const AssetPage = () => {
                     </ProCard>
                 </Collapse.Panel>
                 <Collapse.Panel key="2" title="历史记录">
-                    <List mode="card" header='卡片列表'>
+                    <List mode="card" header='资产历史记录(最近十条)'>
                         {DetailInfo?.History.map(row => (
 
                             <div key={row.ID}>
