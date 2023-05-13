@@ -1,12 +1,12 @@
 import { useRouter } from "next/router";
-import { Collapse, Card, Toast, List } from "antd-mobile";
+import { Collapse, Card, Toast, List, Button } from "antd-mobile";
 import { ProCard, ProTable, ProColumns } from "@ant-design/pro-components";
 import { request } from "../../utils/network";
 import { LoadSessionID, IfCodeSessionWrong } from "../../utils/CookieOperation";
 import { useState, useEffect } from "react";
-import { AssetDetailInfo,AssetHistory } from "../../utils/types"; //对列表中数据的定义在 utils/types 中
+import { AssetDetailInfo, AssetHistory } from "../../utils/types"; //对列表中数据的定义在 utils/types 中
 import { Modal, Badge } from "antd";
-import { DateTransform, renderStatus, renderStatusBadge } from "../../utils/transformer";
+import { DateTransform, renderStatus, renderStatusBadge, renderStatusChanges } from "../../utils/transformer";
 const TestDetailInfo: AssetDetailInfo = {
     Name: "测试资产",
     ID: 1,
@@ -14,7 +14,7 @@ const TestDetailInfo: AssetDetailInfo = {
     Owner: "张三",
     Description: "这是一个测试资产",
     CreateTime: "2022-04-23",
-    Class:"一本好书",
+    Class: "一本好书",
     History: [
         {
             Review_Time: "2022-04-23",
@@ -50,7 +50,7 @@ const TestDetailInfo: AssetDetailInfo = {
         Owner: true,
         Description: true,
         CreateTime: false,
-        Class:true,
+        Class: true,
     }
 };
 const AssetPage = () => {
@@ -58,7 +58,8 @@ const AssetPage = () => {
     const query = router.query;
     const id = query.id;
     const [DetailInfo, setDetailInfo] = useState<AssetDetailInfo>();
-    const [NoUpdate,setNoUpdate] = useState(false);
+    const [NoUpdate, setNoUpdate] = useState(false);
+    const [ShowHistoryDetail, setShowHistoryDetail] = useState(0);
     // const location = useLocation();
     // const queryParams = new URLSearchParams(location.search);
     // const id = queryParams.get("id");
@@ -137,7 +138,7 @@ const AssetPage = () => {
             title: "审批时间",
             dataIndex: "Review_Time",
             search: false,
-            render: (text: any, record:any) => {
+            render: (text: any, record: any) => {
                 console.log(text);
                 // TODO 不是很理解如果返回值为 undefined，前端默认会解析为 -
                 return (text != "-") ? DateTransform(text) : "-";
@@ -149,7 +150,7 @@ const AssetPage = () => {
         if (!router.isReady) {
             return;
         }
-        if(!NoUpdate){
+        if (!NoUpdate) {
             request(`/api/User/QR_Asset_Detail/${id}`, "GET")
                 .then(
                     (res) => {
@@ -157,7 +158,7 @@ const AssetPage = () => {
                         setNoUpdate(true);
                         console.log(res.Asset_Detail);
                         console.log(DetailInfo);
-    
+
                     }
                 )
                 .catch(
@@ -166,7 +167,7 @@ const AssetPage = () => {
                     }
                 );
         }
-    }, [router, query, id, DetailInfo,NoUpdate]);
+    }, [router, query, id, DetailInfo, NoUpdate]);
 
     return (
         <div>
@@ -193,18 +194,53 @@ const AssetPage = () => {
                     </ProCard>
                 </Collapse.Panel>
                 <Collapse.Panel key="2" title="历史记录">
-                    <ProTable
-                        columns={Historycolumns}
-                        options={false}
-                        search={false}
-                        rowKey="ID"
-                        dataSource={DetailInfo?.History}
-                        scroll={{ x: 300 }}
-        
-                    />
+                    <List mode="card" header='卡片列表'>
+                        {DetailInfo?.History.map(row => (
+
+                            <div key={row.ID}>
+
+                                <List.Item key={row.ID} title={"审批号:"+row.ID} description={DateTransform(row.Review_Time)} clickable onClick={() => setShowHistoryDetail(ShowHistoryDetail==0?row.ID:0)}>
+
+                                    <Badge status={renderStatusBadge(row.Type)} />{" "+renderStatusChanges(row.Type)}
+                                </List.Item>
+                                {ShowHistoryDetail == row.ID && <Card title="详细信息" >
+                                    <ProCard split="horizontal">
+                                        <ProCard split="horizontal">
+                                            <ProCard split="vertical">
+                                                <ProCard title="审批号">{row.ID}</ProCard>
+                                                <ProCard title="申请类型"><Badge status={renderStatusBadge(row.Type)} />{renderStatusChanges(row.Type)}</ProCard>
+                                                <ProCard title="审批时间">{DateTransform(row.Review_Time)}</ProCard>
+                                            </ProCard>
+                                            <ProCard split="vertical">
+                                                <ProCard title="发起者">{row.Initiator}</ProCard>
+                                                <ProCard title="参与者">{row.Participant}</ProCard>
+                                                <ProCard title="审批人">{row.Asset_Admin} </ProCard>
+                                            </ProCard>
+                                            {/* <ProCard split="vertical">
+                                                        <ProCard title="资产描述">{DetailInfo?.Description}</ProCard>
+                                                    </ProCard> */}
+                                        </ProCard>
+                                    </ProCard>
+                                    <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                                        <Button
+                                            color="primary"
+                                            onClick={() => {
+                                                setShowHistoryDetail(0);
+                                            }}
+
+                                        >
+                                            关闭
+                                        </Button>
+                                    </div>
+                                </Card>}
+                            </div>
+
+
+                        ))}
+                    </List>
                 </Collapse.Panel>
             </Collapse>
-        </div>
+        </div >
     );
 };
 
