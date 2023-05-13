@@ -86,7 +86,7 @@ const LabelOptions = [
     { label: "Description", value: "Description" },
     { label: "CreateTime", value: "CreateTime" },
 ];
-const labelArray = ["Name", "ID", "Status", "Owner", "Description", "CreateTime"];
+const labelArray = ["Name", "Class", "Status", "Owner", "Description", "CreateTime"];
 const AssetList = (props: AssetListProps) => {
     const [IsSomeRowCanNotDispatch, setIsSomeRowCanNotDispatch] = useState<boolean>(false);  //退还维保
     const [SelectedRows, setSelectedRows] = useState<AssetData[]>([]);

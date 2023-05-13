@@ -130,7 +130,7 @@ const DateTransform=(text:string|undefined)=>{
 const renderValue = (key: keyof LabelVisible, detailInfo?: AssetDetailInfo) => {
     switch (key) {
     case "Name": return detailInfo?.Name;
-    case "ID": return detailInfo?.ID;
+    case "Class": return detailInfo?.Class;
     case "Status": return renderStatus(detailInfo?.Status);
     case "Owner": return detailInfo?.Owner;
     case "Description": return detailInfo?.Description;

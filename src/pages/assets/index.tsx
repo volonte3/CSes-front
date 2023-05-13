@@ -45,12 +45,11 @@ const TestDetailInfo: AssetDetailInfo = {
     // PropertyValue: ["100", "200"],
     LabelVisible: {
         Name: true,
-        ID: true,
+        Class: true,
         Status: true,
         Owner: true,
         Description: true,
         CreateTime: false,
-        Class: true,
     }
 };
 const AssetPage = () => {
