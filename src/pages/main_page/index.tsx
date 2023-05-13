@@ -69,6 +69,9 @@ const App = () => {
         if (!router.isReady) {
             return;
         }
+        console.log("query.code",query);
+        console.log("cookie.load(\"SessionID\")",cookie.load("SessionID"));
+
         if (query.hasOwnProperty("code") && !cookie.load("SessionID")) {
             CreateCookie("SessionID");
             request("/api/User/feishu_login", "POST", {
@@ -80,6 +83,7 @@ const App = () => {
                 })
                 .catch((err) => {
                     setState(false);
+                    cookie.remove("SessionID");
                     Modal.error({
                         title: "登录失败",
                         content: "请重新登录",
