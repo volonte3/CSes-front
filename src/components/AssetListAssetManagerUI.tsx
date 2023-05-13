@@ -300,9 +300,9 @@ const AssetList = (props: AssetListProps) => {
                                             </ProCard>
                                         </ProCard>
                                         <ProCard split="vertical">
-                                                <ProCard title="资产描述">
-                                                    {ReactHtmlParser(DetailInfo?.Description)}
-                                                </ProCard>
+                                            <ProCard title="资产描述">
+                                                {ReactHtmlParser(DetailInfo?.Description)}
+                                            </ProCard>
                                         </ProCard>
                                     </ProCard>
                                 </ProCard.TabPane>
