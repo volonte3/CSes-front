@@ -10,7 +10,7 @@ import { DateTransform, renderStatus, renderStatusChanges, renderStatusBadge, re
 import { DownloadOutlined } from "@ant-design/icons";
 import LabelDef from "./AssetLabelUI";
 import OSS from "ali-oss";
-import ReactHtmlParser from 'react-html-parser';
+import ReactHtmlParser from "react-html-parser";
 interface AssetListProps {
     ManagerName: string;
 }
@@ -300,9 +300,9 @@ const AssetList = (props: AssetListProps) => {
                                             </ProCard>
                                         </ProCard>
                                         <ProCard split="vertical">
-                                                <ProCard title="资产描述">
-                                                    {ReactHtmlParser(DetailInfo?.Description)}
-                                                </ProCard>
+                                            <ProCard title="资产描述">
+                                                {ReactHtmlParser(DetailInfo?.Description)}
+                                            </ProCard>
                                         </ProCard>
                                     </ProCard>
                                 </ProCard.TabPane>
