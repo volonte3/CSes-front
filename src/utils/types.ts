@@ -96,7 +96,6 @@ export interface AssetDetailInfo{
 
 export interface LabelVisible{
     Name:boolean,
-    ID:boolean,
     Status:boolean,
     Owner:boolean,
     Description:boolean,

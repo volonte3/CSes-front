@@ -72,14 +72,50 @@ const App = () => {
         console.log("query.code",query);
         console.log("cookie.load(\"SessionID\")",cookie.load("SessionID"));
 
-        if (query.hasOwnProperty("code") && !cookie.load("SessionID")) {
+        if (query.hasOwnProperty("code")) { //飞书登录
             CreateCookie("SessionID");
             request("/api/User/feishu_login", "POST", {
                 "code": query.code,
                 "SessionID": LoadSessionID()
             })
                 .then((res) => {
-
+                    request(
+                        `/api/User/info/${LoadSessionID()}`,
+                        "GET"
+                    )
+                        .then((res) => {
+                            setState(true);
+                            setUserName(res.UserName);
+                            setUserApp(res.UserApp);
+                            setUserAuthority(res.Authority);
+                            if (res.Authority == 2 || res.Authority == 3) GetApp(res.Authority);
+                            else if (res.Authority == 0) {
+                                let userapp: AppData[] = [{ IsInternal: true, IsLock: false, AppName: "业务实体管理", AppUrl: "/user/super_manager" },
+                                    { IsInternal: true, IsLock: false, AppName: "系统管理员列表", AppUrl: "/user/super_manager" }];
+                                setAppList(userapp);
+                            }
+                            else if (res.Authority == 1) {
+                                let userapp: AppData[] = [{ IsInternal: true, IsLock: false, AppName: "用户列表", AppUrl: "/user/system_manager" },
+                                    { IsInternal: true, IsLock: false, AppName: "角色管理", AppUrl: "/user/system_manager" },
+                                    { IsInternal: true, IsLock: false, AppName: "部门管理", AppUrl: "/user/system_manager/department" },
+                                    { IsInternal: true, IsLock: false, AppName: "应用管理", AppUrl: "/user/system_manager/application" },
+                                    { IsInternal: true, IsLock: false, AppName: "操作日志", AppUrl: "/user/system_manager/log" }];
+                                setAppList(userapp);
+                            }
+                            setEntity(res.Entity);
+                            setDepartment(res.Department);
+                            setTODO(res.TODO);
+                            setTOREAD(res.TOREAD);
+                        })
+                        .catch((err) => {
+                            console.log(err.message);
+                            setState(false);
+                            Modal.error({
+                                title: "登录失败",
+                                content: "请重新登录",
+                                onOk: () => { window.location.href = "/"; }
+                            });
+                        });
                 })
                 .catch((err) => {
                     setState(false);
@@ -91,45 +127,47 @@ const App = () => {
                     });
                 });
         }
-
-
-        request(
-            `/api/User/info/${LoadSessionID()}`,
-            "GET"
-        )
-            .then((res) => {
-                setState(true);
-                setUserName(res.UserName);
-                setUserApp(res.UserApp);
-                setUserAuthority(res.Authority);
-                if (res.Authority == 2 || res.Authority == 3) GetApp(res.Authority);
-                else if (res.Authority == 0) {
-                    let userapp: AppData[] = [{ IsInternal: true, IsLock: false, AppName: "业务实体管理", AppUrl: "/user/super_manager" },
-                        { IsInternal: true, IsLock: false, AppName: "系统管理员列表", AppUrl: "/user/super_manager" }];
-                    setAppList(userapp);
-                }
-                else if (res.Authority == 1) {
-                    let userapp: AppData[] = [{ IsInternal: true, IsLock: false, AppName: "用户列表", AppUrl: "/user/system_manager" },
-                        { IsInternal: true, IsLock: false, AppName: "角色管理", AppUrl: "/user/system_manager" },
-                        { IsInternal: true, IsLock: false, AppName: "部门管理", AppUrl: "/user/system_manager/department" },
-                        { IsInternal: true, IsLock: false, AppName: "应用管理", AppUrl: "/user/system_manager/application" },
-                        { IsInternal: true, IsLock: false, AppName: "操作日志", AppUrl: "/user/system_manager/log" }];
-                    setAppList(userapp);
-                }
-                setEntity(res.Entity);
-                setDepartment(res.Department);
-                setTODO(res.TODO);
-                setTOREAD(res.TOREAD);
-            })
-            .catch((err) => {
-                console.log(err.message);
-                setState(false);
-                Modal.error({
-                    title: "登录失败",
-                    content: "请重新登录",
-                    onOk: () => { window.location.href = "/"; }
+        else{   //正常登录，获取用户名和密码
+            
+            request(
+                `/api/User/info/${LoadSessionID()}`,
+                "GET"
+            )
+                .then((res) => {
+                    setState(true);
+                    setUserName(res.UserName);
+                    setUserApp(res.UserApp);
+                    setUserAuthority(res.Authority);
+                    if (res.Authority == 2 || res.Authority == 3) GetApp(res.Authority);
+                    else if (res.Authority == 0) {
+                        let userapp: AppData[] = [{ IsInternal: true, IsLock: false, AppName: "业务实体管理", AppUrl: "/user/super_manager" },
+                            { IsInternal: true, IsLock: false, AppName: "系统管理员列表", AppUrl: "/user/super_manager" }];
+                        setAppList(userapp);
+                    }
+                    else if (res.Authority == 1) {
+                        let userapp: AppData[] = [{ IsInternal: true, IsLock: false, AppName: "用户列表", AppUrl: "/user/system_manager" },
+                            { IsInternal: true, IsLock: false, AppName: "角色管理", AppUrl: "/user/system_manager" },
+                            { IsInternal: true, IsLock: false, AppName: "部门管理", AppUrl: "/user/system_manager/department" },
+                            { IsInternal: true, IsLock: false, AppName: "应用管理", AppUrl: "/user/system_manager/application" },
+                            { IsInternal: true, IsLock: false, AppName: "操作日志", AppUrl: "/user/system_manager/log" }];
+                        setAppList(userapp);
+                    }
+                    setEntity(res.Entity);
+                    setDepartment(res.Department);
+                    setTODO(res.TODO);
+                    setTOREAD(res.TOREAD);
+                })
+                .catch((err) => {
+                    console.log(err.message);
+                    setState(false);
+                    Modal.error({
+                        title: "登录失败",
+                        content: "请重新登录",
+                        onOk: () => { window.location.href = "/"; }
+                    });
                 });
-            });
+        }
+
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query, state]);

@@ -143,7 +143,7 @@ const renderValue = (key: keyof LabelVisible, detailInfo?: AssetDetailInfo) => {
 const renderKey = (key: keyof LabelVisible) => {
     switch (key) {
     case "Name": return "资产名称";
-    case "ID": return "ID";
+    case "Class": return "资产类别";
     case "Status": return "状态";
     case "Owner": return "当前所有者";
     case "Description": return "资产描述";
