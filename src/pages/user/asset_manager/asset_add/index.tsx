@@ -1,10 +1,9 @@
-import { FC, useMemo} from "react";
+import { FC, useMemo, useRef} from "react";
 import React from "react";
 import {
     PlusOutlined,
     CheckOutlined,
 } from "@ant-design/icons";
-import type { MenuProps } from "antd";
 import {
     ModalForm,
     ProForm,
@@ -27,7 +26,56 @@ import UserInfo from "../../../../components/UserInfoUI";
 import SiderMenu from "../../../../components/SiderUI";
 import AssetAddFromExcelUI from "../../../../components/AssetAddFromExcelUI";
 import OSS from "ali-oss";
-import { UploadChangeParam, UploadFile } from "antd/lib/upload/interface";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css"; // 导入默认的样式文件
+import { Rule } from "rc-field-form/lib/interface"; // 导入正确的规则类型
+
+interface MyEditorState {
+    content: string;
+}
+
+const { Item } = Form;
+
+class MyEditor extends React.Component<{ 
+    name: string;
+    label: string;
+    width: string;
+    placeholder: string;
+    rules: Rule[];
+  }, MyEditorState> {
+    constructor(props: { 
+      name: string;
+      label: string;
+      width: string;
+      placeholder: string;
+      rules: Rule[];
+    }) {
+        super(props);
+        this.state = {
+            content: ""
+        };
+    }
+  
+    handleChange = (value: string) => {
+        this.setState({ content: value });
+    };
+  
+    render() {
+        const { name, label, width, placeholder, rules } = this.props;
+        return (
+            <Item
+                name={name}
+                label={label}
+                rules={rules} // 将规则传递给表单项
+            >
+                <ReactQuill value={this.state.content} onChange={this.handleChange} />
+            </Item>
+        );
+    }
+}
+  
+  
+  
 
 interface DepartmentData {
     DepartmentName: string;
@@ -351,6 +399,7 @@ const App = () => {
                                     onFinish={async (values) => {
                                         await waitTime(1000);
                                         handleUpload();
+                                        console.log(values.describe);
                                         AddList.push(
                                             {
                                                 id: AssetID.toString(),
@@ -453,12 +502,12 @@ const App = () => {
                                         />
                                     </ProForm.Group>
                                     <ProForm.Group>
-                                        <ProFormTextArea
+                                        <MyEditor
                                             name="describe"
                                             label="资产描述"
                                             width="lg"
                                             placeholder="请输入描述"
-                                            rules={[{ required: true, message: "这是必填项" }]} 
+                                            rules={[{ required: true, message: "这是必填项" }]}
                                         />
                                     </ProForm.Group>
                                     <ProForm.Group>
