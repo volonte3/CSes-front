@@ -35,6 +35,7 @@
     "react-dom": "18.2.0",
     "react-html-parser": "^2.0.2",
     "react-qr-svg": "^2.4.0",
+    "react-quill": "^2.0.0",
     "react-router-dom": "^6.9.0",
     "type": "^2.7.2",
     "types": "^0.1.0",
