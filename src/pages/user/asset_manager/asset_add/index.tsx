@@ -26,7 +26,6 @@ import UserInfo from "../../../../components/UserInfoUI";
 import SiderMenu from "../../../../components/SiderUI";
 import AssetAddFromExcelUI from "../../../../components/AssetAddFromExcelUI";
 import OSS from "ali-oss";
-import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css"; // 导入默认的样式文件
 import { Rule } from "rc-field-form/lib/interface"; // 导入正确的规则类型
 
@@ -62,13 +61,18 @@ class MyEditor extends React.Component<{
   
     render() {
         const { name, label, width, placeholder, rules } = this.props;
+        let ReactQuill;
+        if (typeof window !== "undefined") {
+            ReactQuill = require("react-quill");
+            require("react-quill/dist/quill.snow.css");
+        }
         return (
             <Item
                 name={name}
                 label={label}
                 rules={rules} // 将规则传递给表单项
             >
-                <ReactQuill value={this.state.content} onChange={this.handleChange} />
+                {ReactQuill ? <ReactQuill value={this.state.content} onChange={this.handleChange} /> : null}
             </Item>
         );
     }
