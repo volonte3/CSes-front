@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { Collapse, Card, Toast, List, Button } from "antd-mobile";
+import { Collapse, Card, Toast, List, Button, Image } from "antd-mobile";
 import { ProCard, ProTable, ProColumns } from "@ant-design/pro-components";
 import { request } from "../../utils/network";
 import { LoadSessionID, IfCodeSessionWrong } from "../../utils/CookieOperation";
@@ -145,6 +145,19 @@ const AssetPage = () => {
             // fixed:"right"
         },
     ];
+    const url_list = [
+        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/blue.png",
+        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/chess1.png",
+        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/chess2.png",
+        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/green.png",
+        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/player.png",
+        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/okset.png",
+        "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/1.png",
+        "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/47.png",
+        "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/53.png",
+
+
+    ];
     useEffect(() => {
         if (!router.isReady) {
             return;
@@ -237,6 +250,27 @@ const AssetPage = () => {
 
                         ))}
                     </List>
+                </Collapse.Panel>
+                <Collapse.Panel key="3" title="资产图片">
+                    <div style={{ height: "500px", overflowY: "auto", overflowX: "hidden", display: "flex", flexWrap: "wrap" }}>
+                        {url_list.map((url, index) => (
+                            <div
+                                style={{ flex: "0 0 50%", marginBottom: "10px" }}
+                                key={url}
+                            >
+                                <div style={{ position: "relative", width: "100%", paddingBottom: "100%" }}>
+                                    <Image
+                                        key={index}
+                                        src={url}
+                                        fit="scale-down"
+                                        style={{position: "absolute", top: 0, left: 0,borderRadius: 8, width: "100%", height: "100%" }}
+                                        alt={url}
+                                        lazy
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </Collapse.Panel>
             </Collapse>
         </div >
