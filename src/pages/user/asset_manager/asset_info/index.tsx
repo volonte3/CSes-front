@@ -23,6 +23,7 @@ const App = () => {
     const [TODO, setTODO] = useState(false);
     const [Entity, setEntity] = useState<string>(""); // 实体名称
     const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
+    const [VisibleDetail,setVisibleDetail] = useState(false); //是否显示详细信息页面
     const {
         token: { colorBgContainer },
     } = theme.useToken();
@@ -76,10 +77,11 @@ const App = () => {
                         </Header>
                         <Content>
                             <Breadcrumb style={{ margin: "30px" }}>
-                                <Breadcrumb.Item>资产列表</Breadcrumb.Item>
+                                <Breadcrumb.Item onClick={()=>setVisibleDetail(false)}>资产列表</Breadcrumb.Item>
+                                {VisibleDetail && <Breadcrumb.Item>资产详细信息</Breadcrumb.Item>}
                             </Breadcrumb>
                             <div className="Div">
-                                <AssetList ManagerName={UserName} />
+                                <AssetList ManagerName={UserName} setVisibleDetail={setVisibleDetail} VisibleDetail={VisibleDetail}/>
                             </div>
                         </Content>
                     </Layout>

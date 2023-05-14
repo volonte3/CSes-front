@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { theme, Space, Table, Button, Modal, Menu, Tooltip, Badge, Form, Select, Input, List, Divider, Checkbox, Col, Row } from "antd";
+import { theme, Space, Table, Button, Modal, Menu, Tooltip, Badge, Form, Select, Input, List, Divider, Checkbox, Col, Row, Breadcrumb } from "antd";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { request } from "../utils/network";
@@ -11,8 +11,11 @@ import { DownloadOutlined } from "@ant-design/icons";
 import LabelDef from "./AssetLabelUI";
 import OSS from "ali-oss";
 import ReactHtmlParser from "react-html-parser";
+import { Image } from "antd-mobile";
 interface AssetListProps {
     ManagerName: string;
+    setVisibleDetail: (visible: boolean) => void;
+    VisibleDetail: boolean;
 }
 const TestDetailInfo: AssetDetailInfo = {
     Name: "测试资产",
@@ -21,7 +24,7 @@ const TestDetailInfo: AssetDetailInfo = {
     Owner: "张三",
     Description: "这是一个测试资产",
     CreateTime: "2022-04-23",
-    Class:"一本好书",
+    Class: "一本好书",
     History: [
         {
             Review_Time: "2022-04-23",
@@ -87,6 +90,7 @@ const LabelOptions = [
     { label: "CreateTime", value: "CreateTime" },
 ];
 const labelArray = ["Name", "Class", "Status", "Owner", "Description", "CreateTime"];
+
 const AssetList = (props: AssetListProps) => {
     const [IsSomeRowCanNotDispatch, setIsSomeRowCanNotDispatch] = useState<boolean>(false);  //退还维保
     const [SelectedRows, setSelectedRows] = useState<AssetData[]>([]);
@@ -243,6 +247,19 @@ const AssetList = (props: AssetListProps) => {
             );
 
     };
+    const url_list = [
+        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/blue.png",
+        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/chess1.png",
+        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/chess2.png",
+        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/green.png",
+        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/player.png",
+        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/okset.png",
+        "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/1.png",
+        "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/47.png",
+        "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/53.png",
+
+
+    ];
     const columns: ProColumns<AssetData>[] = [
         {
             title: "资产编号",
@@ -258,9 +275,9 @@ const AssetList = (props: AssetListProps) => {
                 return (
                     <div>
                         <Tooltip title="点击查看详情">
-                            <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => { FetchDetail(record.ID); }}>{record.Name}</a>
+                            <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => { FetchDetail(record.ID); props.setVisibleDetail(true); }}>{record.Name}</a>
                         </Tooltip>
-                        <Modal title="资产详细信息"
+                        {/* <Modal title="资产详细信息"
                             centered
                             open={Detail}
                             onCancel={() => { setDetail(false); setLabelChangeVisible(false); setAllowDownload(false); }}
@@ -384,10 +401,27 @@ const AssetList = (props: AssetListProps) => {
                                     </Row>}
 
                                 </ProCard.TabPane>
+                                <ProCard.TabPane key="photos" tab="资产图片" >
+                                    <div style={{ height: "400px" }}>
+
+                                        {url_list.map((url) => (
+                                            <div style={{ display: "block", marginBottom: "10px", marginLeft: "40%", width: "100%", height: "100px" }} key={url}>
+                                                <Image
+                                                    key={url}
+                                                    src={url}
+                                                    width={100}
+                                                    height={100}
+                                                    alt={url}
+                                                    lazy
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </ProCard.TabPane>
                             </ProCard>
 
-                        </Modal>
-                    </div>);
+                        </Modal> */}
+                    </div >);
             },
         },
         {
@@ -649,10 +683,138 @@ const AssetList = (props: AssetListProps) => {
     };
     return (
         <>
-            <Divider orientation="center" >自定义属性</Divider>
-            <PropSearch />
-            <Divider orientation="center" >基本属性</Divider>
-            <ProTable className="ant-pro-table"
+            {!props.VisibleDetail && <Divider orientation="center" >自定义属性</Divider>}
+            {!props.VisibleDetail && <PropSearch />}
+            {!props.VisibleDetail && <Divider orientation="center" >基本属性</Divider>}
+            {props.VisibleDetail && <ProCard
+                tabs={{
+                    type: "card",
+                    onChange: (key) => { setLabelChangeVisible(false); }
+                }}
+            >
+                <ProCard.TabPane key="Info" tab="资产信息" >
+                    <ProCard split="horizontal">
+                        <ProCard split="vertical">
+                            <ProCard title="资产名称">{DetailInfo?.Name}</ProCard>
+                            <ProCard title="ID">{DetailInfo?.ID}</ProCard>
+                            <ProCard title="创建时间">{DateTransform(DetailInfo?.CreateTime)}</ProCard>
+                        </ProCard>
+                        <ProCard split="vertical">
+                            <ProCard title="当前所有者">{DetailInfo?.Owner}</ProCard>
+                            <ProCard title="资产类别">{DetailInfo?.Class}</ProCard>
+                            <ProCard title="状态">
+                                <Badge status={renderStatusBadge(DetailInfo?.Status)} text={renderStatus(DetailInfo?.Status)} />
+                            </ProCard>
+                        </ProCard>
+                        <ProCard split="vertical">
+                            <ProCard title="资产描述">
+                                {ReactHtmlParser(DetailInfo?.Description)}
+                            </ProCard>
+                        </ProCard>
+                    </ProCard>
+                </ProCard.TabPane>
+                <ProCard.TabPane key="History" tab="历史记录" >
+                    <ProTable
+                        columns={Historycolumns}
+                        options={false}
+                        rowKey="ID"
+                        request={async (params = {}) =>
+                            request(`/api/User/Asset_Detail/${LoadSessionID()}/${DetailInfo?.ID}`, "GET")
+                                .then(response => {
+                                    let filteredData = response.Asset_Detail.History;
+                                    if (params.Type) {
+                                        filteredData = filteredData.filter(
+                                            (item: AssetHistory) => item.Type == params.Type
+                                        );
+                                    }
+                                    if (params.Initiator) {
+                                        filteredData = filteredData.filter(
+                                            (item: AssetHistory) => item.Initiator == params.Initiator
+                                        );
+                                    }
+                                    if (params.Asset_Admin) {
+                                        filteredData = filteredData.filter(
+                                            (item: AssetHistory) => item.Asset_Admin == params.Asset_Admin
+                                        );
+                                    }
+                                    return Promise.resolve({ data: filteredData, success: true });
+                                })
+                                .catch((err) => {
+
+                                    let filteredData = TestDetailInfo.History;
+                                    if (params.Type) {
+                                        filteredData = filteredData.filter(
+                                            (item: AssetHistory) => item.Type == params.Type
+                                        );
+                                    }
+                                    if (params.Initiator) {
+                                        filteredData = filteredData.filter(
+                                            (item: AssetHistory) => item.Initiator == params.Initiator
+                                        );
+                                    }
+                                    if (params.Asset_Admin) {
+                                        filteredData = filteredData.filter(
+                                            (item: AssetHistory) => item.Asset_Admin == params.Asset_Admin
+                                        );
+                                    }
+                                    return Promise.resolve({ data: filteredData, success: false });
+                                })
+                        }
+                    // dataSource={DetailInfo?.History}
+                    // search={{
+                    //     defaultCollapsed: false,
+                    //     defaultColsNumber: 1,
+                    //     split: true,
+                    //     span: 8,
+                    //     searchText: "查询"
+                    // }}
+                    />
+                </ProCard.TabPane>
+                <ProCard.TabPane key="LabelDef" tab="标签定义" >
+                    <LabelDef DetailInfo={DetailInfo} LabelVisible={DetailInfo.LabelVisible} />
+                    <br></br>
+                    <div style={{ textAlign: "center" }}>
+                        {!LabelChangeVisible && <Button type="dashed" onClick={() => setLabelChangeVisible(true)} block={true}> 编辑标签 </Button>}
+                    </div>
+                    {LabelChangeVisible && <Row>
+
+                        {labelArray.map(label => (
+                            <Col span={8} key={label}>
+                                <Checkbox
+                                    value={label}
+                                    onChange={(e) => handleLabelVisabelChange(label as keyof LabelVisible)}
+                                    defaultChecked={DetailInfo.LabelVisible[label as keyof LabelVisible]}
+                                >
+                                    {renderKey(label as keyof LabelVisible)}
+                                </Checkbox>
+                            </Col>
+                        ))}
+                    </Row>}
+
+                </ProCard.TabPane>
+                <ProCard.TabPane key="photos" tab="资产图片">
+                    <div style={{ height: "800px", overflowY: "auto", overflowX: "hidden" }}>
+                        {url_list.map((url, index) => (
+                            <div
+                                style={{ marginBottom: "10px",padding:"200px" }}
+                                key={url}
+                            >
+                                <div style={{ maxWidth: "100%", height: 0, paddingBottom: "100%", position: "relative" }}>
+                                    <Image
+                                        key={index}
+                                        src={url}
+                                        fit="contain"
+                                        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+                                        alt={url}
+                                        lazy
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </ProCard.TabPane>
+            </ProCard>}
+            {!props.VisibleDetail && <ProTable className="ant-pro-table"
                 columns={columns}
                 options={{ reload: true, setting: false }}
                 rowKey="ID"
@@ -754,8 +916,8 @@ const AssetList = (props: AssetListProps) => {
                     searchText: "查询"
                 }}
                 toolBarRender={() => []}
-            />
-            <Modal
+            />}
+            {!props.VisibleDetail && <Modal
                 title="请选择要转移到的管理员"
                 bodyStyle={{ padding: "20px" }}
                 visible={Open1}
@@ -780,8 +942,8 @@ const AssetList = (props: AssetListProps) => {
                         pageSize: 20
                     }}
                 />
-            </Modal>
-            <ModalForm<{
+            </Modal>}
+            {!props.VisibleDetail && <ModalForm<{
                 class: string;
             }>
                 title="请选择资产分类"
@@ -817,7 +979,7 @@ const AssetList = (props: AssetListProps) => {
                     />
                 </ProForm.Group>
 
-            </ModalForm>
+            </ModalForm>}
         </>
     );
 };
