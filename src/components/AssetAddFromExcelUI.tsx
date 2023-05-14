@@ -128,7 +128,10 @@ const AssetAddFromExcelUI = () => {
                 onOk={handleOk}
                 confirmLoading={confirmLoading}
                 onCancel={handleCancel}
-            >
+            >   
+                <a href="https://cloud.tsinghua.edu.cn/f/9d0da52504d74bcbb1e8/?dl=1" target="_blank" rel="noopener noreferrer">点此下载模板文件</a>
+                <br />
+                <br />
                 <Upload beforeUpload={beforeUpload}>
                     <Button icon={<UploadOutlined />}>选择Excel文件</Button>
                 </Upload>
