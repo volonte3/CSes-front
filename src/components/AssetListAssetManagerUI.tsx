@@ -801,6 +801,9 @@ const AssetList = (props: AssetListProps) => {
                 <ProCard.TabPane key="LabelDef" tab="标签定义" >
                     <LabelDef DetailInfo={DetailInfo} LabelVisible={DetailInfo.LabelVisible} />
                     <br></br>
+                    <br></br>
+                    <br></br>
+                    <br></br>
                     <div style={{ textAlign: "center" }}>
                         {!LabelChangeVisible && <Button type="dashed" onClick={() => setLabelChangeVisible(true)} block={true}> 编辑标签 </Button>}
                     </div>
