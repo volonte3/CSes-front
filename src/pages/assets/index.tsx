@@ -7,6 +7,17 @@ import { useState, useEffect } from "react";
 import { AssetDetailInfo, AssetHistory } from "../../utils/types"; //对列表中数据的定义在 utils/types 中
 import { Modal, Badge } from "antd";
 import { DateTransform, renderStatus, renderStatusBadge, renderStatusChanges } from "../../utils/transformer";
+const url_list = [
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/blue.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/chess1.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/chess2.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/green.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/player.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/okset.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/1.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/47.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/53.png",
+];
 const TestDetailInfo: AssetDetailInfo = {
     Name: "测试资产",
     ID: 1,
@@ -50,7 +61,8 @@ const TestDetailInfo: AssetDetailInfo = {
         Owner: true,
         Description: true,
         CreateTime: false,
-    }
+    },
+    ImageUrl:url_list,
 };
 const AssetPage = () => {
     const router = useRouter();
@@ -144,19 +156,6 @@ const AssetPage = () => {
             },
             // fixed:"right"
         },
-    ];
-    const url_list = [
-        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/blue.png",
-        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/chess1.png",
-        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/chess2.png",
-        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/green.png",
-        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/player.png",
-        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/okset.png",
-        "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/1.png",
-        "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/47.png",
-        "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/53.png",
-
-
     ];
     useEffect(() => {
         if (!router.isReady) {

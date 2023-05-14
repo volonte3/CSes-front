@@ -17,8 +17,14 @@ const LabelDef = (props: { DetailInfo: AssetDetailInfo | undefined, LabelVisible
         const key2 = visableKeys[i + 1];
         const value1 = renderValue(key1, props.DetailInfo);
         const value2 = renderValue(key2, props.DetailInfo);
-        const col1 = <ProCard title={renderKey(key1)}>{value1}</ProCard>;
-        const col2 = <ProCard title={renderKey(key2)}>{value2}</ProCard>;
+        const col1 =
+                <ProCard title=<div style={{ fontWeight: "bold" }}>{renderKey(key1)}</div>>
+                    {value1}
+                </ProCard>;
+        const col2 =
+                <ProCard title=<div style={{ fontWeight: "bold" }}>{renderKey(key2)}</div>>
+                    {value2}
+                </ProCard>;
         rows.push([col1, col2]);
     }
     return (
@@ -36,7 +42,7 @@ const LabelDef = (props: { DetailInfo: AssetDetailInfo | undefined, LabelVisible
                         </div>
                     </Col>
                     <Col span={6} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <div style={{ height: "100%",display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                             <QRCode
                                 bgColor="#FFFFFF"
                                 fgColor="#000000"

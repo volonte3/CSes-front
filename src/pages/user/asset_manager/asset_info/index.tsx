@@ -79,7 +79,7 @@ const App = () => {
                         </Header>
                         <Content>
                             <Breadcrumb style={{ margin: "30px" }}>
-                                <Breadcrumb.Item onClick={()=>setVisibleDetail(false)} className="ant-breadcrumb-item">资产列表</Breadcrumb.Item>
+                                <Breadcrumb.Item className="ant-breadcrumb-item">{VisibleDetail?"资产详情":"资产列表"}</Breadcrumb.Item>
                                 {VisibleDetail && <Breadcrumb.Item className="ant-breadcrumb-item">{AssetName}</Breadcrumb.Item>}
                             </Breadcrumb>
                             <div className="Div">

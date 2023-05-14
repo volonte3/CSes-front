@@ -92,7 +92,8 @@ export interface AssetDetailInfo{
     PropertyName:string[],
     // PropertyValue:string[],
     Class:string,
-    LabelVisible:LabelVisible
+    LabelVisible:LabelVisible,
+    ImageUrl:string[],
 }
 
 export interface LabelVisible{
