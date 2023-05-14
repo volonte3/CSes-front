@@ -17,52 +17,10 @@ interface ValueData {
     TotalValue: number;
 }
 const data1 = [
-    { Name: "维保中", Value: 400, color: "#E91E63" },
-    { Type: "闲置中", Value: 300, color: "#9C27B0" },
-    { Type: "使用中", Value: 300, color: "#2196F3" },
-    { Type: "已清退", Value: 200, color: "#4CAF50" }
-];
-const data2 = [
-    {
-        Date: "Page A",
-        uv: 4000,
-        pv: 2400,
-    },
-    {
-        Date: "Page B",
-        uv: 3000,
-        pv: 1398,
-    },
-    {
-        Date: "Page C",
-        uv: 2000,
-        pv: 9800,
-        amt: 2290,
-    },
-    {
-        Date: "Page D",
-        uv: 2780,
-        pv: 3908,
-        amt: 2000,
-    },
-    {
-        Date: "Page E",
-        uv: 1890,
-        pv: 4800,
-        amt: 2181,
-    },
-    {
-        Date: "Page F",
-        uv: 2390,
-        pv: 3800,
-        amt: 2500,
-    },
-    {
-        Date: "Page G",
-        uv: 3490,
-        pv: 4300,
-        amt: 2100,
-    },
+    { name: "维保中", Value: 400, color: "#E91E63" },
+    { name: "闲置中", Value: 300, color: "#9C27B0" },
+    { name: "使用中", Value: 300, color: "#2196F3" },
+    { name: "已清退", Value: 200, color: "#4CAF50" }
 ];
 const colors = data1.map(item => item.color);
 const AssetStatistic= () => {
@@ -138,11 +96,11 @@ const AssetStatistic= () => {
             </div>
             <div style={{display:"flex", marginTop:"-20px"}}>
                 <Space style={{marginLeft:"10px"}}> </Space>
-                <PieChart width={400} height={400}>
+                {NumTotalNum > 0 ? <PieChart width={400} height={400}>
                     <Pie
                         dataKey="Value"
                         isAnimationActive={false}
-                        data={data1}
+                        data={NumProportion}
                         cx="50%"
                         cy="50%"
                         width={800}
@@ -152,18 +110,18 @@ const AssetStatistic= () => {
                         label={renderCustomizedLabel}
                     >
                         {data1.map((entry, index) => (
-                            <Cell key={index} fill={data1[index].color} className="pie-slice"/>
+                            <Cell key={index} fill={data1[index].color} className="pie-slice" onClick={()=>{}}/>
                         ))}
                     </Pie>
                     <Tooltip/>
                     <Legend iconSize={20} />
-                </PieChart>
+                </PieChart> : <h1 style={{marginTop:"100px", marginLeft:"140px"}}>暂无数量型资产</h1>}
                 <Space style={{marginLeft:"250px"}}> </Space>
-                <PieChart width={400} height={400}>
+                {ItemTotalNum > 0 ? <PieChart width={400} height={400}>
                     <Pie
                         dataKey="Value"
                         isAnimationActive={false}
-                        data={data1}
+                        data={ItemProportion}
                         cx="50%"
                         cy="50%"
                         width={800}
@@ -178,33 +136,15 @@ const AssetStatistic= () => {
                     </Pie>
                     <Tooltip />
                     <Legend iconSize={20} />
-                </PieChart>
+                </PieChart> : <h1 style={{marginTop:"100px", marginLeft:"140px"}}>暂无条目型资产</h1>}
             </div>
             <Breadcrumb style={{ marginLeft: "130px", marginTop:"40px", marginBottom:"20px"}}>
                 <Breadcrumb.Item>单月资产净值变化</Breadcrumb.Item>
             </Breadcrumb>
-            {/* <BarChart
-                width={1200}
-                height={300}
-                data={data2}
-                margin={{
-                    top: 20,
-                    right: 30,
-                    left: 20,
-                    bottom: 5,
-                }}
-            >
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip/>
-                <Legend iconSize={20} />
-                <Bar dataKey="pv" stackId="a" fill="#8884d8" />
-                <Bar dataKey="uv" stackId="a" fill="#82ca9d" />
-            </BarChart> */}
             <LineChart
                 width={500}
                 height={300}
-                data={data2}
+                data={ValueList}
                 margin={{
                     top: 5,
                     right: 30,
@@ -217,8 +157,9 @@ const AssetStatistic= () => {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="pv" stroke="#8884d8" activeDot={{ r: 8 }} />
-                <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
+                <Line type="monotone" dataKey="ItemValue" stroke="#8884d8" />
+                <Line type="monotone" dataKey="NumValue" stroke="#82ca9d" />
+                <Line type="monotone" dataKey="TotalValue" stroke="#1890ff" />
             </LineChart>
         </div>
     );

@@ -209,10 +209,11 @@ a {
 .img_style_card {
   height: 80px;
   width: 80px;
-  margin-left: 5px;
+  margin-left: -10px;
+  margin-top: -5px;
 }
 .card__title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: normal;
   margin-left: 30px;
   margin-top:-5px
@@ -220,7 +221,7 @@ a {
 .card__description {
   font-size: 15px;
   font-weight: bold;
-  margin-left: 50px;
+  margin-left: 42px;
   margin-bottom: -20px;
   color: #0a79e1;
 }
@@ -258,4 +259,9 @@ a {
 .pie-slice:hover {
   filter: drop-shadow(0px 0px 4px rgba(0, 0, 0, 1));
   /* transform: scale(1.01); */
+}
+.userinfo-title {
+  font-size: 18px;
+  padding-left: 24px;
+  margin-top: -5px;
 }

@@ -58,7 +58,7 @@ const LoginUI = (props: LoginScreenProps) => {
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                 <h1 style={{ marginBottom: 24 }}>企业资产管理系统</h1>
                 <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", width: 300 }}>
-
+                    
                     <Form
                         name="normal_login"
                         className="login-form"
