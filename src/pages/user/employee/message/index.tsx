@@ -66,7 +66,6 @@ const App = () => {
                             <MessageUI />
                         </div>
                     </Content>
-                    <Footer style={{ textAlign: "center" }}>EAMS ©2023 Designed by CSes</Footer>
                 </Layout>
             </Layout>
         );

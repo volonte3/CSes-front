@@ -110,7 +110,6 @@ a {
   /* justify-content: space-between; */
   border-radius: 20px;
   margin-bottom: 10PX;
-  margin-top: 10PX;
 }
 .right-menu {
   display: flex;
@@ -252,4 +251,8 @@ a {
   margin-bottom: 50px;
   margin-left: -10px;
   color: #0a79e1;
+}
+.pie-slice:hover {
+  filter: drop-shadow(0px 0px 4px rgba(0, 0, 0, 1));
+  /* transform: scale(1.01); */
 }
