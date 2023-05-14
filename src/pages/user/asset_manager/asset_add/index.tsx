@@ -122,11 +122,8 @@ interface MyFormProps {
     inputCount: number;
   }
   
-  
-
 
 const App = () => {
-    const [collapsed, setCollapsed] = useState(false);  //左侧边栏是否可以收起
     const [state, setState] = useState(false);  //路径保护变量
     const [UserName, setUserName] = useState<string>(""); // 用户名
     const [UserAuthority, setUserAuthority] = useState(2); // 用户的角色权限，0超级，1系统，2资产，3员工
@@ -144,19 +141,25 @@ const App = () => {
     const [ProperList, setProperList] = useState<[]>([]);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
-    const query = router.query;
 
+    const [files, setfiles] = useState<File[][]>([]); // 使用useState来管理files数组
 
-    const [file, setFile] = useState<File|null>(null);
+    const [onefiles, setoneFiles] = useState<File[]>([]);
 
     const handleFileChange = (e: any) => {
-        const file = e.target.files[0];
-        setFile(file);
+        const files: File[] = Array.from(e.target.files); // 获取所有选择的文件
+        setoneFiles(files); // 存储文件数组
         // 在这里处理获取到的文件
-        console.log("上传的文件:", file);
+        console.log("上传的文件:", files);
     };
 
-    const handleUpload = async () => {
+    const handleonefiles = () => {
+        setfiles(prevFiles => [...prevFiles, onefiles]); // 使用setFiles更新files数组
+        console.log(files);
+        setoneFiles([]);
+    };
+
+    const handleUpload = async (param: number, gotpath: string) => {
     // 创建 OSS 客户端实例
         const client = new OSS({
             region: "oss-cn-beijing",
@@ -178,19 +181,23 @@ const App = () => {
             "x-oss-forbid-overwrite": "true",
         };
 
-        try {
-            const filename = form.getFieldValue("name");
-            const fileExtension = file?.name.split(".").pop(); // 获取文件的原始扩展名
-            const path = "photos/" + filename + "." + fileExtension;
-            // 上传文件到 OSS
-            console.log(file);
-            const result = await client.put(path, file, {headers});
-            // 打印上传成功的文件信息
-            console.log("上传成功", result);
-        } catch (e) {
-            // 打印上传失败的错误信息
-            console.error("上传失败", e);
-        }
+        console.log(files);
+        console.log(param);
+        const now_files = files[param];
+        console.log(now_files);
+        now_files?.forEach(async (file) => {
+            try {
+                const filename = Date.now();
+                const fileExtension = file?.name.split(".").pop();
+                const path = gotpath + "/" + filename + "." + fileExtension;
+                console.log(file);
+                const result = await client.put(path, file, { headers });
+                console.log("上传成功", result);
+            } catch (e) {
+                console.error("上传失败", e);
+            }
+            console.log("上传的文件:", file);
+        });
     };
 
 
@@ -228,7 +235,6 @@ const App = () => {
         }
         for (let i = 0; i < AddList.length; i = i + 1) {
             let item = AddList[i];
-            console.log(AllProList[i]);
             let nowList = AllProList[i];
             let body: MyDic = {};
             for (let k = 0; k < nowList.length; k = k + 1) {
@@ -248,6 +254,10 @@ const App = () => {
                     Property: {...body},
                 }
             )
+                .then((res) => {
+                    console.log("准备上传图片了！");
+                    handleUpload(i, res.PhotoPath);
+                })
                 .catch((err) => {
                     setLoading(false);
                     ok = false;
@@ -260,6 +270,7 @@ const App = () => {
         }
         if (ok) {
             message.success("提交成功");
+            setfiles([]);
             setLoading(false);
         }
         AddList.splice(0);
@@ -402,8 +413,8 @@ const App = () => {
                                     submitTimeout={1000}
                                     onFinish={async (values) => {
                                         await waitTime(1000);
-                                        handleUpload();
                                         console.log(values.describe);
+                                        handleonefiles();
                                         AddList.push(
                                             {
                                                 id: AssetID.toString(),
@@ -518,7 +529,7 @@ const App = () => {
                                         <div>
                                             资产图片
                                         </div>
-                                        <input type="file" onChange={handleFileChange} />
+                                        <input type="file" onChange={handleFileChange} multiple/>
                                     </ProForm.Group>
                                     <MyForm inputCount={ProperList.length} />
                                 </ModalForm>
