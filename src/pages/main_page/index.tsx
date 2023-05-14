@@ -33,15 +33,8 @@ const App = () => {
     const [AppList, setAppList] = useState<AppData[]>(); // 储存所有已有应用的信息 
     const [state, setState] = useState(false); // 用户是否处在登录状态
     const [UserAuthority, setUserAuthority] = useState(0); // 用户的角色权限，0超级，1系统，2资产，3员工
-    const [UserApp, setUserApp] = useState<string>(""); // 用户显示的卡片，01串
     const [UserName, setUserName] = useState<string>(""); // 用户名
     const rolelist = ["超级管理员", "系统管理员", "资产管理员", "员工"];
-    const user_applist = ["资产查看", "资产领用", "资产退库", "资产维保", "资产转移"];
-    const assetmanager_applist = ["资产审批", "资产定义", "资产录入", "资产变更", "资产查询", "资产清退", "资产调拨", "资产统计", "资产告警"];
-    const systemmanager_applist = ["用户列表", "角色管理", "部门管理", "应用管理", "操作日志", "导入导出"];
-    const supermanager_applist = ["业务实体管理", "系统管理员列表"];
-    const systemmanager_urllist = ["/user/system_manager", "/user/system_manager", "/user/system_manager/department", "/user/system_manager/application", "", ""];
-    const supermanager_urllist = ["/user/super_manager", "/user/super_manager"];
     const [Entity, setEntity] = useState<string>(""); // 实体名称
     const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
     const [TOREAD, setTOREAD] = useState(false);
@@ -71,7 +64,6 @@ const App = () => {
         }
         console.log("query.code",query);
         console.log("cookie.load(\"SessionID\")",cookie.load("SessionID"));
-
         if (query.hasOwnProperty("code") && !cookie.load("SessionID")) { //飞书登录
             CreateCookie("SessionID");
             request("/api/User/feishu_login", "POST", {
@@ -86,7 +78,6 @@ const App = () => {
                         .then((res) => {
                             setState(true);
                             setUserName(res.UserName);
-                            setUserApp(res.UserApp);
                             setUserAuthority(res.Authority);
                             if (res.Authority == 2 || res.Authority == 3) GetApp(res.Authority);
                             else if (res.Authority == 0) {
@@ -128,7 +119,6 @@ const App = () => {
                 });
         }
         else{   //正常登录，获取用户名和密码
-            
             request(
                 `/api/User/info/${LoadSessionID()}`,
                 "GET"
@@ -136,7 +126,6 @@ const App = () => {
                 .then((res) => {
                     setState(true);
                     setUserName(res.UserName);
-                    setUserApp(res.UserApp);
                     setUserAuthority(res.Authority);
                     if (res.Authority == 2 || res.Authority == 3) GetApp(res.Authority);
                     else if (res.Authority == 0) {
@@ -171,30 +160,7 @@ const App = () => {
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query, state]);
-    const DropdownMenu = (
-        <Menu>
-            {UserAuthority == 2 && TODO &&
-                <Menu.Item key="1" onClick={() => router.push("/user/asset_manager/apply_approval")}>
-                    您有新的待办事项
-                </Menu.Item>
-            }
-            {UserAuthority == 2 && !TODO &&
-                <Menu.Item key="2">
-                    暂无新待办事项
-                </Menu.Item>
-            }
-            {TOREAD &&
-                <Menu.Item key="3" onClick={() => { if (UserAuthority == 3) router.push("/user/employee/message"); else router.push("/user/asset_manager/message"); }}>
-                    您有新的消息
-                </Menu.Item>
-            }
-            {!TOREAD &&
-                <Menu.Item key="4" onClick={() => { if (UserAuthority == 3) router.push("/user/employee/message"); else router.push("/user/asset_manager/message"); }}>
-                    暂无新消息
-                </Menu.Item>
-            }
-        </Menu>
-    );
+
     const [modalopen, setModal] = useState(false);
     const handle_cancel = () => {
         setModal(false);
@@ -220,36 +186,6 @@ const App = () => {
             </div>
         ),
     })) : [];
-    const [cardActionProps, setCardActionProps] = useState<"actions" | "extra">(
-        "actions",
-    );
-    const sm_apps = UserApp.split("").filter((item, index) => index >= 14 && index <= 19).map((char) => (char === "0" ? 0 : 1));
-    const superm_apps = UserApp.split("").filter((item, index) => index >= 20).map((char) => (char === "0" ? 0 : 1));
-    const items: MenuProps["items"] = [
-        {
-            key: "1",
-            label: (
-                <Descriptions title={UserName} bordered>
-                    <Descriptions.Item label="身份" span={2}>
-                        <UserOutlined /> {renderAuthority(UserAuthority)}
-                    </Descriptions.Item>
-
-                    {UserAuthority !== 0 && (
-                        <Descriptions.Item label="业务实体" span={2}>
-                            {Entity}
-                        </Descriptions.Item>
-                    )}
-
-                    {(UserAuthority === 2 || UserAuthority === 3) && (
-                        <Descriptions.Item label="部门" span={2}>
-                            {Department}
-                        </Descriptions.Item>
-                    )}
-                </Descriptions>
-            ),
-        },
-
-    ];
     if (state) {
         return (
             <Layout style={{ minHeight: "100vh" }}>
