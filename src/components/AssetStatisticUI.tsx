@@ -78,25 +78,25 @@ const AssetStatistic= () => {
         if (!router.isReady) {
             return;
         }
-        // request(
-        //     `/api/Asset/Statistics/${LoadSessionID()}`,
-        //     "GET"
-        // )
-        //     .then((res) => {
-        //         setNumTotalNum(res.NumTotalNum);
-        //         setItemTotalNum(res.ItemTotalNum);
-        //         setNumProportion(res.NumProportion);
-        //         setItemProportion(res.ItemProportion);
-        //         setValueList(res.Value);
-        //     })
-        //     .catch((err) => {
-        //         console.log(err.message);
-        //         Modal.error({
-        //             title: "获取信息失败",
-        //             content: "请重新登录",
-        //             onOk: () => { window.location.href = "/"; }
-        //         });
-        //     });
+        request(
+            `/api/Asset/Statistics/${LoadSessionID()}`,
+            "GET"
+        )
+            .then((res) => {
+                setNumTotalNum(res.NumTotalNum);
+                setItemTotalNum(res.ItemTotalNum);
+                setNumProportion(res.NumProportion);
+                setItemProportion(res.ItemProportion);
+                setValueList(res.Value);
+            })
+            .catch((err) => {
+                console.log(err.message);
+                Modal.error({
+                    title: "获取信息失败",
+                    content: "请重新登录",
+                    onOk: () => { window.location.href = "/"; }
+                });
+            });
     }, [router, query]);
     const renderCustomizedLabel = ({
         cx,
