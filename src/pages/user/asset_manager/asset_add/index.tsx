@@ -252,7 +252,7 @@ const App = () => {
                     Describe: item.describe,
                     Value: item.money,
                     Parent: item.father? item.father: null,
-                    // ToDo
+                    Time: item.datetime,
                     Property: {...body},
                 }
             )
@@ -440,9 +440,9 @@ const App = () => {
                                         setChange((e) => !e);
                                         setListKey((e) => (e+1));
                                         // console.log(AddList);
-                                        console.log("--------------------");
-                                        console.log(values.datetime);
-                                        console.log("--------------------");
+                                        // console.log("--------------------");
+                                        // console.log(values.datetime);
+                                        // console.log("--------------------");
                                         // console.log(values.name);
                                         // console.log(values.class);
                                         // console.log(values.father);
