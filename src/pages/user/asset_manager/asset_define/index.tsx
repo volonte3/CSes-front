@@ -21,7 +21,7 @@ import UserInfo from "../../../../components/UserInfoUI";
 import SiderMenu from "../../../../components/SiderUI";
 import { AppData } from "../../../../utils/types";
 const { Option } = Select;
-
+import { OrganizationGraph } from "@ant-design/graphs";
 const waitTime = (time: number = 100) => {
     return new Promise((resolve) => {
         setTimeout(() => {
