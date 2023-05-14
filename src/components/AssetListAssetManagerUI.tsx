@@ -430,7 +430,6 @@ const AssetList = (props: AssetListProps) => {
             title: "类别",
             dataIndex: "Class",
             key: "Class",
-            search: false
         },
         {
             title: "状态",
@@ -739,6 +738,7 @@ const AssetList = (props: AssetListProps) => {
                                             (item: AssetHistory) => item.Asset_Admin == params.Asset_Admin
                                         );
                                     }
+                                    
                                     return Promise.resolve({ data: filteredData, success: true });
                                 })
                                 .catch((err) => {
@@ -886,6 +886,11 @@ const AssetList = (props: AssetListProps) => {
                             if (params.Status) {
                                 filteredData = filteredData.filter(
                                     (item: AssetData) => item.Status == params.Status
+                                );
+                            }
+                            if (params.Class) {
+                                filteredData = filteredData.filter(
+                                    (item: AssetData) => item.Class.includes(params.Class)
                                 );
                             }
                             return Promise.resolve({ data: filteredData, success: true });
