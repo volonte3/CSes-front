@@ -7,6 +7,7 @@ import { Button, Upload, Modal, message } from "antd";
 import * as XLSX from "xlsx";
 import { request } from "../utils/network";
 import { LoadSessionID } from "../utils/CookieOperation";
+import moment from "moment";
 
 interface ProDic {
     [key: string]: string;
@@ -54,6 +55,12 @@ const AssetAddFromExcelUI = () => {
                 }
                 else if (key == "资产描述") {
                     now_dic["Describe"] = value;
+                }
+                else if (key == "资产过期时间") {
+                    const excelSerialDate = parseFloat(value);
+                    const excelStartDate = moment("1900-01-01");
+                    const datetime = excelStartDate.add(excelSerialDate-2, "days").format("YYYY-MM-DD HH:mm:ss");
+                    now_dic["Time"] = datetime;
                 }
                 else {
                     pro_dic[key] = value;
