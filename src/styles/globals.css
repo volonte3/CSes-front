@@ -261,7 +261,12 @@ a {
   /* transform: scale(1.01); */
 }
 .userinfo-title {
-  font-size: 18px;
+  font-size: 20px;
   padding-left: 24px;
   margin-top: -5px;
+}
+.userinfo-id {
+  font-size: 30px;
+  padding-left: 30px;
+  margin-top: 5px;
 }
