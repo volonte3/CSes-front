@@ -318,7 +318,7 @@ const AssetChange = () => {
                     return values;
                 },
             }}
-            scroll={{ x: "100%", y: "calc(100vh - 300px)" }}
+            scroll={{ x: "max-content", y: "calc(100vh - 300px)" }}
             pagination={{
                 showSizeChanger: true
             }}

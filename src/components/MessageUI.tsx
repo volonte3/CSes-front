@@ -96,6 +96,7 @@ const MessageUI = () => {
                 .then((res) => {
                     setMessageList(res.Message);
                     setchangekey(Date.now());
+                    setnewinfo(true);
                 })
                 .catch((err) => {
                     console.log(err.message);
@@ -111,6 +112,7 @@ const MessageUI = () => {
                 .then((res) => {
                     setMessageList(res.Message);
                     setchangekey(Date.now());
+                    setnewinfo(false);
                 })
                 .catch((err) => {
                     console.log(err.message);
@@ -167,12 +169,16 @@ const MessageUI = () => {
     };
     return (
         <div className="Div">
-            <Breadcrumb style={{ margin: "16px 0" }}>
+            <Breadcrumb style={{ marginLeft: "6px", marginBottom:"20px"}}>
                 <Breadcrumb.Item>消息列表</Breadcrumb.Item>
-                {newinfo && <Breadcrumb.Item>最新消息</Breadcrumb.Item>}
-                {!newinfo && <Breadcrumb.Item>全部消息</Breadcrumb.Item>}
             </Breadcrumb>
-            <ProTable
+            <Button className={newinfo ? "log_title_select":"log_title"} type="text" key="1" onClick={()=>fetchList(0)}>
+                未读消息
+            </Button>
+            <Button className={!newinfo ? "log_title_select":"log_title"} type="text" key="0" onClick={()=>fetchList(1)}>
+                全部消息
+            </Button> 
+            <ProTable style={{marginTop:"-20px", marginLeft:"-20px"}}
                 key={changekey}
                 columns={columns}
                 actionRef={tableRef}
@@ -191,14 +197,12 @@ const MessageUI = () => {
                         return values;
                     },
                 }}
-                scroll={{ x: "100%", y: "calc(100vh - 300px)" }}
-                pagination={{
-                    showSizeChanger: true
-                }}
+                scroll={{ x: "max-content", y: "calc(100vh - 300px)" }}
+                // pagination={{
+                //     showSizeChanger: true
+                // }}
                 search={false} />
             <Space size="large">
-                {newinfo && <Button onClick={() => { setnewinfo(false);fetchList(1);}}>更多信息</Button>}
-                {!newinfo && <Button onClick={() => { setnewinfo(true);fetchList(0);}}>最新信息</Button>}
                 <Button onClick={() => handleChange(-1)}>全部已读</Button>
             </Space>
             

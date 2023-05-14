@@ -234,7 +234,8 @@ const MemberList = (props: MemberListProps) => {
     }, [router, query, ChangeAuthorityValue, props]);
     return (
         <div>
-            <Table /* rowSelection={props.department_page ? rowSelection : undefined}*/ dataSource={data} rowKey={"Name"}>
+            <Table /* rowSelection={props.department_page ? rowSelection : undefined}*/ dataSource={data} rowKey={"Name"}
+                scroll={{ x: "max-content", y: "calc(100vh - 300px)" }}>
                 <Column title="姓名" dataIndex="Name" key="Name" />
                 <Column title="所属部门" dataIndex="Department" key="Department" />
                 <Column

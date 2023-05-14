@@ -203,28 +203,19 @@ const EmployeeAssetList = (props:EmployeeAssetListProps) => {
     };
     return (
         <div>
-            <Breadcrumb className="ant-breadcrumb">
+            <Breadcrumb className="ant-breadcrumb" style={{margin:"5px"}}>
                 <Breadcrumb.Item key={0}>
-                    {MyAsset==1?"个人资产":"部门闲置资产"}
+                    资产列表
                 </Breadcrumb.Item>
             </Breadcrumb>
             <div style={{height:"15px"}}></div>
-            {MyAsset == 1 && <Button
-                type="primary"
-                style={{ float: "left", margin: 10 }}
-                onClick={() => {fetchList(0);}}
-            >
-                显示部门闲置资产
-            </Button>}
-            {MyAsset == 0 && <Button
-                type="primary"
-                style={{ float: "left", margin: 10 }}
-                onClick={() => {fetchList(1);}}
-            >
-                显示个人资产
-            </Button>}
-            <div style={{height:"20px"}}></div>
-            <ProTable 
+            <Button className={MyAsset==1 ? "log_title_select":"log_title"} type="text" key="1" onClick={()=>fetchList(1)}>
+                个人资产
+            </Button>
+            <Button className={MyAsset==0 ? "log_title_select":"log_title"} type="text" key="0" onClick={()=>fetchList(0)}>
+                部门闲置资产
+            </Button> 
+            <ProTable style={{marginTop:"-30px"}}
                 columns={columns}
                 options={false}
                 rowKey="ID"
@@ -262,6 +253,8 @@ const EmployeeAssetList = (props:EmployeeAssetListProps) => {
                     showSizeChanger: true
                 }}
                 search={false}
+                toolBarRender={false}
+                scroll={{ x: "max-content", y: "calc(100vh - 300px)" }}
             >
             </ProTable>
             <Modal
