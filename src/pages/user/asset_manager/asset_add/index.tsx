@@ -14,7 +14,7 @@ import {
     ProFormSelect,
     ProFormMoney,
     ProList,
-    ProFormUploadButton,
+    ProFormDateTimePicker,
 } from "@ant-design/pro-components";
 import { Layout, Menu, theme, Modal, Button, Breadcrumb, Row, Col, Form, message, Tag, Space } from "antd";
 import { useRouter } from "next/router";
@@ -94,6 +94,7 @@ let ListLike = [
         father: 0,
         count: 0,
         money: 0,
+        datetime: "",
         position: "",
         describe: "",
     },
@@ -131,7 +132,7 @@ const App = () => {
     const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
     const [TOREAD, setTOREAD] = useState(false);
     const [TODO, setTODO] = useState(false);
-    const [form] = Form.useForm<{ name: string; class: string; father: number; count: number; money: number; position: string; describe: string }>();
+    const [form] = Form.useForm<{ name: string; class: string; father: number; count: number; money: number; datetime: string; position: string; describe: string }>();
     const [treeData, setAsset] = useState<[]>(); // 储存资产列表树
     const [dataSource, setDataSource] = useState<DataItem[]>(AddList);
     const [Change, setChange] = useState(false);
@@ -251,6 +252,7 @@ const App = () => {
                     Describe: item.describe,
                     Value: item.money,
                     Parent: item.father? item.father: null,
+                    // ToDo
                     Property: {...body},
                 }
             )
@@ -394,6 +396,7 @@ const App = () => {
                                 father: number;
                                 count: number;
                                 money: number;
+                                datetime: string;
                                 position: string;
                                 describe: string;
                             }>
@@ -423,6 +426,7 @@ const App = () => {
                                                 father: values.father,
                                                 count: values.count,
                                                 money: values.money,
+                                                datetime: values.datetime,
                                                 position: values.position,
                                                 describe: values.describe,
                                             }
@@ -436,7 +440,9 @@ const App = () => {
                                         setChange((e) => !e);
                                         setListKey((e) => (e+1));
                                         // console.log(AddList);
-                                        // console.log("--------------------");
+                                        console.log("--------------------");
+                                        console.log(values.datetime);
+                                        console.log("--------------------");
                                         // console.log(values.name);
                                         // console.log(values.class);
                                         // console.log(values.father);
@@ -508,6 +514,17 @@ const App = () => {
                                         />
                                     </ProForm.Group>
                                     <ProForm.Group>
+                                        <ProFormDateTimePicker
+                                            name="datetime"
+                                            label="资产过期时间"
+                                            width="lg"
+                                            rules={[{ required: true, message: "这是必填项" }]}
+                                            fieldProps={{
+                                                format: (value) => value.format("YYYY-MM-DD HH:MM:ss"),
+                                            }}
+                                        />
+                                    </ProForm.Group>
+                                    <ProForm.Group>
                                         <ProFormTextArea
                                             name="position"
                                             label="资产位置"
@@ -525,10 +542,7 @@ const App = () => {
                                             rules={[{ required: true, message: "这是必填项" }]}
                                         />
                                     </ProForm.Group>
-                                    <ProForm.Group>
-                                        <div>
-                                            资产图片
-                                        </div>
+                                    <ProForm.Group tooltip="支持一次性选中多个图片" title="资产图片">
                                         <input type="file" onChange={handleFileChange} multiple/>
                                     </ProForm.Group>
                                     <MyForm inputCount={ProperList.length} />
