@@ -1,4 +1,5 @@
 import {LabelVisible,AssetDetailInfo} from "./types";
+import ReactHtmlParser from "react-html-parser";
 const renderAuthority = (identity: number): string => {
     let label = "";
     switch (identity) {
@@ -133,7 +134,7 @@ const renderValue = (key: keyof LabelVisible, detailInfo?: AssetDetailInfo) => {
     case "Class": return detailInfo?.Class;
     case "Status": return renderStatus(detailInfo?.Status);
     case "Owner": return detailInfo?.Owner;
-    case "Description": return detailInfo?.Description;
+    case "Description": return detailInfo?.Description? ReactHtmlParser(detailInfo?.Description):"";
     case "CreateTime": return DateTransform(detailInfo?.CreateTime);
     case "Class": return detailInfo?.Class;
     

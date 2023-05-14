@@ -19,6 +19,19 @@ interface AssetListProps {
     VisibleDetail: boolean;
 
 }
+const url_list = [
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/blue.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/chess1.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/chess2.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/green.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/player.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/okset.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/1.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/47.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/53.png",
+
+
+];
 const TestDetailInfo: AssetDetailInfo = {
     Name: "测试资产",
     ID: 1,
@@ -62,7 +75,8 @@ const TestDetailInfo: AssetDetailInfo = {
         Owner: true,
         Description: true,
         CreateTime: false,
-    }
+    },
+    ImageUrl:url_list
 };
 const TestPropList: string[] = ["a", "b", "c", "d"];
 const { Option } = Select;
@@ -250,19 +264,7 @@ const AssetList = (props: AssetListProps) => {
             );
 
     };
-    const url_list = [
-        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/blue.png",
-        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/chess1.png",
-        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/chess2.png",
-        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/green.png",
-        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/player.png",
-        "https://cs-company.oss-cn-beijing.aliyuncs.com/test/okset.png",
-        "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/1.png",
-        "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/47.png",
-        "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/53.png",
-
-
-    ];
+    
     const columns: ProColumns<AssetData>[] = [
         {
             title: "资产编号",
@@ -284,7 +286,7 @@ const AssetList = (props: AssetListProps) => {
                                 setShowSkeleton(true); 
                                 setTimeout(() => {
                                     setShowSkeleton(false);
-                                }, 1000);
+                                }, 3000);
                             }}>{record.Name}</a>
                         </Tooltip>
                         {/* <Modal title="资产详细信息"
@@ -473,11 +475,14 @@ const AssetList = (props: AssetListProps) => {
             dataIndex: "Owner",
             key: "Owner",
         },
-        {
-            title: "描述",
-            dataIndex: "Description",
-            key: "Description",
-        },
+        // {
+        //     title: "描述",
+        //     dataIndex: "Description",
+        //     key: "Description",
+        //     render: (text:any)=>{
+        //         return ReactHtmlParser(text);
+        //     }
+        // },
         {
             title: "创建时间",
             dataIndex: "CreateTime",
@@ -830,7 +835,7 @@ const AssetList = (props: AssetListProps) => {
                 </ProCard.TabPane>
                 <ProCard.TabPane key="photos" tab="资产图片">
                     <div style={{ height: "400px", overflowY: "auto", overflowX: "hidden", display: "flex", flexWrap: "wrap" }}>
-                        {url_list.map((url, index) => (
+                        {DetailInfo.ImageUrl.map((url, index) => (
                             <div
                                 style={{ flex: "0 0 50%", marginBottom: "10px" }}
                                 key={url}
@@ -841,7 +846,7 @@ const AssetList = (props: AssetListProps) => {
                                         src={url}
                                         fit="scale-down"
                                         style={{ position: "absolute", top: 0, left: 0, borderRadius: 8, width: "100%", height: "100%" }}
-                                        alt={url}
+                                        alt={DetailInfo.ID+"_"+index}
                                         lazy
                                     />
                                 </div>
