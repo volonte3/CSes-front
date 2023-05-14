@@ -10,6 +10,7 @@ import AssetList from "../../../../components/AssetListAssetManagerUI";
 import UserInfo from "../../../../components/UserInfoUI";
 import { AssetData } from "../../../../utils/types";
 import SiderMenu from "../../../../components/SiderUI";
+
 const App = () => {
     const [state, setState] = useState(true); // 用户是否处在登录状态
     const [collapsed, setCollapsed] = useState(false);
@@ -24,6 +25,7 @@ const App = () => {
     const [Entity, setEntity] = useState<string>(""); // 实体名称
     const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
     const [VisibleDetail,setVisibleDetail] = useState(false); //是否显示详细信息页面
+    const [AssetName,setAssetName] = useState("");  //当前面包屑显示资产的详细信息
     const {
         token: { colorBgContainer },
     } = theme.useToken();
@@ -77,11 +79,11 @@ const App = () => {
                         </Header>
                         <Content>
                             <Breadcrumb style={{ margin: "30px" }}>
-                                <Breadcrumb.Item onClick={()=>setVisibleDetail(false)}>资产列表</Breadcrumb.Item>
-                                {VisibleDetail && <Breadcrumb.Item>资产详细信息</Breadcrumb.Item>}
+                                <Breadcrumb.Item onClick={()=>setVisibleDetail(false)} className="ant-breadcrumb-item">资产列表</Breadcrumb.Item>
+                                {VisibleDetail && <Breadcrumb.Item className="ant-breadcrumb-item">{AssetName}</Breadcrumb.Item>}
                             </Breadcrumb>
                             <div className="Div">
-                                <AssetList ManagerName={UserName} setVisibleDetail={setVisibleDetail} VisibleDetail={VisibleDetail}/>
+                                <AssetList ManagerName={UserName} setVisibleDetail={setVisibleDetail} VisibleDetail={VisibleDetail} setAssetName={setAssetName}/>
                             </div>
                         </Content>
                     </Layout>

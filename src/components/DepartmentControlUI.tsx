@@ -190,7 +190,7 @@ const DepartmentUI = () => {
         <Content>
             <Breadcrumb className="ant-breadcrumb" style={{margin: 30 }}>
                 {DepartmentPathList && DepartmentPathList.map((path, index) => (
-                    <Breadcrumb.Item key={index} onClick={() => { setDepartmentPath(path.Path);fetchList(path.Path);}}>
+                    <Breadcrumb.Item key={index} onClick={() => { setDepartmentPath(path.Path);fetchList(path.Path);}} className="ant-breadcrumb-item">
                         {path.Name}
                     </Breadcrumb.Item>
                 ))}

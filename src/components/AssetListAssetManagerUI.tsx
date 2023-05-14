@@ -15,7 +15,9 @@ import { Image } from "antd-mobile";
 interface AssetListProps {
     ManagerName: string;
     setVisibleDetail: (visible: boolean) => void;
+    setAssetName:(name:string)=>void;
     VisibleDetail: boolean;
+
 }
 const TestDetailInfo: AssetDetailInfo = {
     Name: "测试资产",
@@ -275,7 +277,7 @@ const AssetList = (props: AssetListProps) => {
                 return (
                     <div>
                         <Tooltip title="点击查看详情">
-                            <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => { FetchDetail(record.ID); props.setVisibleDetail(true); }}>{record.Name}</a>
+                            <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => { FetchDetail(record.ID); props.setVisibleDetail(true); props.setAssetName(record.Name);}}>{record.Name}</a>
                         </Tooltip>
                         {/* <Modal title="资产详细信息"
                             centered
@@ -804,7 +806,7 @@ const AssetList = (props: AssetListProps) => {
                                         key={index}
                                         src={url}
                                         fit="scale-down"
-                                        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }}
+                                        style={{position: "absolute", top: 0, left: 0,borderRadius: 8, width: "100%", height: "100%" }}
                                         alt={url}
                                         lazy
                                     />
