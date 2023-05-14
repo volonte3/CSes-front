@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { theme, Space, Table, Button, Modal, Menu, Tooltip, Badge, Form, Select, Input, List, Divider, Checkbox, Col, Row, Breadcrumb } from "antd";
+import { Skeleton, theme, Space, Table, Button, Modal, Menu, Tooltip, Badge, Form, Select, Input, List, Divider, Checkbox, Col, Row, Breadcrumb } from "antd";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { request } from "../utils/network";
@@ -15,7 +15,7 @@ import { Image } from "antd-mobile";
 interface AssetListProps {
     ManagerName: string;
     setVisibleDetail: (visible: boolean) => void;
-    setAssetName:(name:string)=>void;
+    setAssetName: (name: string) => void;
     VisibleDetail: boolean;
 
 }
@@ -112,6 +112,7 @@ const AssetList = (props: AssetListProps) => {
     const [loading, setLoading] = useState(false);
     const [AllowDownload, setAllowDownload] = useState(false);   //下载标签按钮是否允许点击
     const [LabelChangeVisible, setLabelChangeVisible] = useState(false);
+    const [showSkeleton, setShowSkeleton] = useState(false); //从资产列表跳到资产详细页面时的占位骨架
     const Historycolumns: ProColumns<AssetHistory>[] = [
 
         {
@@ -277,7 +278,14 @@ const AssetList = (props: AssetListProps) => {
                 return (
                     <div>
                         <Tooltip title="点击查看详情">
-                            <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => { FetchDetail(record.ID); props.setVisibleDetail(true); props.setAssetName(record.Name);}}>{record.Name}</a>
+                            <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => {
+                                FetchDetail(record.ID); props.setVisibleDetail(true); 
+                                props.setAssetName(record.Name);
+                                setShowSkeleton(true); 
+                                setTimeout(() => {
+                                    setShowSkeleton(false);
+                                }, 1000);
+                            }}>{record.Name}</a>
                         </Tooltip>
                         {/* <Modal title="资产详细信息"
                             centered
@@ -684,35 +692,43 @@ const AssetList = (props: AssetListProps) => {
     };
     return (
         <>
+            {showSkeleton && <Skeleton active />}
             {!props.VisibleDetail && <Divider orientation="center" >自定义属性</Divider>}
             {!props.VisibleDetail && <PropSearch />}
             {!props.VisibleDetail && <Divider orientation="center" >基本属性</Divider>}
-            {props.VisibleDetail && <ProCard
+            {props.VisibleDetail && !showSkeleton && <ProCard
                 tabs={{
                     type: "card",
                     onChange: (key) => { setLabelChangeVisible(false); }
                 }}
             >
                 <ProCard.TabPane key="Info" tab="资产信息" >
-                    <ProCard split="horizontal">
-                        <ProCard split="vertical">
-                            <ProCard title="资产名称">{DetailInfo?.Name}</ProCard>
-                            <ProCard title="ID">{DetailInfo?.ID}</ProCard>
-                            <ProCard title="创建时间">{DateTransform(DetailInfo?.CreateTime)}</ProCard>
-                        </ProCard>
-                        <ProCard split="vertical">
-                            <ProCard title="当前所有者">{DetailInfo?.Owner}</ProCard>
-                            <ProCard title="资产类别">{DetailInfo?.Class}</ProCard>
-                            <ProCard title="状态">
-                                <Badge status={renderStatusBadge(DetailInfo?.Status)} text={renderStatus(DetailInfo?.Status)} />
+                    <div>
+                        <ProCard split="horizontal">
+                            <ProCard split="vertical">
+                                <ProCard title="资产名称">{DetailInfo?.Name}</ProCard>
+                                <ProCard title="ID">{DetailInfo?.ID}</ProCard>
+                                <ProCard title="创建时间">{DateTransform(DetailInfo?.CreateTime)}</ProCard>
+                            </ProCard>
+                            <ProCard split="vertical">
+                                <ProCard title="当前所有者">{DetailInfo?.Owner}</ProCard>
+                                <ProCard title="资产类别">{DetailInfo?.Class}</ProCard>
+                                <ProCard title="状态">
+                                    <Badge status={renderStatusBadge(DetailInfo?.Status)} text={renderStatus(DetailInfo?.Status)} />
+                                </ProCard>
+                            </ProCard>
+                            <ProCard split="vertical">
+                                <ProCard title="资产描述">
+                                    {ReactHtmlParser(DetailInfo?.Description)}
+                                </ProCard>
                             </ProCard>
                         </ProCard>
-                        <ProCard split="vertical">
-                            <ProCard title="资产描述">
-                                {ReactHtmlParser(DetailInfo?.Description)}
-                            </ProCard>
-                        </ProCard>
-                    </ProCard>
+                        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
+                            <Button key="back" type="primary" onClick={() => { UpdateLabel(DetailInfo, false); setDetail(false); setLabelChangeVisible(false); props.setVisibleDetail(false); }} style={{ marginRight: "10px" }}>
+                                返回
+                            </Button>
+                        </div>
+                    </div>
                 </ProCard.TabPane>
                 <ProCard.TabPane key="History" tab="历史记录" >
                     <ProTable
@@ -738,7 +754,7 @@ const AssetList = (props: AssetListProps) => {
                                             (item: AssetHistory) => item.Asset_Admin == params.Asset_Admin
                                         );
                                     }
-                                    
+
                                     return Promise.resolve({ data: filteredData, success: true });
                                 })
                                 .catch((err) => {
@@ -771,6 +787,11 @@ const AssetList = (props: AssetListProps) => {
                     //     searchText: "查询"
                     // }}
                     />
+                    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
+                        <Button key="back" type="primary" onClick={() => { UpdateLabel(DetailInfo, false); setDetail(false); setLabelChangeVisible(false); props.setVisibleDetail(false); }} style={{ marginRight: "10px" }}>
+                            返回
+                        </Button>
+                    </div>
                 </ProCard.TabPane>
                 <ProCard.TabPane key="LabelDef" tab="标签定义" >
                     <LabelDef DetailInfo={DetailInfo} LabelVisible={DetailInfo.LabelVisible} />
@@ -792,7 +813,20 @@ const AssetList = (props: AssetListProps) => {
                             </Col>
                         ))}
                     </Row>}
+                    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
 
+                        {LabelChangeVisible && <Button key="update" shape="round" type="default" onClick={() => { UpdateLabel(DetailInfo, true); }} style={{ marginRight: "10px" }}>
+                            更新
+                        </Button>}
+
+
+                        {LabelChangeVisible && <Button key="download" shape="round" onClick={downloadLabel} icon={<DownloadOutlined />} disabled={!AllowDownload} style={{ marginRight: "10px" }}>
+                            下载标签
+                        </Button>}
+                        <Button key="back" type="primary" onClick={() => { UpdateLabel(DetailInfo, false); setDetail(false); setLabelChangeVisible(false); props.setVisibleDetail(false); }} style={{ marginRight: "10px" }}>
+                            返回
+                        </Button>
+                    </div>
                 </ProCard.TabPane>
                 <ProCard.TabPane key="photos" tab="资产图片">
                     <div style={{ height: "400px", overflowY: "auto", overflowX: "hidden", display: "flex", flexWrap: "wrap" }}>
@@ -806,7 +840,7 @@ const AssetList = (props: AssetListProps) => {
                                         key={index}
                                         src={url}
                                         fit="scale-down"
-                                        style={{position: "absolute", top: 0, left: 0,borderRadius: 8, width: "100%", height: "100%" }}
+                                        style={{ position: "absolute", top: 0, left: 0, borderRadius: 8, width: "100%", height: "100%" }}
                                         alt={url}
                                         lazy
                                     />
@@ -814,179 +848,205 @@ const AssetList = (props: AssetListProps) => {
                             </div>
                         ))}
                     </div>
+                    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
+                        <Button key="back" type="primary" onClick={() => { UpdateLabel(DetailInfo, false); setDetail(false); setLabelChangeVisible(false); props.setVisibleDetail(false); }} style={{ marginRight: "10px" }}>
+                            返回
+                        </Button>
+                    </div>
                 </ProCard.TabPane>
-            </ProCard>}
-            {!props.VisibleDetail && <ProTable className="ant-pro-table"
-                columns={columns}
-                options={{ reload: true, setting: false }}
-                rowKey="ID"
-                rowSelection={{
-                    // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
-                    // 注释该行则默认不显示下拉选项
-                    selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
-                    defaultSelectedRowKeys: [],
-                }}
-                tableAlertRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => {
-                    setIsSomeRowCanNotDispatch(selectedRows.some(row => row.Status != 0));
-                    setSelectedRows(selectedRows);
-                    console.log(selectedRowKeys, selectedRows);
-                    return (
-                        <Space size={4}>
-                            已选 {selectedRowKeys.length} 项
-                            <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={onCleanSelected} >
-                                取消选择
-                            </a>
-                        </Space>
-                    );
-                }}
-                tableAlertOptionRender={() => {
-                    return (
-                        <Space size={16} >
-                            <Button type="primary" loading={loading} onClick={() => { hanleChange(SelectedRows.map((row: any) => row.ID), 0); if (tableRef.current?.clearSelected) tableRef.current?.clearSelected(); }}>清退资产</Button>
-                            <Button type="primary" loading={loading} disabled={IsSomeRowCanNotDispatch} onClick={() => { setOpen1(true); GetMemberList(); }}>调拨资产</Button>
-                        </Space>
-                    );
-                }}
-                actionRef={tableRef}
-                request={async (params = {}) => {
-                    const loadSessionID = LoadSessionID();
-                    let url = `/api/Asset/Info/${loadSessionID}`;
-                    if (PropForm.getFieldValue("Prop") && PropForm.getFieldValue("PropValue")) {
-                        url = `/api/Asset/InfoProp/${loadSessionID}/${PropForm.getFieldValue("Prop")}/${PropForm.getFieldValue("PropValue")}`;
-                    }
-                    return (request(url, "GET")
-                        .then(response => {    // 将request请求的对象保存到state中
-                            // 对获取到的信息进行筛选，其中创建时间设为不可筛选项，描述、物品名称和所有者设为包含搜索，状态和ID设为严格搜索
-                            // TODO ID到底是number还是string，前后端统一一下
-                            // TODO 强等于弱等于的问题，暂时没去管
-                            setPropList(response.DepartmentProp);
-                            // setPropList(TestPropList);
-                            let filteredData = response.Asset;
-                            console.log(filteredData);
-                            if (params.Description) {
-                                filteredData = filteredData.filter(
-                                    (item: AssetData) => item.Description.includes(params.Description)
-                                );
-                            }
-                            if (params.Owner) {
-                                filteredData = filteredData.filter(
-                                    (item: AssetData) => item.Owner.includes(params.Owner)
-                                );
-                            }
-                            if (params.ID) {
-                                filteredData = filteredData.filter(
-                                    (item: AssetData) => item.ID == params.ID
-                                );
-                            }
-                            if (params.Name) {
-                                filteredData = filteredData.filter(
-                                    (item: AssetData) => item.Name.includes(params.Name)
-                                );
-                            }
-                            if (params.Status) {
-                                filteredData = filteredData.filter(
-                                    (item: AssetData) => item.Status == params.Status
-                                );
-                            }
-                            if (params.Class) {
-                                filteredData = filteredData.filter(
-                                    (item: AssetData) => item.Class.includes(params.Class)
-                                );
-                            }
-                            return Promise.resolve({ data: filteredData, success: true });
-                        }));
-                }
+                {/* <ProCard.TabPane key="footer" tab="页脚" closable={true} style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
+                    {props.VisibleDetail && LabelChangeVisible && <Button key="update" shape="round" type="default" onClick={() => { UpdateLabel(DetailInfo, true); }}>
+                        更新
+                    </Button>}
 
 
-                }
-                form={{
-                    // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
-                    syncToUrl: (values, type) => {
-                        if (type === "get") {
-                            return {
-                                ...values,
-                                created_at: [values.startTime, values.endTime],
-                            };
-                        }
-                        return values;
-                    },
-                }}
-                scroll={{ x: "100%", y: "calc(100vh - 300px)" }}
-                pagination={{
-                    showSizeChanger: true
-                }}
-                search={{
-                    defaultCollapsed: false,
-                    defaultColsNumber: 1,
-                    split: true,
-                    span: 8,
-                    searchText: "查询"
-                }}
-                toolBarRender={() => []}
-            />}
-            {!props.VisibleDetail && <Modal
-                title="请选择要转移到的管理员"
-                bodyStyle={{ padding: "20px" }}
-                visible={Open1}
-                onCancel={() => setOpen1(false)}
-                onOk={handleOk1}
-                okButtonProps={{ disabled: !selectedEmployee }}
-                okText="下一步"
-            >
-                <Input placeholder="搜索员工或部门名称" value={searchText} onChange={handleSearch} />
-                <List
-                    dataSource={filteredData}
-                    renderItem={item => (
-                        <List.Item
-                            onClick={() => handleSelectEmployee(item)}
-                            className={`employee-item ${selectedEmployee && selectedEmployee.Name === item.Name ? "selected" : ""}`}
-                        >
-                            <div className="employee-name">{item.Name}</div>
-                            <div className="department">{item.Department}</div>
-                        </List.Item>
+                    {props.VisibleDetail && LabelChangeVisible && <Button key="download" shape="round" onClick={downloadLabel} icon={<DownloadOutlined />} disabled={!AllowDownload}>
+                        下载标签
+                    </Button>}
+                    {props.VisibleDetail && (
+                        <Button key="back" type="primary" onClick={() => { UpdateLabel(DetailInfo, false); setDetail(false); setLabelChangeVisible(false); }}>
+                            返回
+                        </Button>
                     )}
-                    pagination={{
-                        pageSize: 20
+                </ProCard.TabPane> */}
+            </ProCard >}
+            {
+                !props.VisibleDetail && <ProTable className="ant-pro-table"
+                    columns={columns}
+                    options={{ reload: true, setting: false }}
+                    rowKey="ID"
+                    rowSelection={{
+                        // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
+                        // 注释该行则默认不显示下拉选项
+                        selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
+                        defaultSelectedRowKeys: [],
                     }}
+                    tableAlertRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => {
+                        setIsSomeRowCanNotDispatch(selectedRows.some(row => row.Status != 0));
+                        setSelectedRows(selectedRows);
+                        console.log(selectedRowKeys, selectedRows);
+                        return (
+                            <Space size={4}>
+                                已选 {selectedRowKeys.length} 项
+                                <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={onCleanSelected} >
+                                    取消选择
+                                </a>
+                            </Space>
+                        );
+                    }}
+                    tableAlertOptionRender={() => {
+                        return (
+                            <Space size={16} >
+                                <Button type="primary" loading={loading} onClick={() => { hanleChange(SelectedRows.map((row: any) => row.ID), 0); if (tableRef.current?.clearSelected) tableRef.current?.clearSelected(); }}>清退资产</Button>
+                                <Button type="primary" loading={loading} disabled={IsSomeRowCanNotDispatch} onClick={() => { setOpen1(true); GetMemberList(); }}>调拨资产</Button>
+                            </Space>
+                        );
+                    }}
+                    actionRef={tableRef}
+                    request={async (params = {}) => {
+                        const loadSessionID = LoadSessionID();
+                        let url = `/api/Asset/Info/${loadSessionID}`;
+                        if (PropForm.getFieldValue("Prop") && PropForm.getFieldValue("PropValue")) {
+                            url = `/api/Asset/InfoProp/${loadSessionID}/${PropForm.getFieldValue("Prop")}/${PropForm.getFieldValue("PropValue")}`;
+                        }
+                        return (request(url, "GET")
+                            .then(response => {    // 将request请求的对象保存到state中
+                                // 对获取到的信息进行筛选，其中创建时间设为不可筛选项，描述、物品名称和所有者设为包含搜索，状态和ID设为严格搜索
+                                // TODO ID到底是number还是string，前后端统一一下
+                                // TODO 强等于弱等于的问题，暂时没去管
+                                setPropList(response.DepartmentProp);
+                                // setPropList(TestPropList);
+                                let filteredData = response.Asset;
+                                console.log(filteredData);
+                                if (params.Description) {
+                                    filteredData = filteredData.filter(
+                                        (item: AssetData) => item.Description.includes(params.Description)
+                                    );
+                                }
+                                if (params.Owner) {
+                                    filteredData = filteredData.filter(
+                                        (item: AssetData) => item.Owner.includes(params.Owner)
+                                    );
+                                }
+                                if (params.ID) {
+                                    filteredData = filteredData.filter(
+                                        (item: AssetData) => item.ID == params.ID
+                                    );
+                                }
+                                if (params.Name) {
+                                    filteredData = filteredData.filter(
+                                        (item: AssetData) => item.Name.includes(params.Name)
+                                    );
+                                }
+                                if (params.Status) {
+                                    filteredData = filteredData.filter(
+                                        (item: AssetData) => item.Status == params.Status
+                                    );
+                                }
+                                if (params.Class) {
+                                    filteredData = filteredData.filter(
+                                        (item: AssetData) => item.Class.includes(params.Class)
+                                    );
+                                }
+                                return Promise.resolve({ data: filteredData, success: true });
+                            }));
+                    }
+
+
+                    }
+                    form={{
+                        // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
+                        syncToUrl: (values, type) => {
+                            if (type === "get") {
+                                return {
+                                    ...values,
+                                    created_at: [values.startTime, values.endTime],
+                                };
+                            }
+                            return values;
+                        },
+                    }}
+                    scroll={{ x: "100%", y: "calc(100vh - 300px)" }}
+                    pagination={{
+                        showSizeChanger: true
+                    }}
+                    search={{
+                        defaultCollapsed: false,
+                        defaultColsNumber: 1,
+                        split: true,
+                        span: 8,
+                        searchText: "查询"
+                    }}
+                    toolBarRender={() => []}
                 />
-            </Modal>}
-            {!props.VisibleDetail && <ModalForm<{
-                class: string;
-            }>
-                title="请选择资产分类"
-                form={form}
-                autoFocusFirstInput
-                modalProps={{
-                    destroyOnClose: true,
-                    onCancel: () => { setOpen2(false); setOpen1(true); },
-                }}
-                submitTimeout={1000}
-                open={Open2}
-                onFinish={async (values) => {
-                    if (SelectedRows.length > 0) hanleChange(SelectedRows.map((row: any) => row.ID), 2, selectedEmployee?.Name, values.class);
-                    else hanleChange([selectedTransferAsset ? selectedTransferAsset.ID : 0], 2, selectedEmployee?.Name, values.class);
-                    setOpen2(false);
-                    if (tableRef.current?.clearSelected) tableRef.current?.clearSelected();
-                    return true;
-                }}
-            >
-                <ProForm.Group>
-                    <ProFormTreeSelect
-                        label="资产分类"
-                        name="class"
-                        width="lg"
-                        rules={[{ required: true, message: "这是必选项" }]}
-                        fieldProps={{
-                            fieldNames: {
-                                label: "title",
-                            },
-                            treeData,
-                            placeholder: "请选择资产分类",
+            }
+            {
+                !props.VisibleDetail && <Modal
+                    title="请选择要转移到的管理员"
+                    bodyStyle={{ padding: "20px" }}
+                    visible={Open1}
+                    onCancel={() => setOpen1(false)}
+                    onOk={handleOk1}
+                    okButtonProps={{ disabled: !selectedEmployee }}
+                    okText="下一步"
+                >
+                    <Input placeholder="搜索员工或部门名称" value={searchText} onChange={handleSearch} />
+                    <List
+                        dataSource={filteredData}
+                        renderItem={item => (
+                            <List.Item
+                                onClick={() => handleSelectEmployee(item)}
+                                className={`employee-item ${selectedEmployee && selectedEmployee.Name === item.Name ? "selected" : ""}`}
+                            >
+                                <div className="employee-name">{item.Name}</div>
+                                <div className="department">{item.Department}</div>
+                            </List.Item>
+                        )}
+                        pagination={{
+                            pageSize: 20
                         }}
                     />
-                </ProForm.Group>
+                </Modal>
+            }
+            {
+                !props.VisibleDetail && <ModalForm<{
+                    class: string;
+                }>
+                    title="请选择资产分类"
+                    form={form}
+                    autoFocusFirstInput
+                    modalProps={{
+                        destroyOnClose: true,
+                        onCancel: () => { setOpen2(false); setOpen1(true); },
+                    }}
+                    submitTimeout={1000}
+                    open={Open2}
+                    onFinish={async (values) => {
+                        if (SelectedRows.length > 0) hanleChange(SelectedRows.map((row: any) => row.ID), 2, selectedEmployee?.Name, values.class);
+                        else hanleChange([selectedTransferAsset ? selectedTransferAsset.ID : 0], 2, selectedEmployee?.Name, values.class);
+                        setOpen2(false);
+                        if (tableRef.current?.clearSelected) tableRef.current?.clearSelected();
+                        return true;
+                    }}
+                >
+                    <ProForm.Group>
+                        <ProFormTreeSelect
+                            label="资产分类"
+                            name="class"
+                            width="lg"
+                            rules={[{ required: true, message: "这是必选项" }]}
+                            fieldProps={{
+                                fieldNames: {
+                                    label: "title",
+                                },
+                                treeData,
+                                placeholder: "请选择资产分类",
+                            }}
+                        />
+                    </ProForm.Group>
 
-            </ModalForm>}
+                </ModalForm>
+            }
         </>
     );
 };
