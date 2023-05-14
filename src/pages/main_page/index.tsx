@@ -1,6 +1,6 @@
 import React from "react";
-import { Layout, Menu, Dropdown, Button, Divider, Space, Modal, MenuProps, Descriptions } from "antd";
-import { UserOutlined, BellOutlined, DownOutlined, PoweroffOutlined } from "@ant-design/icons";
+import { Layout, Menu, Dropdown, Button, Divider, Space, Modal, MenuProps, Descriptions, Form, Input, Collapse } from "antd";
+import { UserOutlined, BellOutlined, DownOutlined, PoweroffOutlined, LockOutlined, PhoneOutlined } from "@ant-design/icons";
 import { logout, LoadSessionID, IfCodeSessionWrong, CreateCookie } from "../../utils/CookieOperation";
 import { useRouter } from "next/router";
 import { request } from "../../utils/network";
@@ -12,11 +12,13 @@ import SiderMenu from "../../components/SiderUI";
 import UserInfo from "../../components/UserInfoUI";
 import cookie from "react-cookies";
 const { Header, Content, Footer, Sider } = Layout;
+const { Panel } = Collapse;
 import {
     ProFormRadio,
     ProFormSwitch,
     ProList,
 } from "@ant-design/pro-components";
+import OSS from "ali-oss";
 
 const App = () => {
     const logoutSendMessage = () => {
@@ -40,6 +42,7 @@ const App = () => {
     const [TOREAD, setTOREAD] = useState(false);
     const [TODO, setTODO] = useState(false);
     const [ghost, setGhost] = useState<boolean>(false);
+    const [UserPhone, setUserPhone] = useState("暂未绑定");
     const GetApp = (Authority: number) => {
         request(
             `/api/User/App/${LoadSessionID()}/${Authority}`,
@@ -97,6 +100,7 @@ const App = () => {
                             setDepartment(res.Department);
                             setTODO(res.TODO);
                             setTOREAD(res.TOREAD);
+                            setUserPhone(res.Mobile);
                         })
                         .catch((err) => {
                             console.log(err.message);
@@ -145,6 +149,7 @@ const App = () => {
                     setDepartment(res.Department);
                     setTODO(res.TODO);
                     setTOREAD(res.TOREAD);
+                    setUserPhone(res.Mobile);
                 })
                 .catch((err) => {
                     console.log(err.message);
@@ -186,9 +191,126 @@ const App = () => {
             </div>
         ),
     })) : [];
+    const [form] = Form.useForm();
+    const [password, setPassword] = useState("password123");
+    const [phone, setPhone] = useState("1234567890");
+    const [isEditing, setIsEditing] = useState(false);
+    const handleSubmit1 = (values:any) => {
+        if (values.username.length > 0) {
+            setUserName(values.username);
+            request(
+                `/api/Asset/ChangeUserName/${LoadSessionID()}`,
+                "POST",
+                {
+                    NewUserName: values.username
+                }
+            )
+                .then((res) => {
+                    Modal.success({
+                        title: "更改成功",
+                        content: `成功将用户名改为  ${values.username}`
+                    });
+                })
+                .catch((err) => {
+                    Modal.error({
+                        title: "错误",
+                        content: err.message.substring(5),
+                    });
+                });
+            form.resetFields();
+        }
+        
+    };
+    const handleSubmit3 = (values:any) => {
+        if (values.old > 0 && values.new1.length>0 && values.new2.length>0) {
+            setPassword(values.password);
+            request(
+                `/api/Asset/ChangePassword/${LoadSessionID()}`,
+                "POST",
+                {
+                    OldPassword: CryptoJS.MD5(values.old).toString(),
+                    NewPassword1: CryptoJS.MD5(values.new1).toString(),
+                    NewPassword2: CryptoJS.MD5(values.new2).toString()
+                }
+            )
+                .then((res) => {
+                    Modal.success({
+                        title: "更改成功",
+                        content: "成功修改密码"
+                    });
+                })
+                .catch((err) => {
+                    Modal.error({
+                        title: "错误",
+                        content: err.message.substring(5),
+                    });
+                });
+        }
+        form.resetFields();
+    };
+    const handleSubmit2 = (values:any) => {
+        if (values.phone.length > 0) {
+            setPhone(values.phone);
+            request(
+                "/api/User/change_mobile",
+                "POST",
+                {
+                    SessionID: LoadSessionID(),
+                    Mobile: values.phone
+                }
+            )
+                .then((res) => {
+                    Modal.success({
+                        title: "更改成功",
+                        content: `成功绑定手机号  ${values.phone}`
+                    });
+                })
+                .catch((err) => {
+                    Modal.error({
+                        title: "错误",
+                        content: err.message.substring(5),
+                    });
+                });
+            form.resetFields();
+        }
+    };
+    const handleCancel = () => {
+        setIsEditing(false);
+        form.resetFields();
+    };
+    const UserInfoName = (
+        <p className="userinfo-title">
+            {"用户名："+ UserName}
+        </p>
+    );
+    const UserInfoPassword = (
+        <p className="userinfo-title">
+            {"密码"}
+        </p>
+    );
+    const UserInfoPhone = (
+        <p className="userinfo-title">
+            {UserPhone==null ? "电话：暂未绑定" : ("电话：" + UserPhone)}
+        </p>
+    );
+    const UserInfoAuthority = (
+        <p className="userinfo-title">
+            {"身份："} {renderAuthority(UserAuthority)}
+        </p>
+    );
+    const UserInfoEntity = (
+        <p className="userinfo-title">
+            {"业务实体："} {Entity}
+        </p>
+    );
+    const UserInfoDepartment = (
+        <p className="userinfo-title">
+            {"部门："} {Department}
+        </p>
+    );
     if (state) {
         return (
-            <Layout style={{ minHeight: "100vh" }}>
+            <Layout style={{ minHeight: "80vh" }}>
                 <Sider className="sidebar" width="10%">
                     <SiderMenu UserAuthority={UserAuthority} />
                 </Sider>
@@ -196,69 +318,117 @@ const App = () => {
                     <Header className="ant-layout-header">
                         <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
                     </Header>
-                    <Content>
-                        <div style={{display:"flex"}}>
-                            <div>
-                                <h1 className="main_page_headword">{"Welcome " + rolelist[UserAuthority] + "  " + UserName + "!"}</h1>
-                                <h1 className="main_page_headword">应用导航</h1>
-                                <ProList<any>
-                                    ghost={ghost}
-                                    itemCardProps={{
-                                        ghost,
-                                    }}
-                                    // showActions="hover"
-                                    rowSelection={{}}
-                                    grid={{ gutter: 16, column: 3 }}
-                                    onItem={(record: AppData) => {
-                                        return {
-                                            onMouseEnter: () => {
-                                                console.log(record);
-                                            },
-                                            onClick: () => {
-                                                // console.log(record);
-                                                console.log(record.AppUrl);
-                                            },
-                                        };
-                                    }}
-                                    metas={{
-                                        content: {},
-                                    }}
-                                    dataSource={data}
-                                />
+                    <div style={{display:"flex"}}>
+                        <Content style={{width:"450px", minHeight: "80vh"}}>
+                            <h1 className="main_page_headword">应用导航</h1>
+                            <ProList<any>
+                                ghost={ghost}
+                                itemCardProps={{
+                                    ghost,
+                                }}
+                                rowSelection={{}}
+                                grid={{ gutter: 16, column: UserAuthority==0 ? 2 : 3 }}
+                                onItem={(record: AppData) => {
+                                    return {
+                                        onMouseEnter: () => {
+                                            console.log(record);
+                                        },
+                                        onClick: () => {
+                                            console.log(record.AppUrl);
+                                        },
+                                    };
+                                }}
+                                metas={{
+                                    content: {},
+                                }}
+                                dataSource={data}
+                            />
+                        </Content>
+                        <Content style={{width:"10px"}}>
+                            <div style={{display:"flex"}}>
+                                <h1 className="main_page_headword">个人信息</h1>
+                                <h1 className="main_page_headword">头像</h1>
                             </div>
-                            <div style={{width:"60%"}}>
-                                {/* <h1 className="main_page_headword">{"Welcome " + rolelist[UserAuthority] + "  " + UserName + "!"}</h1>
-                                <h1 className="main_page_headword">应用导航</h1>
-                                <ProList<any>
-                                    ghost={ghost}
-                                    itemCardProps={{
-                                        ghost,
-                                    }}
-                                    showActions="hover"
-                                    rowSelection={{}}
-                                    grid={{ gutter: 16, column: 3 }}
-                                    onItem={(record: AppData) => {
-                                        return {
-                                            onMouseEnter: () => {
-                                                console.log(record);
-                                            },
-                                            onClick: () => {
-                                                // console.log(record);
-                                                console.log(record.AppUrl);
-                                            },
-                                        };
-                                    }}
-                                    metas={{
-                                        content: {},
-                                        // actions: {cardActionProps}
-                                    }}
-                                    dataSource={data}
-                                /> */}
-                            </div>
-                        </div>
-                    </Content>
+                            <Panel  style= {{marginTop: "30px", marginLeft:"18px", marginBottom:"40px"}} header={UserInfoAuthority} key="4"/>
+                            {(UserAuthority != 0) && <Panel  style= {{marginLeft:"16px", marginBottom:"40px"}} header={UserInfoEntity} key="5"/>}
+                            {(UserAuthority === 2 || UserAuthority === 3) && <Panel  style={{marginLeft:"16px", marginBottom:"30px"}} header={UserInfoDepartment} key="6"/>}
+                            <Collapse 
+                                accordion
+                                bordered={false} 
+                                expandIconPosition="end"
+                                expandIcon={() => (
+                                    <Button type="text" style={{ color: "#1890ff"  }}>
+                                        更改
+                                    </Button>
+                                )}
+                                ghost
+                            >   
+                                <Panel header={UserInfoName} key="1">
+                                    <Form
+                                        form={form}
+                                        onFinish={handleSubmit1}
+                                        style={{ maxWidth: "400px", marginLeft:"24px" }}
+                                    >
+                                        <Form.Item
+                                            name="username"
+                                            // label="新用户名"
+                                            rules={[{message: "请输入新用户名" }]}
+                                        >
+                                            <Input placeholder="请输入新用户名"/>
+                                        </Form.Item>
+                                        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                                            <Button type="primary" htmlType="submit">
+                                                确认更改用户名
+                                            </Button>
+                                        </Form.Item>
+                                    </Form>
+                                </Panel>
+                                <Panel header={UserInfoPhone} key="2">
+                                    <Form
+                                        form={form}
+                                        onFinish={handleSubmit2}
+                                        style={{ maxWidth: "400px", marginLeft:"24px" }}
+                                    >
+                                        <Form.Item
+                                            name="phone"
+                                        >
+                                            <Input placeholder="请输入电话号码，绑定后可用于飞书登录"/>
+                                        </Form.Item>
+                                        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                                            <Button type="primary" htmlType="submit">
+                                                确认绑定该电话
+                                            </Button>
+                                        </Form.Item>
+                                    </Form>
+                                </Panel>
+                                <Panel header={UserInfoPassword} key="3">
+                                    <Form
+                                        form={form}
+                                        onFinish={handleSubmit3}
+                                        style={{ maxWidth: "400px", marginLeft:"24px" }}
+                                    >
+                                        <Form.Item name="old">
+                                            <Input placeholder="请输入原始密码"/>
+                                        </Form.Item>
+                                        <Form.Item name="new1">
+                                            <Input placeholder="请输入新密码"/>
+                                        </Form.Item>
+                                        <Form.Item name="new2">
+                                            <Input placeholder="请再次输入新密码"/>
+                                        </Form.Item>
+                                        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                                            <Button type="primary" htmlType="submit">
+                                                确认更改密码
+                                            </Button>
+                                        </Form.Item>
+                                    </Form>
+                                </Panel>
+                                
+                                
+                            </Collapse>
+                        </Content>
+                    </div>
                 </Layout>
-
                 <Modal
                     title="抱歉，该功能已被您的管理员禁用"
                     centered
