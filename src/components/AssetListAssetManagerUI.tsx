@@ -793,18 +793,18 @@ const AssetList = (props: AssetListProps) => {
 
                 </ProCard.TabPane>
                 <ProCard.TabPane key="photos" tab="资产图片">
-                    <div style={{ height: "800px", overflowY: "auto", overflowX: "hidden" }}>
+                    <div style={{ height: "400px", overflowY: "auto", overflowX: "hidden", display: "flex", flexWrap: "wrap" }}>
                         {url_list.map((url, index) => (
                             <div
-                                style={{ marginBottom: "10px",padding:"200px" }}
+                                style={{ flex: "0 0 50%", marginBottom: "10px" }}
                                 key={url}
                             >
-                                <div style={{ maxWidth: "100%", height: 0, paddingBottom: "100%", position: "relative" }}>
+                                <div style={{ position: "relative", width: "100%", paddingBottom: "100%" }}>
                                     <Image
                                         key={index}
                                         src={url}
-                                        fit="contain"
-                                        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+                                        fit="scale-down"
+                                        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }}
                                         alt={url}
                                         lazy
                                     />
