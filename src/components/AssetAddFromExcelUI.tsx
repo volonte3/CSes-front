@@ -101,28 +101,19 @@ const AssetAddFromExcelUI = () => {
         setOpen(false);
     };
 
-    function beforeUpload(file: File) { 
-        if (!file.name.endsWith(".xls") && !file.name.endsWith(".xlsx")) {
-            return Promise.reject(new Error("Only Excel files are allowed"));
-        }
-      
-        return new Promise<void>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const data = e.target?.result;
-                if (data) {
-                    const workbook = XLSX.read(data, { type: "array" });
-                    const Sheet = workbook.Sheets["Sheet1"];
-                    const Data_json = XLSX.utils.sheet_to_json(Sheet);
-                    const Data_list = Array.from(Data_json.values()) as any[];
-                    setitemlist(Data_list);
-                    resolve();
-                } else {
-                    reject(new Error("Failed to read file data"));
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        });
+    function handleUpload(event: any) { 
+        const file = event.file.originFileObj; // 获取选择的文件
+        console.log(file);
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const data = e.target?.result as ArrayBuffer;
+            const workbook = XLSX.read(data, { type: "array" });
+            const Sheet = workbook.Sheets["Sheet1"];
+            const Data_json = XLSX.utils.sheet_to_json(Sheet);
+            const Data_list = Array.from(Data_json.values()) as any[];
+            setitemlist(Data_list);
+        };
+        reader.readAsArrayBuffer(file);                  
     }
       
     return (
@@ -139,7 +130,7 @@ const AssetAddFromExcelUI = () => {
                 <a href="https://cloud.tsinghua.edu.cn/f/9d0da52504d74bcbb1e8/?dl=1" target="_blank" rel="noopener noreferrer">点此下载模板文件</a>
                 <br />
                 <br />
-                <Upload beforeUpload={beforeUpload}>
+                <Upload onChange={handleUpload}>
                     <Button icon={<UploadOutlined />}>选择Excel文件</Button>
                 </Upload>
             </Modal>
