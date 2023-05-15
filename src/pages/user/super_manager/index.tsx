@@ -3,7 +3,7 @@ import {
     FileOutlined, PlusSquareOutlined, LogoutOutlined, UserOutlined, DownOutlined, SmileOutlined
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
-import { Layout, Menu, theme, Space, Table, Modal, Button, Input, Form, Drawer, Avatar, Dropdown, Row } from "antd";
+import { Layout, List, theme, Space, Table, Modal, Button, Input, Form, Drawer, Avatar, Dropdown, Row, Select } from "antd";
 const { Column } = Table;
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
@@ -18,17 +18,14 @@ type MenuItem = Required<MenuProps>["items"][number];
 type SystemData = {
     Entity: string;
     Manager: string;
+    ID: string;
 };
-// const DataTest: SystemData[] = [
-//     {
-//         Entity: "大象金融",
-//         Manager: "张三",
-//     },
-//     {
-//         Entity: "小明搜题",
-//         Manager: "李四",
-//     },
-// ];
+interface Option {
+    value: string;
+    label: string;
+    children?: Option[];
+}
+
 function getItem(
     label: React.ReactNode,
     key: React.Key,
@@ -59,9 +56,15 @@ const App = () => {
     const [UserApp, setUserApp] = useState<string>(""); // 用户显示的卡片，01串
     const [Entity, setEntity] = useState<string>(""); // 实体名称
     const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
+    const [ChooseFeishuModel, setChooseFeishuModel] = useState<string>(""); //选择的默认同步的飞书
+    const [ShowFeishu, setShowFeishu] = useState<boolean>(false);    //是否展示默认同步飞书modal
     const router = useRouter();
     const [TOREAD, setTOREAD] = useState(false);
     const [TODO, setTODO] = useState(false);
+    const [ChooseLeafDepartment, setChooseLeafDepartment] = useState("");
+    const [DepartmentsData,setDepartmentsData] = useState();
+    const [FeishuDepartment,setFeishuDepartment] = useState<string>("");
+    const [IsChangeDepartments,setIsChangeDepartments] = useState<boolean>(false);
     const items: MenuProps["items"] = [
         {
             key: "2",
@@ -94,6 +97,15 @@ const App = () => {
     };
     const handleUserInputChange = (e: any) => {
         setUserValue(e.target.value);
+    };
+    const handleFeishuChange = () => {
+        console.log(ChooseLeafDepartment);
+        request("/api/User/FeishuDepartment", "POST", {
+            DepartmentID: ChooseLeafDepartment,
+            SessionID: LoadSessionID(),
+        }).then((res) => {
+            setShowFeishu(false);
+        });
     };
     const {
         token: { colorBgContainer },
@@ -159,6 +171,23 @@ const App = () => {
     const onFinishFailed = (errorInfo: any) => {
         console.log("Failed:", errorInfo);
     };
+
+    const handleShowDepartments = (ID:string) => {
+        request(`/api/User/LeafDepartment/${LoadSessionID()}/${ID}`, "GET")
+            .then((res) => {
+                console.log("res.Departments", res.Departments);
+                setDepartmentsData(res.Departments);
+            });
+    };
+    const handleChangeFeishuDepartment = () => {
+        request("/api/User/FeishuDepartment", "POST", {
+            DepartmentID: FeishuDepartment,
+            SessionID: LoadSessionID(),
+        }).then(() => {
+            setShowFeishu(false);
+            setIsChangeDepartments(false);
+        });
+    };
     useEffect(() => {
         if (!router.isReady) {
             return;
@@ -172,7 +201,7 @@ const App = () => {
                 setUserName(res.UserName);
                 setUserApp(res.UserApp);
                 setUserAuthority(res.Authority);
-                if(res.Authority != 0 ){
+                if (res.Authority != 0) {
                     Modal.error({
                         title: "无权访问",
                         content: "请重新登录",
@@ -215,12 +244,11 @@ const App = () => {
                     }
                 });
         }
-
     }, [state, router]);
     if (state) {
         return (
             <Layout style={{ minHeight: "100vh" }}>
-                <Sider className= "sidebar" width="10%">
+                <Sider className="sidebar" width="10%">
                     <SiderMenu UserAuthority={UserAuthority} />
                 </Sider>
                 <Layout className="site-layout" >
@@ -279,10 +307,29 @@ const App = () => {
                                     render={(_: any, record: SystemData) => (
                                         <Space size="middle">
                                             <Button danger onClick={() => Remove(record.Manager, record.Entity)}>移除</Button>
+                                            <Button type="default"
+                                                onClick={() => {handleShowDepartments(record.ID);setShowFeishu(true);}}> 设置飞书同步部门
+                                            </Button>
                                         </Space>
                                     )}
                                 />
                             </Table>
+                            <Modal title="设置飞书同步部门" open={ShowFeishu} onOk={() => {IsChangeDepartments?handleChangeFeishuDepartment():setShowFeishu(false);}}>
+                                <List
+                                    dataSource={DepartmentsData}
+                                    renderItem={(item:{ID:string[],Name:string}) => (
+                                        <List.Item
+                                            onClick={() => {setFeishuDepartment(item.ID[0]);setIsChangeDepartments(true);}}
+                                            className={`employee-item ${FeishuDepartment && FeishuDepartment === item.ID[0] ? "selected" : ""}`}
+                                        >
+                                            <div className="employee-name">{item.Name}</div>
+                                        </List.Item>
+                                    )}
+                                    pagination={{
+                                        pageSize: 20
+                                    }}
+                                />
+                            </Modal>
                         </div>
                     </Content>
                 </Layout>
