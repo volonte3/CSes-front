@@ -27,6 +27,7 @@ const AssetAddFromExcelUI = () => {
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [itemlist, setitemlist] = useState<any[]>([]);
+    const [file, setFile] = useState(null);
 
     const handleOk = () => {
         setConfirmLoading(true);
@@ -101,20 +102,24 @@ const AssetAddFromExcelUI = () => {
         setOpen(false);
     };
 
-    function handleUpload(event: any) { 
-        const file = event.file.originFileObj; // 获取选择的文件
-        console.log(file);
+    // const handleBeforeUpload = (file: any) => {
+    //     return false;
+    // };
+
+    const handleUpload = (event: any) => {
+        const file = event.target.files[0];
         const reader = new FileReader();
-        reader.onload = function (e) {
-            const data = e.target?.result as ArrayBuffer;
-            const workbook = XLSX.read(data, { type: "array" });
+        reader.onload = (e) => {
+            const fileContent = e.target?.result as ArrayBuffer;
+            const workbook = XLSX.read(fileContent, { type: "array" });
             const Sheet = workbook.Sheets["Sheet1"];
             const Data_json = XLSX.utils.sheet_to_json(Sheet);
             const Data_list = Array.from(Data_json.values()) as any[];
             setitemlist(Data_list);
+            console.log(fileContent);
         };
-        reader.readAsArrayBuffer(file);                  
-    }
+        reader.readAsArrayBuffer(file);   
+    };
       
     return (
         <div>
@@ -130,9 +135,7 @@ const AssetAddFromExcelUI = () => {
                 <a href="https://cloud.tsinghua.edu.cn/f/9d0da52504d74bcbb1e8/?dl=1" target="_blank" rel="noopener noreferrer">点此下载模板文件</a>
                 <br />
                 <br />
-                <Upload onChange={handleUpload}>
-                    <Button icon={<UploadOutlined />}>选择Excel文件</Button>
-                </Upload>
+                <input type="file" onChange={handleUpload} />
             </Modal>
             
         </div>       
