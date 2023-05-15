@@ -28,6 +28,7 @@
     "antd-mobile": "^5.30.0",
     "axios": "^1.2.0",
     "crypto-js": "^4.1.1",
+    "echarts-for-react": "^3.0.2",
     "jest-sonar-reporter": "^2.0.0",
     "jsdom": "^21.1.1",
     "less": "^4.1.3",

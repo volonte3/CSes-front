@@ -20,8 +20,8 @@ import { IfCodeSessionWrong, LoadSessionID } from "../../../../utils/CookieOpera
 import UserInfo from "../../../../components/UserInfoUI";
 import SiderMenu from "../../../../components/SiderUI";
 import { AppData } from "../../../../utils/types";
+import ReactEcharts from "echarts-for-react";
 const { Option } = Select;
-import { OrganizationGraph } from "@ant-design/graphs";
 const waitTime = (time: number = 100) => {
     return new Promise((resolve) => {
         setTimeout(() => {
