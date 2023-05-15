@@ -3,7 +3,7 @@ import {
     FileOutlined, PlusSquareOutlined, LogoutOutlined, UserOutlined, DownOutlined, SmileOutlined
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
-import { Layout, List, theme, Space, Table, Modal, Button, Input, Form, Drawer, Avatar, Dropdown, Row, Select } from "antd";
+import { Layout, List, theme, Space, Table, Modal, Button, Input, Form, Drawer, message, Dropdown, Row, Select } from "antd";
 const { Column } = Table;
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
@@ -62,9 +62,12 @@ const App = () => {
     const [TOREAD, setTOREAD] = useState(false);
     const [TODO, setTODO] = useState(false);
     const [ChooseLeafDepartment, setChooseLeafDepartment] = useState("");
-    const [DepartmentsData,setDepartmentsData] = useState();
-    const [FeishuDepartment,setFeishuDepartment] = useState<string>("");
-    const [IsChangeDepartments,setIsChangeDepartments] = useState<boolean>(false);
+    const [DepartmentsData, setDepartmentsData] = useState();
+    const [FeishuDepartmentID, setFeishuDepartmentID] = useState<string>("");
+    const [FeishuDepartmentName, setFeishuDepartmentName] = useState<string>("");
+    const [IsChangeDepartments, setIsChangeDepartments] = useState<boolean>(false);
+    const [messageApi, contextHolder] = message.useMessage();   //更新默认飞书部门后的文字提示
+
     const items: MenuProps["items"] = [
         {
             key: "2",
@@ -172,7 +175,7 @@ const App = () => {
         console.log("Failed:", errorInfo);
     };
 
-    const handleShowDepartments = (ID:string) => {
+    const handleShowDepartments = (ID: string) => {
         request(`/api/User/LeafDepartment/${LoadSessionID()}/${ID}`, "GET")
             .then((res) => {
                 console.log("res.Departments", res.Departments);
@@ -181,11 +184,19 @@ const App = () => {
     };
     const handleChangeFeishuDepartment = () => {
         request("/api/User/FeishuDepartment", "POST", {
-            DepartmentID: FeishuDepartment,
+            DepartmentID: FeishuDepartmentID,
             SessionID: LoadSessionID(),
         }).then(() => {
             setShowFeishu(false);
             setIsChangeDepartments(false);
+            success(FeishuDepartmentName);  //提示修改成功
+            console.log("FeishuDepartmentName", FeishuDepartmentName);
+        });
+    };
+    const success = (name: string = "1") => {
+        messageApi.open({
+            type: "success",
+            content: `成功修改飞书同步部门为 ${name}`,
         });
     };
     useEffect(() => {
@@ -248,6 +259,7 @@ const App = () => {
     if (state) {
         return (
             <Layout style={{ minHeight: "100vh" }}>
+                {contextHolder}
                 <Sider className="sidebar" width="10%">
                     <SiderMenu UserAuthority={UserAuthority} />
                 </Sider>
@@ -308,19 +320,20 @@ const App = () => {
                                         <Space size="middle">
                                             <Button danger onClick={() => Remove(record.Manager, record.Entity)}>移除</Button>
                                             <Button type="default"
-                                                onClick={() => {handleShowDepartments(record.ID);setShowFeishu(true);}}> 设置飞书同步部门
+                                                onClick={() => { handleShowDepartments(record.ID); setShowFeishu(true); }}> 设置飞书同步部门
                                             </Button>
                                         </Space>
                                     )}
                                 />
                             </Table>
-                            <Modal title="设置飞书同步部门" open={ShowFeishu} onOk={() => {IsChangeDepartments?handleChangeFeishuDepartment():setShowFeishu(false);}}>
+
+                            <Modal title="设置飞书同步部门" style={{height:"400px"}} open={ShowFeishu} onOk={() => { IsChangeDepartments ? handleChangeFeishuDepartment() : setShowFeishu(false); }}>
                                 <List
                                     dataSource={DepartmentsData}
-                                    renderItem={(item:{ID:string[],Name:string}) => (
+                                    renderItem={(item: { ID: string[], Name: string }) => (
                                         <List.Item
-                                            onClick={() => {setFeishuDepartment(item.ID[0]);setIsChangeDepartments(true);}}
-                                            className={`employee-item ${FeishuDepartment && FeishuDepartment === item.ID[0] ? "selected" : ""}`}
+                                            onClick={() => { setFeishuDepartmentID(item.ID[0]); setFeishuDepartmentName(item.Name); setIsChangeDepartments(true); }}
+                                            className={`employee-item ${FeishuDepartmentID && FeishuDepartmentID === item.ID[0] ? "selected" : ""}`}
                                         >
                                             <div className="employee-name">{item.Name}</div>
                                         </List.Item>
