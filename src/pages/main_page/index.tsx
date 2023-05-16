@@ -49,6 +49,7 @@ const App = () => {
     const [File, setFile] = useState<File>(); // 使用useState来管理files数组
     const [ProfileChangeOpen, setProfileChangeOpen] = useState<boolean>(false);  //更新头像的modal是否打开
     const [Profileprop, setProfileprop]=useState(false);
+    const [UserID, setUserID] = useState(0);
     const GetApp = (Authority: number) => {
         request(
             `/api/User/App/${LoadSessionID()}/${Authority}`,
@@ -107,6 +108,7 @@ const App = () => {
                             setTODO(res.TODO);
                             setTOREAD(res.TOREAD);
                             setUserPhone(res.Mobile);
+                            setUserID(res.ID);
                         })
                         .catch((err) => {
                             console.log(err.message);
@@ -156,6 +158,7 @@ const App = () => {
                     setTODO(res.TODO);
                     setTOREAD(res.TOREAD);
                     setUserPhone(res.Mobile);
+                    setUserID(res.ID);
                 })
                 .catch((err) => {
                     console.log(err.message);
@@ -396,7 +399,7 @@ const App = () => {
                 </Sider>
                 <Layout className="site-layout" >
                     <Header className="ant-layout-header">
-                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={Profileprop}></UserInfo>
+                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={Profileprop} ID={UserID}></UserInfo>
                     </Header>
                     <div style={{ display: "flex" }}>
                         <Content style={{ width: "450px", minHeight: "80vh" }}>
@@ -538,7 +541,7 @@ const App = () => {
                                 </Modal>
                             </div>
                         </Content> */}
-                        <UserSetting ChangeName={ChangeName} ChangeProfile={ChangeProfile} UserAuthority={UserAuthority} UserName={UserName}/>
+                        <UserSetting ChangeName={ChangeName} ChangeProfile={ChangeProfile} UserAuthority={UserAuthority} UserName={UserName} UserId={UserID}/>
                     </div>
                 </Layout>
                 <Modal
