@@ -13,11 +13,13 @@ const { Header, Content, Footer, Sider } = Layout;
 const { Panel } = Collapse;
 import { Image } from "antd-mobile";
 import OSS from "ali-oss";
+import CryptoJS from "crypto-js";
 interface UserSettingProps {
     ChangeName:(username:string)=>void;
     ChangeProfile: ()=>void;
-    UserAuthority:number,
-    UserName:string
+    UserAuthority:number;
+    UserName:string;
+    UserId: number;
 }
 const UserSetting = (props:UserSettingProps) => {
     const [ProfileUrl, setProfileUrl] = useState("");
@@ -29,8 +31,10 @@ const UserSetting = (props:UserSettingProps) => {
     const [UserAuthority, setUserAuthority] = useState(props.UserAuthority);
     const [Entity, setEntity] = useState<string>(""); // 实体名称
     const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
+    const [loading, setLoading]= useState(false);
     const handleSubmit1 = (values: any) => {
         if (values.username.length > 0) {
+            setLoading(true);
             setUserName(values.username);
             request(
                 `/api/Asset/ChangeUserName/${LoadSessionID()}`,
@@ -44,19 +48,23 @@ const UserSetting = (props:UserSettingProps) => {
                         title: "更改成功",
                         content: `成功将用户名改为  ${values.username}`
                     });
+                    setLoading(false);
                 })
                 .catch((err) => {
                     Modal.error({
                         title: "错误",
                         content: err.message.substring(5),
                     });
+                    setLoading(false);
                 });
             form.resetFields();
         }
         props.ChangeName(values.username);
     };
     const handleSubmit3 = (values: any) => {
-        if (values.old > 0 && values.new1.length > 0 && values.new2.length > 0) {
+        if (values.old.length > 0 && values.new1.length > 0 && values.new2.length > 0) {
+            setLoading(true);
+            console.log(values.old,values.new1,values.new2);
             request(
                 `/api/Asset/ChangePassword/${LoadSessionID()}`,
                 "POST",
@@ -71,18 +79,21 @@ const UserSetting = (props:UserSettingProps) => {
                         title: "更改成功",
                         content: "成功修改密码"
                     });
+                    setLoading(false);
                 })
                 .catch((err) => {
                     Modal.error({
                         title: "错误",
                         content: err.message.substring(5),
                     });
+                    setLoading(false);
                 });
         }
         form.resetFields();
     };
     const handleSubmit2 = (values: any) => {
         if (values.phone.length > 0) {
+            setLoading(true);
             setUserPhone(values.phone);
             request(
                 "/api/User/change_mobile",
@@ -97,12 +108,14 @@ const UserSetting = (props:UserSettingProps) => {
                         title: "更改成功",
                         content: `成功绑定手机号  ${values.phone}`
                     });
+                    setLoading(false);
                 })
                 .catch((err) => {
                     Modal.error({
                         title: "错误",
                         content: err.message.substring(5),
                     });
+                    setLoading(false);
                 });
             form.resetFields();
         }
@@ -149,13 +162,13 @@ const UserSetting = (props:UserSettingProps) => {
             bucket: "cs-company",
             secure: true // true for https
         });
-        ossClient.get(`/Profile/${UserName}.png`)
+        ossClient.get(`/Profile/${props.UserId}.png`)
             .then(response => {
                 const blob = new Blob([response.content], response.res.headers);
                 setProfileUrl(URL.createObjectURL(blob));
-
             })
             .catch(error => {
+                setProfileUrl("https://cs-company.oss-cn-beijing.aliyuncs.com/icon/default_icon.png");
                 console.log(error);
             });
     };
@@ -192,14 +205,14 @@ const UserSetting = (props:UserSettingProps) => {
 
         try {
             // 首先检查用户之前是否有文件，如果有则删除
-            let result = await client.delete(`/Profile/${UserName}.png`);
+            let result = await client.delete(`/Profile/${props.UserId}.png`);
             console.log("解析结果："+ result);
         } catch (error) {
             console.log(error);
         }
         try {
             //更新头像
-            const path = `/Profile/${UserName}.png`;
+            const path = `/Profile/${props.UserId}.png`;
             console.log(File);
             const result = await client.put(path, File, { headers });
             console.log("上传成功", result);
@@ -228,6 +241,7 @@ const UserSetting = (props:UserSettingProps) => {
                 setUserAuthority(res.Authority);
                 setEntity(res.Entity);
                 setDepartment(res.Department);
+                setUserPhone(res.Mobile);
             })
             .catch((err) => {
                 console.log(err.message);
@@ -312,16 +326,16 @@ const UserSetting = (props:UserSettingProps) => {
                         style={{ maxWidth: "400px", marginLeft: "24px" }}
                     >
                         <Form.Item name="old">
-                            <Input placeholder="请输入原始密码" />
+                            <Input.Password placeholder="请输入原始密码" type="password"/>
                         </Form.Item>
                         <Form.Item name="new1">
-                            <Input placeholder="请输入新密码" />
+                            <Input.Password placeholder="请输入新密码" type="password"/>
                         </Form.Item>
                         <Form.Item name="new2">
-                            <Input placeholder="请再次输入新密码" />
+                            <Input.Password placeholder="请再次输入新密码" type="password"/>
                         </Form.Item>
                         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                            <Button type="primary" htmlType="submit">
+                            <Button type="primary" htmlType="submit" loading={loading}>
                                                 确认更改密码
                             </Button>
                         </Form.Item>
