@@ -140,6 +140,7 @@ const UserInfo = (props:UserinfoProps) => {
         // FetchUserinfo();
         getProfile();
         enterLoading();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query, props]);
     const DropdownMenu = (
         <Menu>

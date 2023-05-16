@@ -307,7 +307,7 @@ const App = () => {
                 </Sider>
                 <Layout className="site-layout" >
                     <Header className="ant-layout-header">
-                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
+                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true}></UserInfo>
                     </Header>
                     <Content>
                         {/* <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}> */}
