@@ -203,8 +203,10 @@ const UserSetting = (props:UserSettingProps) => {
             console.log(File);
             const result = await client.put(path, File, { headers });
             console.log("上传成功", result);
+            const selectedFileName = document.getElementById("selected-file-name");
+            if(selectedFileName) selectedFileName.textContent = "";
             setProfileChangeOpen(false);
-            window.location.reload();
+            getProfile();
         } catch (e) {
             console.error("上传失败", e);
         }
