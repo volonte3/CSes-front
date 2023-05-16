@@ -26,6 +26,7 @@ const App = () => {
     const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
     const [VisibleDetail,setVisibleDetail] = useState(false); //是否显示详细信息页面
     const [AssetName,setAssetName] = useState("");  //当前面包屑显示资产的详细信息
+    const [UserID, setUserID]= useState(0);
     const {
         token: { colorBgContainer },
     } = theme.useToken();
@@ -54,6 +55,7 @@ const App = () => {
                 setDepartment(res.Department);
                 setTODO(res.TODO);
                 setTOREAD(res.TOREAD);
+                setUserID(res.ID);
             })
             .catch((err) => {
                 console.log(err.message);
@@ -75,7 +77,7 @@ const App = () => {
                     </Sider>
                     <Layout className="site-layout" >
                         <Header className="site-header">
-                            <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true}></UserInfo>
+                            <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true} ID={UserID}></UserInfo>
                         </Header>
                         <Content>
                             <Breadcrumb style={{ margin: "30px" }}>

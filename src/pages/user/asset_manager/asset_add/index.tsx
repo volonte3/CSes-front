@@ -141,6 +141,7 @@ const App = () => {
     const [ListKey, setListKey] = useState<number>(0);
     const [ProperList, setProperList] = useState<[]>([]);
     const [loading, setLoading] = useState(false);
+    const [UserID, setUserID]= useState(0);
     const router = useRouter();
 
     const [files, setfiles] = useState<File[][]>([]); // 使用useState来管理files数组
@@ -322,6 +323,7 @@ const App = () => {
                 setDepartment(res.Department);
                 setTODO(res.TODO);
                 setTOREAD(res.TOREAD);
+                setUserID(res.ID);
             })
             .catch((err) => {
                 console.log(err.message);
@@ -382,7 +384,7 @@ const App = () => {
                 </Sider>
                 <Layout className="site-layout" >
                     <Header className="ant-layout-header">
-                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true}></UserInfo>
+                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true} ID={UserID}></UserInfo>
                     </Header>   
                     <Content>           
                         <Breadcrumb style={{ margin: "30px" }}>

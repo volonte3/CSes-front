@@ -28,6 +28,7 @@ const App = () => {
     const [UserApp, setUserApp] = useState<string>(""); // 用户显示的卡片，01串
     const [Entity, setEntity] = useState<string>(""); // 实体名称
     const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
+    const [UserID, setUserID]= useState(0);
     const [TOREAD, setTOREAD] = useState(false);
     const [TODO, setTODO] = useState(false);
     const router = useRouter();
@@ -58,6 +59,7 @@ const App = () => {
                 setDepartment(res.Department);
                 setTODO(res.TODO);
                 setTOREAD(res.TOREAD);
+                setUserID(res.ID);
             })
             .catch((err) => {
                 console.log(err.message);
@@ -78,7 +80,7 @@ const App = () => {
                 </Sider>
                 <Layout className="site-layout" >
                     <Header className="ant-layout-header">
-                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true}></UserInfo>
+                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true} ID={UserID}></UserInfo>
                     </Header>
                     <ApplicationUI/>
                 </Layout>

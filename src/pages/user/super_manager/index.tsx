@@ -71,6 +71,7 @@ const App = () => {
     const [ShowSynchronousFeishu, setShowSynchronousFeishu] = useState(false); //是否显示飞书同步modal
     const [FeishuSynchronousLoading,setFeishuSynchronousLoading] = useState(false); //是否显示同步飞书用户的loading
     const [FeishuChangeDepartmentsLoading,setFeishuChangeDepartmentsLoading] = useState(false); //是否显示修改默认同步飞书部门的loading
+    const [UserID, setUserID]= useState(0);
     const items: MenuProps["items"] = [
         {
             key: "2",
@@ -256,6 +257,7 @@ const App = () => {
                 setDepartment(res.Department);
                 setTODO(res.TODO);
                 setTOREAD(res.TOREAD);
+                setUserID(res.ID);
             })
             .catch((err) => {
                 console.log(err.message);
@@ -307,7 +309,7 @@ const App = () => {
                 </Sider>
                 <Layout className="site-layout" >
                     <Header className="ant-layout-header">
-                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true}></UserInfo>
+                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true} ID={UserID}></UserInfo>
                     </Header>
                     <Content>
                         {/* <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}> */}

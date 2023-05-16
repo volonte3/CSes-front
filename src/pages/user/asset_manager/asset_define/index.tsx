@@ -46,6 +46,7 @@ const App = () => {
     const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
     const [TOREAD, setTOREAD] = useState(false);
     const [TODO, setTODO] = useState(false);
+    const [UserID, setUserID]= useState(0);
     const initvalue = () => {
         setAssetName("");
         setLossStyle(-1);
@@ -201,6 +202,7 @@ const App = () => {
                 setDepartment(res.Department);
                 setTODO(res.TODO);
                 setTOREAD(res.TOREAD);
+                setUserID(res.ID);
                 request(
                     "/api/Asset/tree",
                     "POST",
@@ -243,7 +245,7 @@ const App = () => {
                     <Layout className="site-layout" >
                         {contextHolder}
                         <Header className="ant-layout-header">
-                            <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true}></UserInfo>
+                            <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true} ID={UserID}></UserInfo>
                         </Header>
                         <Content>
                             <Breadcrumb style={{ margin: "30px" }}>

@@ -20,6 +20,7 @@ interface UserinfoProps {
     TODO: boolean;
     TOREAD: boolean;
     Profile:boolean;
+    ID:number;
 }
 const UserInfo = (props:UserinfoProps) => {
     const router = useRouter();
@@ -123,13 +124,13 @@ const UserInfo = (props:UserinfoProps) => {
             bucket: "cs-company",
             secure: true // true for https
         });
-        ossClient.get(`/Profile/${props.Name}.png`)
+        ossClient.get(`/Profile/${props.ID}.png`)
             .then(response => {
                 const blob = new Blob([response.content], response.res.headers);
                 setProfileUrl(URL.createObjectURL(blob));
-
             })
             .catch(error => {
+                setProfileUrl("https://cs-company.oss-cn-beijing.aliyuncs.com/icon/default_icon.png");
                 console.log(error);
             });
     };
@@ -170,7 +171,6 @@ const UserInfo = (props:UserinfoProps) => {
         <>
             <div className="logo" color="#fff" >CSCompany 资产管理系统</div>
             <div className="right-menu">
-                
                 <Dropdown  menu={{ items }}>
                     <Button type = "text" icon={<Image
                         key="111"
