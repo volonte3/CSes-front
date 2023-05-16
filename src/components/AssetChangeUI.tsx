@@ -20,14 +20,114 @@ import {
     ProFormMoney,
 } from "@ant-design/pro-components";
 import { DateTransform } from "../utils/transformer";
+import OSS from "ali-oss";
+import "react-quill/dist/quill.snow.css"; // 导入默认的样式文件
+import { Rule } from "rc-field-form/lib/interface"; // 导入正确的规则类型
 
 interface AssetListProps {
     Assets: AssetData[]
 }
+
+const { Item } = Form;
+interface MyEditorState {
+    content: string;
+}
+
+class MyEditor extends React.Component<{ 
+    name: string;
+    label: string;
+    width: string;
+    placeholder: string;
+    rules: Rule[];
+  }, MyEditorState> {
+    constructor(props: { 
+      name: string;
+      label: string;
+      width: string;
+      placeholder: string;
+      rules: Rule[];
+    }) {
+        super(props);
+        this.state = {
+            content: ""
+        };
+    }
+  
+    handleChange = (value: string) => {
+        this.setState({ content: value });
+    };
+  
+    render() {
+        const { name, label, width, placeholder, rules } = this.props;
+        let ReactQuill;
+        if (typeof window !== "undefined") {
+            ReactQuill = require("react-quill");
+            require("react-quill/dist/quill.snow.css");
+        }
+        return (
+            <Item
+                name={name}
+                label={label}
+                rules={rules} // 将规则传递给表单项
+            >
+                {ReactQuill ? <ReactQuill value={this.state.content} onChange={this.handleChange} /> : null}
+            </Item>
+        );
+    }
+}
+
 const AssetChange = () => {
     const [AssetList, setAssetList] = useState<{[key : number] : string}>({});
     const [changekey, setchangekey] = useState(Date.now());
     const [form] = Form.useForm<{ name: string; father: number; count: number; money: number; position: string; describe: string }>();
+
+    const [files, setfiles] = useState<File[]>([]);
+    const [nowid, setnowid] = useState(0);
+
+    const handleFileChange = (e: any) => {
+        const files: File[] = Array.from(e.target.files); // 获取所有选择的文件
+        setfiles(files); // 存储文件数组
+        // 在这里处理获取到的文件
+        console.log("上传的文件:", files);
+    };
+
+    const handleUpload = async () => {
+    // 创建 OSS 客户端实例
+        const client = new OSS({
+            region: "oss-cn-beijing",
+            accessKeyId: "LTAI5tNdCBrFK5BGXqTiMhwG",
+            accessKeySecret: "vZpHyptCPojSG1uNGucDtWcqzMOEeF",
+            bucket: "cs-company",
+            secure: true,
+        });
+
+        const headers = {
+            // 添加跨域请求头
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            // 其他自定义请求头
+            "x-oss-storage-class": "Standard",
+            "x-oss-object-acl": "public-read",
+            "x-oss-tagging": "Tag1=1&Tag2=2",
+            "x-oss-forbid-overwrite": "true",
+        };
+
+        files?.forEach(async (file) => {
+            try {
+                const filename = Date.now();
+                const fileExtension = file?.name.split(".").pop();
+                const path = "/photos/" + nowid.toString() + "/" + filename + "." + fileExtension;
+                console.log(file);
+                const result = await client.put(path, file, { headers });
+                console.log("上传成功", result);
+            } catch (e) {
+                console.error("上传失败", e);
+            }
+            console.log("上传的文件:", file);
+        });
+    };
+    
     const columns: ProColumns<AssetData>[] = [
         {
             title: "资产编号",
@@ -74,11 +174,6 @@ const AssetChange = () => {
             key: "Owner",
         },
         {
-            title: "描述",
-            dataIndex: "Description",
-            key: "Description",
-        },
-        {
             title: "创建时间",
             dataIndex: "CreateTime",
             key: "CreateTime",
@@ -96,6 +191,7 @@ const AssetChange = () => {
                     form.setFieldsValue({ // 使用 setFieldsValue 方法更新表单域的值
                         name: record.Name,
                     });
+                    setnowid(record.ID);
                 };
                 return (
                     <div>
@@ -140,6 +236,7 @@ const AssetChange = () => {
                                     }
                                 )   
                                     .then(() => {
+                                        handleUpload();
                                         setchangekey(Date.now());
                                     })
                                     .catch((err) => {
@@ -215,13 +312,16 @@ const AssetChange = () => {
                                 />
                             </ProForm.Group>
                             <ProForm.Group>
-                                <ProFormTextArea
+                                <MyEditor
                                     name="describe"
                                     label="资产描述"
                                     width="lg"
                                     placeholder="请输入描述"
-                                    rules={[{ required: true, message: "这是必填项" }]} 
+                                    rules={[{ required: true, message: "这是必填项" }]}
                                 />
+                            </ProForm.Group>
+                            <ProForm.Group tooltip="支持一次性选中多个图片" title="资产图片">
+                                <input type="file" onChange={handleFileChange} multiple/>
                             </ProForm.Group>
                         </ModalForm>
                     </div>);

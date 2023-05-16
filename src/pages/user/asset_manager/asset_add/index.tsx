@@ -16,7 +16,7 @@ import {
     ProList,
     ProFormDateTimePicker,
 } from "@ant-design/pro-components";
-import { Layout, Menu, theme, Modal, Button, Breadcrumb, Row, Col, Form, message, Tag, Space } from "antd";
+import { Layout, Menu, theme, Modal, Button, Breadcrumb, Row, Col, Form, message } from "antd";
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
@@ -560,7 +560,7 @@ const App = () => {
                             </Col>
                         </Row>
                         <Row align="top">
-                            <Col span={20}>
+                            <Col span={20} style={{marginLeft:"10px", fontSize:"16px"}}>
                                 <ProList<DataItem>
                                     key={ListKey}
                                     rowKey="id"
