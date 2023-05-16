@@ -396,7 +396,7 @@ const App = () => {
                                 style={{ height: "400px" }} 
                                 open={ShowFeishu} 
                                 onOk={() => { IsChangeDepartments ? handleChangeFeishuDepartment() : setShowFeishu(false); }}
-                                
+                                onCancel={()=>{setShowFeishu(false);}}
                             >
                                 <List
                                     dataSource={DepartmentsData}
