@@ -69,6 +69,8 @@ const App = () => {
     const [messageApi, contextHolder] = message.useMessage();   //更新默认飞书部门后的文字提示
     const [NowFeishuDepartment, setNowFeishuDepartment] = useState({ Name: "", ID: "" });
     const [ShowSynchronousFeishu, setShowSynchronousFeishu] = useState(false); //是否显示飞书同步modal
+    const [FeishuSynchronousLoading,setFeishuSynchronousLoading] = useState(false); //是否显示同步飞书用户的loading
+    const [FeishuChangeDepartmentsLoading,setFeishuChangeDepartmentsLoading] = useState(false); //是否显示修改默认同步飞书部门的loading
     const items: MenuProps["items"] = [
         {
             key: "2",
@@ -184,18 +186,22 @@ const App = () => {
             });
     };
     const handleChangeFeishuDepartment = () => {
+        setFeishuChangeDepartmentsLoading(true);
         request("/api/User/FeishuDepartment", "POST", {
             DepartmentID: FeishuDepartmentID,
             SessionID: LoadSessionID(),
         }).then(() => {
             setShowFeishu(false);
             setIsChangeDepartments(false);
+            setFeishuChangeDepartmentsLoading(false);
             success(`成功修改飞书同步部门为 ${FeishuDepartmentName}`);  //提示修改成功
+            setNowFeishuDepartment({Name:FeishuDepartmentName,ID:FeishuDepartmentID});
             console.log("FeishuDepartmentName", FeishuDepartmentName);
-        }).catch((err)=>{
+        }).catch((err) => {
             setShowFeishu(false);
             setIsChangeDepartments(false);
-            error("修改失败失败\n"+err.toString().substring(5));
+            setFeishuChangeDepartmentsLoading(false);
+            error("修改失败失败\n" + err.toString().substring(5));
         });
     };
     const success = (message: string = "") => {
@@ -211,16 +217,19 @@ const App = () => {
         });
     };
     const handleSynchronous = () => {
+        setFeishuSynchronousLoading(true);
         request("/api/User/feishu_sync", "POST", {
             SessionID: LoadSessionID()
         })
             .then(() => {
                 setShowSynchronousFeishu(false);
-                success(`成功同步员工至 ${FeishuDepartmentName}`);
+                setFeishuSynchronousLoading(false);
+                success(`成功同步员工至 ${NowFeishuDepartment.Name}`);
             })
-            .catch((err)=>{
+            .catch((err) => {
                 setShowSynchronousFeishu(false);
-                error("同步失败\n"+err.toString().substring(5));
+                setFeishuSynchronousLoading(false);
+                error("同步失败\n" + err.toString().substring(5));
             });
     };
     useEffect(() => {
@@ -322,9 +331,18 @@ const App = () => {
                             title="同步飞书员工"
                             open={ShowSynchronousFeishu}
                             onCancel={() => setShowSynchronousFeishu(false)}
-                            onOk={handleSynchronous}
+                            // onOk={handleSynchronous}
+                            footer={
+                                <Button type="primary" onClick={handleSynchronous} loading={FeishuSynchronousLoading}>
+                                    确认
+                                </Button>
+                            }
                         >
-                            当前飞书同步部门: {NowFeishuDepartment.Name}, 点击确认以同步
+                            <div style={{marginTop:"15px"}}>
+
+                                当前飞书同步部门: <b >{` ${NowFeishuDepartment.Name} `}</b> ,
+                                点击确认以同步
+                            </div>
                         </Modal>
                         {/* 当前飞书同步部门: {NowFeishuDepartment.Name} */}
                         {/* <h1>{NowFeishuDepartment.Name}</h1> */}
@@ -391,12 +409,21 @@ const App = () => {
                                 />
                             </Table>
 
-                            <Modal 
-                                title="设置飞书同步部门" 
-                                style={{ height: "400px" }} 
-                                open={ShowFeishu} 
-                                onOk={() => { IsChangeDepartments ? handleChangeFeishuDepartment() : setShowFeishu(false); }}
-                                onCancel={()=>{setShowFeishu(false);}}
+                            <Modal
+                                title="设置飞书同步部门"
+                                style={{ height: "400px" }}
+                                open={ShowFeishu}
+                                // onOk={() => { IsChangeDepartments ? handleChangeFeishuDepartment() : setShowFeishu(false); }}
+                                onCancel={() => { setShowFeishu(false); }}
+                                footer={
+                                    <Button 
+                                        type="primary" 
+                                        onClick={() => { IsChangeDepartments ? handleChangeFeishuDepartment() : setShowFeishu(false); }}
+                                        loading={FeishuChangeDepartmentsLoading}
+                                    >
+                                        确认提交
+                                    </Button>
+                                }
                             >
                                 <List
                                     dataSource={DepartmentsData}
