@@ -20,6 +20,7 @@ import {
 } from "@ant-design/pro-components";
 import { Image } from "antd-mobile";
 import OSS from "ali-oss";
+import UserSetting from "../../components/UserSettingUI";
 
 const App = () => {
     const logoutSendMessage = () => {
@@ -47,6 +48,7 @@ const App = () => {
     const [ProfileUrl, setProfileUrl] = useState("");
     const [File, setFile] = useState<File>(); // 使用useState来管理files数组
     const [ProfileChangeOpen, setProfileChangeOpen] = useState<boolean>(false);  //更新头像的modal是否打开
+    const [Profileprop, setProfileprop]=useState(false);
     const GetApp = (Authority: number) => {
         request(
             `/api/User/App/${LoadSessionID()}/${Authority}`,
@@ -165,8 +167,6 @@ const App = () => {
                     });
                 });
         }
-        getProfile();
-
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query, state]);
 
@@ -325,7 +325,6 @@ const App = () => {
             .then(response => {
                 const blob = new Blob([response.content], response.res.headers);
                 setProfileUrl(URL.createObjectURL(blob));
-
             })
             .catch(error => {
                 console.log(error);
@@ -334,6 +333,8 @@ const App = () => {
     const handleFileChange = (e: any) => {
         const file = e.target.files[0]; // 获取所有选择的文件
         console.log(e.target);
+        const selectedFileName = document.getElementById("selected-file-name");
+        if(selectedFileName) selectedFileName.textContent = file.name;
         setFile(file); // 存储文件数组
         // 在这里处理获取到的文件
         console.log("上传的文件:", file);
@@ -381,6 +382,12 @@ const App = () => {
         console.log("上传的文件:", File);
 
     };
+    const ChangeName = (username:string) => {
+        setUserName(username);
+    };
+    const ChangeProfile = () => {
+        setProfileprop(!Profileprop);
+    };
     if (state) {
         return (
             <Layout style={{ minHeight: "80vh" }}>
@@ -389,7 +396,7 @@ const App = () => {
                 </Sider>
                 <Layout className="site-layout" >
                     <Header className="ant-layout-header">
-                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
+                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={Profileprop}></UserInfo>
                     </Header>
                     <div style={{ display: "flex" }}>
                         <Content style={{ width: "450px", minHeight: "80vh" }}>
@@ -417,19 +424,18 @@ const App = () => {
                                 dataSource={data}
                             />
                         </Content>
-                        <Content style={{ width: "10px" }}>
+                        {/* <Content style={{ width: "10px" }}>
                             <div style={{ display: "flex" }}>
                                 <h1 className="main_page_headword">个人信息</h1>
                                 <Image
                                     key="111"
                                     src={ProfileUrl}
                                     fit="cover"
-                                    style={{ marginLeft: "40px", marginTop: "15px", width: "80px", height: "80px",  borderRadius: 100 }}
+                                    style={{ marginLeft: "120px", marginTop: "15px", width: "90px", height: "90px",  borderRadius: 100 }}
                                     alt={"111"}
                                     lazy
                                 />
                             </div>
-
                             <Panel style={{ marginTop: "30px", marginLeft: "18px", marginBottom: "40px" }} header={UserInfoAuthority} key="4" />
                             {(UserAuthority != 0) && <Panel style={{ marginLeft: "16px", marginBottom: "40px" }} header={UserInfoEntity} key="5" />}
                             {(UserAuthority === 2 || UserAuthority === 3) && <Panel style={{ marginLeft: "16px", marginBottom: "30px" }} header={UserInfoDepartment} key="6" />}
@@ -509,11 +515,30 @@ const App = () => {
                             </Collapse>
                             <div>
                                 <Button style={{ marginLeft: "24px", fontSize: "18px" }} type="link" onClick={() => {console.log("sdsds");setProfileChangeOpen(true);}}> 更改头像</Button>
-                                <Modal title="更新头像" onOk={() => { handleUpload(); }} open={ProfileChangeOpen} onCancel={()=>{setProfileChangeOpen(false);}}>
-                                    <input type="file" onChange={handleFileChange} />
+                                <Modal
+                                    title="更新头像"
+                                    onOk={() => {
+                                        handleUpload();
+                                    }}
+                                    open={ProfileChangeOpen}
+                                    onCancel={() => {
+                                        setProfileChangeOpen(false);
+                                    }}
+                                >
+                                    <input
+                                        type="file"
+                                        id="upload-input"
+                                        onChange={handleFileChange}
+                                        style={{ display: "none" }}
+                                    />
+                                    <label htmlFor="upload-input" className="custom-upload-button">
+                                    </label>
+                                    <Space style={{width:"20px"}}> </Space>
+                                    <span id="selected-file-name"></span>
                                 </Modal>
                             </div>
-                        </Content>
+                        </Content> */}
+                        <UserSetting ChangeName={ChangeName} ChangeProfile={ChangeProfile} UserAuthority={UserAuthority} UserName={UserName}/>
                     </div>
                 </Layout>
                 <Modal
