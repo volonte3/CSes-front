@@ -20,18 +20,16 @@ interface UrlData {
     AssetType?: number;
     WarnType?: number;
     pageSize:number;
-    current: number;
+    current?: number;
 }
 
 // DateTransform(DetailInfo?.CreateTime);
 const AssetWarnList = () => {
-    const [activeKey, setActiveKey] = useState<React.Key | undefined>("0");
-    const [PageId, setPageId] = useState(1);
-    const [TotalNum, setTotalNum] = useState(0);
-    const [AssetList, setAssetList] = useState<AssetWarnData[]>([]);
+    const [activeKey, setActiveKey] = useState<React.Key | undefined>("1");
     const router = useRouter();
     const query = router.query;
     const tableRef = useRef<ActionType>(null);
+    const [Urldata, setUrldata]= useState<UrlData>();
     // const getList = (PageType: React.Key | undefined,PageId: number) => {
     //     request(
     //         `/api/Asset/Warn/${LoadSessionID()}/${PageType}/${PageId}`,
@@ -89,44 +87,40 @@ const AssetWarnList = () => {
             valueEnum: {
                 0: {
                     text: "数量告警",
-                    status: "Error",
                 },
                 1: {
                     text: "年限告警",
-                    status: "Warning",
                 },
                 2: {
                     text: "无告警策略",
-                    status: "Warning",
                 },
             },
+            hideInTable: true
+            
         },
         {
             title: "具体告警策略",
             dataIndex: "WarnStrategy",
             key: "WarnStrategy",
+            search:false
         },
         {
             title: "描述",
             dataIndex: "Description",
             key: "Description",
+            search:false
         },
-        {
-            title: "操作",
-            valueType: "option",
-            key: "option",
-            render: (text, record, _, action) => {
-                return (
-                    <Button loading = {loading} key= "receive" title= "领用" disabled={!IsReceive} onClick={()=>handleChange([record.ID], 0)}>领用</Button>
-                );
-            },
-        }
+        // {
+        //     title: "操作",
+        //     valueType: "option",
+        //     key: "option",
+        //     render: (text, record, _, action) => {
+        //         return (
+        //             <Button key= "receive" title= "设置告警策略"  onClick={()=>handleChange([record.ID], 0)}>领用</Button>
+        //         );
+        //     },
+        // }
     ];
-    // const changeloglist = (PageType: number)=>{
-    //     setActiveKey(PageType);
-    //     setPageId(1);
-    //     getLog(PageType, 1);
-    // };
 
     useEffect(() => {
         if (!router.isReady) {
@@ -150,26 +144,28 @@ const AssetWarnList = () => {
                 actionRef={tableRef}
                 request={async (params = {}) => {
                     const loadSessionID = LoadSessionID();
-                    let urldata:UrlData={pageSize:20, current:PageId, Name:"", AssetType:-1, WarnType:-1};
-                    if(params.Name) urldata.Name=params.Name;
-                    if(params.AssetType) urldata.AssetType=params.AssetType;
-                    if(params.WarnType) urldata.WarnType=params.WarnType;
-                    let url = `/api/Asset/Warn/${loadSessionID}/${activeKey}/${urldata.current}
-                               /Name=${urldata.Name}/AssetType=${urldata.Name}/WarnType=${urldata.WarnType}`;
-                    return (request(url, "GET")
-                        .then(res => {    
-                            setTotalNum(res.TotalNum);
-                            setAssetList(res.AssetList);
-                            let filteredData = res.AssetList;
-                            return Promise.resolve({ data: filteredData, success: true });
-                        }));
+                    let urldata:UrlData={pageSize:20, current:params.current, Name:"", AssetType:-1, WarnType:-1};
+                    if(params.Name != undefined) urldata.Name=params.Name;
+                    if(params.AssetType != undefined) urldata.AssetType=params.AssetType;
+                    if(params.WarnType != undefined) urldata.WarnType=params.WarnType;
+                    console.log("params参数："+params.Name+params.AssetType+params.WarnType);
+                    setUrldata(urldata);
+                    let url = `/api/Asset/Warn/${loadSessionID}/${activeKey}/${urldata.current}/Name=${urldata.Name}/AssetType=${urldata.AssetType}/WarnType=${urldata.WarnType}`;
+                    console.log(url);
+                    return (
+                        request(
+                            url,
+                            "GET"
+                        )
+                            .then((res) => {
+                                return Promise.resolve({ data: res.AssetList, success: true , total:res.TotalNum});
+                            })
+                    );
                 }
-
-
                 }
                 scroll={{ x: "max-content", y: "calc(100vh - 300px)" }}
                 pagination={{
-                    showSizeChanger: false
+                    showSizeChanger:false,
                 }}
                 search={{
                     defaultCollapsed: false,
