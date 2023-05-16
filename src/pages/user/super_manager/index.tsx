@@ -3,7 +3,7 @@ import {
     FileOutlined, PlusSquareOutlined, LogoutOutlined, UserOutlined, DownOutlined, SmileOutlined
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
-import { Layout, List, theme, Space, Table, Modal, Button, Input, Form, Drawer, message, Dropdown, Row, Select } from "antd";
+import { Layout, List, theme, Space, Table, Modal, Button, Input, Form, Drawer, message, Tag, Row, Tooltip } from "antd";
 const { Column } = Table;
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
@@ -12,7 +12,7 @@ import { request } from "../../../utils/network";
 import { LoadSessionID, logout, IfCodeSessionWrong } from "../../../utils/CookieOperation";
 import UserInfo from "../../../components/UserInfoUI";
 import SiderMenu from "../../../components/SiderUI";
-
+import { NewLark } from "@icon-park/react";
 
 type MenuItem = Required<MenuProps>["items"][number];
 type SystemData = {
@@ -67,7 +67,8 @@ const App = () => {
     const [FeishuDepartmentName, setFeishuDepartmentName] = useState<string>("");
     const [IsChangeDepartments, setIsChangeDepartments] = useState<boolean>(false);
     const [messageApi, contextHolder] = message.useMessage();   //更新默认飞书部门后的文字提示
-
+    const [NowFeishuDepartment, setNowFeishuDepartment] = useState({ Name: "", ID: "" });
+    const [ShowSynchronousFeishu, setShowSynchronousFeishu] = useState(false); //是否显示飞书同步modal
     const items: MenuProps["items"] = [
         {
             key: "2",
@@ -189,15 +190,38 @@ const App = () => {
         }).then(() => {
             setShowFeishu(false);
             setIsChangeDepartments(false);
-            success(FeishuDepartmentName);  //提示修改成功
+            success(`成功修改飞书同步部门为 ${FeishuDepartmentName}`);  //提示修改成功
             console.log("FeishuDepartmentName", FeishuDepartmentName);
+        }).catch((err)=>{
+            setShowFeishu(false);
+            setIsChangeDepartments(false);
+            error("修改失败失败\n"+err.toString().substring(5));
         });
     };
-    const success = (name: string = "1") => {
+    const success = (message: string = "") => {
         messageApi.open({
             type: "success",
-            content: `成功修改飞书同步部门为 ${name}`,
+            content: message,
         });
+    };
+    const error = (message: string = "") => {
+        messageApi.open({
+            type: "error",
+            content: message,
+        });
+    };
+    const handleSynchronous = () => {
+        request("/api/User/feishu_sync", "POST", {
+            SessionID: LoadSessionID()
+        })
+            .then(() => {
+                setShowSynchronousFeishu(false);
+                success(`成功同步员工至 ${FeishuDepartmentName}`);
+            })
+            .catch((err)=>{
+                setShowSynchronousFeishu(false);
+                error("同步失败\n"+err.toString().substring(5));
+            });
     };
     useEffect(() => {
         if (!router.isReady) {
@@ -242,6 +266,7 @@ const App = () => {
                 .then((res) => {
                     setState(true);
                     setSystem(res.entity_manager);
+                    setNowFeishuDepartment(res.FeishuDepartment);
                 })
                 .catch((err) => {
                     console.log(err.message);
@@ -256,6 +281,14 @@ const App = () => {
                 });
         }
     }, [state, router]);
+    const Feishuitems: MenuProps["items"] = [
+        { label: "1", key: "sds" },
+        { label: "2", key: "ads" }
+    ];
+    const menuProps = {
+        Feishuitems,
+        onClick: () => { }
+    };
     if (state) {
         return (
             <Layout style={{ minHeight: "100vh" }}>
@@ -268,6 +301,7 @@ const App = () => {
                         <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
                     </Header>
                     <Content>
+                        {/* <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}> */}
                         <Button
                             type="primary"
                             icon={<PlusSquareOutlined />}
@@ -276,6 +310,36 @@ const App = () => {
                         >
                             添加业务实体
                         </Button>
+                        <Tooltip placement="top" title={"同步飞书员工"}>
+                            <Button type="text"
+                                icon={<NewLark theme="filled" size="25" fill="#4a90e2" strokeLinejoin="bevel" />}
+                                style={{ float: "right", margin: 30 }}
+                                onClick={() => setShowSynchronousFeishu(true)}
+                            >
+                            </Button>
+                        </Tooltip>
+                        <Modal
+                            title="同步飞书员工"
+                            open={ShowSynchronousFeishu}
+                            onCancel={() => setShowSynchronousFeishu(false)}
+                            onOk={handleSynchronous}
+                        >
+                            当前飞书同步部门: {NowFeishuDepartment.Name}, 点击确认以同步
+                        </Modal>
+                        {/* 当前飞书同步部门: {NowFeishuDepartment.Name} */}
+                        {/* <h1>{NowFeishuDepartment.Name}</h1> */}
+
+                        {/* <Dropdown.Button
+                            menu={menuProps}
+                            placement="bottom"
+                            icon={<NewLark theme="filled" size="20" fill="#4a90e2" strokeLinejoin="bevel" key="sdsaaa"/>}
+                            key="helloword"
+                        >
+                            <div>
+                                飞书同步
+                            </div>
+                        </Dropdown.Button> */}
+                        {/* </div> */}
                         <Drawer title="添加业务实体" placement="right" onClose={onClose} open={open}>
                             <Form
                                 name="basic"
@@ -327,7 +391,13 @@ const App = () => {
                                 />
                             </Table>
 
-                            <Modal title="设置飞书同步部门" style={{height:"400px"}} open={ShowFeishu} onOk={() => { IsChangeDepartments ? handleChangeFeishuDepartment() : setShowFeishu(false); }}>
+                            <Modal 
+                                title="设置飞书同步部门" 
+                                style={{ height: "400px" }} 
+                                open={ShowFeishu} 
+                                onOk={() => { IsChangeDepartments ? handleChangeFeishuDepartment() : setShowFeishu(false); }}
+                                
+                            >
                                 <List
                                     dataSource={DepartmentsData}
                                     renderItem={(item: { ID: string[], Name: string }) => (
