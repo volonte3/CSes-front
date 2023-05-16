@@ -18,6 +18,7 @@ import {
     ProFormSwitch,
     ProList,
 } from "@ant-design/pro-components";
+import { Image } from "antd-mobile";
 import OSS from "ali-oss";
 
 const App = () => {
@@ -43,6 +44,9 @@ const App = () => {
     const [TODO, setTODO] = useState(false);
     const [ghost, setGhost] = useState<boolean>(false);
     const [UserPhone, setUserPhone] = useState("暂未绑定");
+    const [ProfileUrl, setProfileUrl] = useState("");
+    const [File, setFile] = useState<File>(); // 使用useState来管理files数组
+    const [ProfileChangeOpen, setProfileChangeOpen] = useState<boolean>(false);  //更新头像的modal是否打开
     const GetApp = (Authority: number) => {
         request(
             `/api/User/App/${LoadSessionID()}/${Authority}`,
@@ -65,8 +69,8 @@ const App = () => {
         if (!router.isReady) {
             return;
         }
-        console.log("query.code",query);
-        console.log("cookie.load(\"SessionID\")",cookie.load("SessionID"));
+        console.log("query.code", query);
+        console.log("cookie.load(\"SessionID\")", cookie.load("SessionID"));
         if (query.hasOwnProperty("code") && !cookie.load("SessionID")) { //飞书登录
             CreateCookie("SessionID");
             request("/api/User/feishu_login", "POST", {
@@ -122,7 +126,7 @@ const App = () => {
                     });
                 });
         }
-        else{   //正常登录，获取用户名和密码
+        else {   //正常登录，获取用户名和密码
             request(
                 `/api/User/info/${LoadSessionID()}`,
                 "GET"
@@ -161,7 +165,7 @@ const App = () => {
                     });
                 });
         }
-
+        getProfile();
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query, state]);
@@ -172,7 +176,7 @@ const App = () => {
     };
     const data = AppList ? AppList.map((item) => ({
         content: (
-            <div style={{ display: "flex", marginBottom:"-20px"}} onClick={() => {
+            <div style={{ display: "flex", marginBottom: "-20px" }} onClick={() => {
                 if (item.IsLock) setModal(true);
                 else if (item.IsInternal) router.push(item.AppUrl);
                 else { window.location.href = item.AppUrl; }
@@ -195,7 +199,7 @@ const App = () => {
     const [password, setPassword] = useState("password123");
     const [phone, setPhone] = useState("1234567890");
     const [isEditing, setIsEditing] = useState(false);
-    const handleSubmit1 = (values:any) => {
+    const handleSubmit1 = (values: any) => {
         if (values.username.length > 0) {
             setUserName(values.username);
             request(
@@ -219,10 +223,10 @@ const App = () => {
                 });
             form.resetFields();
         }
-        
+
     };
-    const handleSubmit3 = (values:any) => {
-        if (values.old > 0 && values.new1.length>0 && values.new2.length>0) {
+    const handleSubmit3 = (values: any) => {
+        if (values.old > 0 && values.new1.length > 0 && values.new2.length > 0) {
             setPassword(values.password);
             request(
                 `/api/Asset/ChangePassword/${LoadSessionID()}`,
@@ -248,7 +252,7 @@ const App = () => {
         }
         form.resetFields();
     };
-    const handleSubmit2 = (values:any) => {
+    const handleSubmit2 = (values: any) => {
         if (values.phone.length > 0) {
             setPhone(values.phone);
             request(
@@ -280,7 +284,7 @@ const App = () => {
     };
     const UserInfoName = (
         <p className="userinfo-title">
-            {"用户名："+ UserName}
+            {"用户名：" + UserName}
         </p>
     );
     const UserInfoPassword = (
@@ -290,7 +294,7 @@ const App = () => {
     );
     const UserInfoPhone = (
         <p className="userinfo-title">
-            {UserPhone==null ? "电话：暂未绑定" : ("电话：" + UserPhone)}
+            {UserPhone == null ? "电话：暂未绑定" : ("电话：" + UserPhone)}
         </p>
     );
     const UserInfoAuthority = (
@@ -308,6 +312,75 @@ const App = () => {
             {"部门："} {Department}
         </p>
     );
+    const getProfile = async () => {
+        // 获取头像url
+        const ossClient = new OSS({
+            accessKeyId: "LTAI5tMmQshPLDwoQEMm8Xd7",
+            accessKeySecret: "YG0kjDviIqxkz9GtTZGTLhhlVsPqID",
+            region: "oss-cn-beijing",
+            bucket: "cs-company",
+            secure: true // true for https
+        });
+        ossClient.get(`/Profile/${UserName}.png`)
+            .then(response => {
+                const blob = new Blob([response.content], response.res.headers);
+                setProfileUrl(URL.createObjectURL(blob));
+
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    };
+    const handleFileChange = (e: any) => {
+        const file = e.target.files[0]; // 获取所有选择的文件
+        console.log(e.target);
+        setFile(file); // 存储文件数组
+        // 在这里处理获取到的文件
+        console.log("上传的文件:", file);
+    };
+    const handleUpload = async () => {
+        // 创建 OSS 客户端实例
+        const client = new OSS({
+            region: "oss-cn-beijing",
+            accessKeyId: "LTAI5tNdCBrFK5BGXqTiMhwG",
+            accessKeySecret: "vZpHyptCPojSG1uNGucDtWcqzMOEeF",
+            bucket: "cs-company",
+            secure: true,
+        });
+
+        const headers = {
+            // 添加跨域请求头
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            // 其他自定义请求头
+            "x-oss-storage-class": "Standard",
+            "x-oss-object-acl": "public-read",
+            "x-oss-tagging": "Tag1=1&Tag2=2",
+            "x-oss-forbid-overwrite": "true",
+        };
+
+        try {
+            // 首先检查用户之前是否有文件，如果有则删除
+            let result = await client.delete(`/Profile/${UserName}.png`);
+            console.log(result);
+        } catch (error) {
+            console.log(error);
+        }
+        try {
+            //更新头像
+            const path = `/Profile/${UserName}.png`;
+            console.log(File);
+            const result = await client.put(path, File, { headers });
+            console.log("上传成功", result);
+            setProfileChangeOpen(false);
+            window.location.reload();
+        } catch (e) {
+            console.error("上传失败", e);
+        }
+        console.log("上传的文件:", File);
+
+    };
     if (state) {
         return (
             <Layout style={{ minHeight: "80vh" }}>
@@ -318,8 +391,8 @@ const App = () => {
                     <Header className="ant-layout-header">
                         <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
                     </Header>
-                    <div style={{display:"flex"}}>
-                        <Content style={{width:"450px", minHeight: "80vh"}}>
+                    <div style={{ display: "flex" }}>
+                        <Content style={{ width: "450px", minHeight: "80vh" }}>
                             <h1 className="main_page_headword">应用导航</h1>
                             <ProList<any>
                                 ghost={ghost}
@@ -327,7 +400,7 @@ const App = () => {
                                     ghost,
                                 }}
                                 rowSelection={{}}
-                                grid={{ gutter: 16, column: UserAuthority==0 ? 2 : 3 }}
+                                grid={{ gutter: 16, column: UserAuthority == 0 ? 2 : 3 }}
                                 onItem={(record: AppData) => {
                                     return {
                                         onMouseEnter: () => {
@@ -344,37 +417,45 @@ const App = () => {
                                 dataSource={data}
                             />
                         </Content>
-                        <Content style={{width:"10px"}}>
-                            <div style={{display:"flex"}}>
+                        <Content style={{ width: "10px" }}>
+                            <div style={{ display: "flex" }}>
                                 <h1 className="main_page_headword">个人信息</h1>
-                                <h1 className="main_page_headword">头像</h1>
+                                <Image
+                                    key="111"
+                                    src={ProfileUrl}
+                                    fit="cover"
+                                    style={{ marginLeft: "40px", marginTop: "15px", width: "80px", height: "80px",  borderRadius: 100 }}
+                                    alt={"111"}
+                                    lazy
+                                />
                             </div>
-                            <Panel  style= {{marginTop: "30px", marginLeft:"18px", marginBottom:"40px"}} header={UserInfoAuthority} key="4"/>
-                            {(UserAuthority != 0) && <Panel  style= {{marginLeft:"16px", marginBottom:"40px"}} header={UserInfoEntity} key="5"/>}
-                            {(UserAuthority === 2 || UserAuthority === 3) && <Panel  style={{marginLeft:"16px", marginBottom:"30px"}} header={UserInfoDepartment} key="6"/>}
-                            <Collapse 
+
+                            <Panel style={{ marginTop: "30px", marginLeft: "18px", marginBottom: "40px" }} header={UserInfoAuthority} key="4" />
+                            {(UserAuthority != 0) && <Panel style={{ marginLeft: "16px", marginBottom: "40px" }} header={UserInfoEntity} key="5" />}
+                            {(UserAuthority === 2 || UserAuthority === 3) && <Panel style={{ marginLeft: "16px", marginBottom: "30px" }} header={UserInfoDepartment} key="6" />}
+                            <Collapse
                                 accordion
-                                bordered={false} 
+                                bordered={false}
                                 expandIconPosition="end"
                                 expandIcon={() => (
-                                    <Button type="text" style={{ color: "#1890ff"  }}>
+                                    <Button type="text" style={{ color: "#1890ff" }}>
                                         更改
                                     </Button>
                                 )}
                                 ghost
-                            >   
+                            >
                                 <Panel header={UserInfoName} key="1">
                                     <Form
                                         form={form}
                                         onFinish={handleSubmit1}
-                                        style={{ maxWidth: "400px", marginLeft:"24px" }}
+                                        style={{ maxWidth: "400px", marginLeft: "24px" }}
                                     >
                                         <Form.Item
                                             name="username"
                                             // label="新用户名"
-                                            rules={[{message: "请输入新用户名" }]}
+                                            rules={[{ message: "请输入新用户名" }]}
                                         >
-                                            <Input placeholder="请输入新用户名"/>
+                                            <Input placeholder="请输入新用户名" />
                                         </Form.Item>
                                         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
                                             <Button type="primary" htmlType="submit">
@@ -387,12 +468,12 @@ const App = () => {
                                     <Form
                                         form={form}
                                         onFinish={handleSubmit2}
-                                        style={{ maxWidth: "400px", marginLeft:"24px" }}
+                                        style={{ maxWidth: "400px", marginLeft: "24px" }}
                                     >
                                         <Form.Item
                                             name="phone"
                                         >
-                                            <Input placeholder="请输入电话号码，绑定后可用于飞书登录"/>
+                                            <Input placeholder="请输入电话号码，绑定后可用于飞书登录" />
                                         </Form.Item>
                                         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
                                             <Button type="primary" htmlType="submit">
@@ -405,16 +486,16 @@ const App = () => {
                                     <Form
                                         form={form}
                                         onFinish={handleSubmit3}
-                                        style={{ maxWidth: "400px", marginLeft:"24px" }}
+                                        style={{ maxWidth: "400px", marginLeft: "24px" }}
                                     >
                                         <Form.Item name="old">
-                                            <Input placeholder="请输入原始密码"/>
+                                            <Input placeholder="请输入原始密码" />
                                         </Form.Item>
                                         <Form.Item name="new1">
-                                            <Input placeholder="请输入新密码"/>
+                                            <Input placeholder="请输入新密码" />
                                         </Form.Item>
                                         <Form.Item name="new2">
-                                            <Input placeholder="请再次输入新密码"/>
+                                            <Input placeholder="请再次输入新密码" />
                                         </Form.Item>
                                         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
                                             <Button type="primary" htmlType="submit">
@@ -423,9 +504,15 @@ const App = () => {
                                         </Form.Item>
                                     </Form>
                                 </Panel>
-                                
-                                
+
+
                             </Collapse>
+                            <div>
+                                <Button style={{ marginLeft: "24px", fontSize: "18px" }} type="link" onClick={() => {console.log("sdsds");setProfileChangeOpen(true);}}> 更改头像</Button>
+                                <Modal title="更新头像" onOk={() => { handleUpload(); }} open={ProfileChangeOpen} onCancel={()=>{setProfileChangeOpen(false);}}>
+                                    <input type="file" onChange={handleFileChange} />
+                                </Modal>
+                            </div>
                         </Content>
                     </div>
                 </Layout>
