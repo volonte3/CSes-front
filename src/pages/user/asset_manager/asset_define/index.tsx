@@ -1,6 +1,6 @@
 import React from "react";
 import { 
-    Breadcrumb, Layout, Menu, theme, message, Modal, Typography, Drawer, Form, Input, Row, Select, Col, Button, Space, TreeSelect 
+    Breadcrumb, Layout, message, Modal, Drawer, Form, Input, Row, Select, Col, Button, Space, TreeSelect 
 } from "antd";
 import {
     EditOutlined, ScissorOutlined, DeleteOutlined, PlusOutlined
@@ -8,19 +8,15 @@ import {
 import {
     ModalForm,
     ProForm,
-    ProFormDateRangePicker,
-    ProFormSelect,
     ProFormText,
 } from "@ant-design/pro-components";
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
 import { request } from "../../../../utils/network";
-import { IfCodeSessionWrong, LoadSessionID } from "../../../../utils/CookieOperation";
+import { LoadSessionID } from "../../../../utils/CookieOperation";
 import UserInfo from "../../../../components/UserInfoUI";
 import SiderMenu from "../../../../components/SiderUI";
-import { AppData } from "../../../../utils/types";
-import ReactEcharts from "echarts-for-react";
 const { Option } = Select;
 const waitTime = (time: number = 100) => {
     return new Promise((resolve) => {
@@ -35,8 +31,6 @@ const App = () => {
     const router = useRouter();
     const query = router.query;
     const [messageApi, contextHolder] = message.useMessage();
-    const { Title } = Typography;
-    const [collapsed, setCollapsed] = useState(false);
     const [state, setState] = useState(false); // 用户是否处在登录状态
     const [UserAuthority, setUserAuthority] = useState(2); // 用户的角色权限，0超级，1系统，2资产，3员工
     const [UserName, setUserName] = useState<string>(""); // 用户名
@@ -45,27 +39,20 @@ const App = () => {
     const [ButtonDisable, setButtonDisable] = useState(true);
     const [openAdd, setOpenAdd] = useState(false);
     const [openModify, setOpenModify] = useState(false);
-    const [openDetail, setOpenDetail] = useState(true);
     const [AssetName, setAssetName] = useState<string>("");
-    const [CategoryStyle, setCategoryStyle] = useState<number>(-1);
+    const [LossStyle, setLossStyle] = useState<number>(-1);
     const [Change, setChange] = useState(false);
     const [Entity, setEntity] = useState<string>(""); // 实体名称
     const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
-    const [AppList, setAppList] = useState<AppData[]>();
-    const rolelist = ["超级管理员","系统管理员","资产管理员","员工"];
     const [TOREAD, setTOREAD] = useState(false);
     const [TODO, setTODO] = useState(false);
-    const {
-        token: { colorBgContainer },
-    } = theme.useToken();
     const initvalue = () => {
         setAssetName("");
-        setCategoryStyle(-1);
-        setOpenDetail(true);
+        setLossStyle(-1);
     };
 
     const submit = () => {
-        if (AssetName && CategoryStyle != -1) {
+        if (AssetName && LossStyle != -1) {
             onClose(); 
             request(
                 "/api/Asset/AddAssetClass",
@@ -74,7 +61,7 @@ const App = () => {
                     SessionID: LoadSessionID(),
                     ParentNodeValue: value,
                     AssetClassName: AssetName,
-                    NaturalClass: CategoryStyle,
+                    LossStyle: LossStyle,
                 }
             )
                 .then(() => {
@@ -94,7 +81,7 @@ const App = () => {
     };
 
     const modify = () => {
-        if (AssetName && CategoryStyle != -1) {
+        if (AssetName && LossStyle != -1) {
             onClose(); 
             request(
                 "/api/Asset/ModifyAssetClass",
@@ -103,7 +90,7 @@ const App = () => {
                     SessionID: LoadSessionID(),
                     NodeValue: value,
                     AssetClassName: AssetName,
-                    NaturalClass: CategoryStyle,
+                    LossStyle: LossStyle,
                 }
             )
                 .then(() => {
@@ -150,22 +137,11 @@ const App = () => {
     };
 
     const handlechange1 = (value: string) => {
-        if (value == "yes") {
-            setOpenDetail(false);
-            setCategoryStyle(1);
+        if (value == "l") {
+            setLossStyle(1);
         }
-        if (value == "no") {
-            setOpenDetail(true);
-            setCategoryStyle(0);
-        }
-    };
-
-    const handlechange2 = (value: string) => {
-        if (value == "shuliang") {
-            setCategoryStyle(1);
-        }
-        if (value == "tiaomu") {
-            setCategoryStyle(2);
+        if (value == "e") {
+            setLossStyle(0);
         }
     };
 
@@ -391,7 +367,7 @@ const App = () => {
                                     <Space>
                                         <Button onClick={onClose}>取消</Button>
                                         <Button onClick={() => {submit();}} type="primary" >
-                                提交
+                                            提交
                                         </Button>
                                     </Space>
                                 }
@@ -408,26 +384,13 @@ const App = () => {
                                     </Row>
                                     <Row>
                                         <Form.Item
-                                            name="owner"
-                                            label="是否为品类"
+                                            name="loss"
+                                            label="折旧策略"
                                             rules={[{ required: true, message: "必选项" }]}
                                         >
                                             <Select placeholder="请选择该资产是否为品类" onChange={handlechange1}>
-                                                <Option value="yes">是</Option>
-                                                <Option value="no">否</Option>
-                                            </Select>
-                                        </Form.Item>
-                                    </Row>
-                                    <Row>
-                                        <Form.Item
-                                            name="style"
-                                            label="具体类型"
-                                            hidden={openDetail}
-                                            rules={[{ required: true, message: "必选项" }]}
-                                        >
-                                            <Select placeholder="请选择品类的具体类型" onChange={handlechange2} defaultValue={"shuliang"}>
-                                                <Option value="shuliang">数量型品类</Option>
-                                                <Option value="tiaomu">条目型品类</Option>
+                                                <Option value="l">线性折旧</Option>
+                                                <Option value="e">指数折旧</Option>
                                             </Select>
                                         </Form.Item>
                                     </Row>
@@ -444,7 +407,7 @@ const App = () => {
                                     <Space>
                                         <Button onClick={onClose}>取消</Button>
                                         <Button onClick={() => {modify();}} type="primary" >
-                                提交
+                                            提交
                                         </Button>
                                     </Space>
                                 }
@@ -461,26 +424,13 @@ const App = () => {
                                     </Row>
                                     <Row>
                                         <Form.Item
-                                            name="owner"
-                                            label="是否为品类"
+                                            name="loss"
+                                            label="折旧策略"
                                             rules={[{ required: true, message: "必选项" }]}
                                         >
                                             <Select placeholder="请选择该资产是否为品类" onChange={handlechange1}>
-                                                <Option value="yes">是</Option>
-                                                <Option value="no">否</Option>
-                                            </Select>
-                                        </Form.Item>
-                                    </Row>
-                                    <Row>
-                                        <Form.Item
-                                            name="style"
-                                            label="具体类型"
-                                            hidden={openDetail}
-                                            rules={[{ required: true, message: "必选项" }]}
-                                        >
-                                            <Select placeholder="请选择品类的具体类型" onChange={handlechange2} defaultValue={"shuliang"}>
-                                                <Option value="shuliang">数量型品类</Option>
-                                                <Option value="tiaomu">条目型品类</Option>
+                                                <Option value="l">线性折旧</Option>
+                                                <Option value="e">指数折旧</Option>
                                             </Select>
                                         </Form.Item>
                                     </Row>

@@ -508,8 +508,8 @@ const App = () => {
                                             label="资产价值"
                                             name="money"
                                             locale="zh-CN"
-                                            initialValue={0.00}
-                                            min={0}
+                                            initialValue={1.00}
+                                            min={0.01}
                                             rules={[{ required: true, message: "这是必填项" }]} 
                                         />
                                     </ProForm.Group>
@@ -520,7 +520,7 @@ const App = () => {
                                             width="lg"
                                             rules={[{ required: true, message: "这是必填项" }]}
                                             fieldProps={{
-                                                format: (value) => value.format("YYYY-MM-DD HH:MM:ss"),
+                                                format: (value) => value.format("YYYY-MM-DD HH:mm:ss"),
                                             }}
                                         />
                                     </ProForm.Group>
