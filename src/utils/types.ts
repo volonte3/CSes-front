@@ -92,11 +92,19 @@ export interface AssetDetailInfo{
     Description:string,
     CreateTime:string,
     History:AssetHistory[],
-    PropertyName:string[],
-    // PropertyValue:string[],
+    PropetyName:string[],  //自定义属性，键
+    PropetyValue:string[], //自定义属性，值
     Class:string,
     LabelVisible:LabelVisible,
     ImageUrl:string[],
+    AssetValue:number,  //（资产的价值，实时更新，需要支持小数）
+    Type:number,    //如果是0就是条目型，1就是数量型
+    LossStyle:number,  //0代表指数折旧，1代表线性折旧
+    Time:string,    //过期时间
+    Position:string,  //位置
+    Parent:string,  //父条目
+    Volume:number,  //如果是数量型资产，返回数量，如果是条目型返回1
+
 }
 
 export interface LabelVisible{
@@ -153,8 +161,8 @@ export const TestDetailInfo: AssetDetailInfo = {
             Asset_Admin: "王五",
         },
     ],
-    PropertyName: ["大小", "高低"],
-    // PropertyValue: ["100", "200"],
+    PropetyName: ["大小", "高低"],
+    PropetyValue: ["100", "200"],
     LabelVisible: {
         Name: true,
         Class: true,
@@ -163,5 +171,13 @@ export const TestDetailInfo: AssetDetailInfo = {
         Description: true,
         CreateTime: false,
     },
-    ImageUrl:url_list
+    ImageUrl:url_list,
+    Type:1,
+    AssetValue:90.8,
+    LossStyle:1,
+    Time:"2023-05-24 20:05:45",
+    Position:"老北京",
+    Parent:"父资产1",
+    Volume:1234,
+
 };

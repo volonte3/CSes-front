@@ -1,12 +1,12 @@
 import React from "react";
-import { Button, Modal, Badge, Checkbox, Col, Row } from "antd";
+import { Button, Modal, Badge, Checkbox, Col, Row, Descriptions } from "antd";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
 import { AssetDetailInfo, AssetHistory, LabelVisible, TestDetailInfo } from "../utils/types"; //对列表中数据的定义在 utils/types 中
 import { ProTable, ProColumns, ProCard } from "@ant-design/pro-components";
-import { DateTransform, renderStatus, renderStatusBadge, renderKey } from "../utils/transformer";
+import { DateTransform, renderStatus, renderStatusBadge, renderKey,renderAssetType,renderLossStyle } from "../utils/transformer";
 import { DownloadOutlined } from "@ant-design/icons";
 import LabelDef from "./AssetLabelUI";
 import OSS from "ali-oss";
@@ -15,7 +15,7 @@ import { Image } from "antd-mobile";
 
 interface AssetDetailProps {
     setVisibleDetail: (visible: boolean) => void;
-    DetailInfo:AssetDetailInfo
+    DetailInfo: AssetDetailInfo
 }
 
 export const AssetDetailCard = (props: AssetDetailProps) => {
@@ -174,25 +174,47 @@ export const AssetDetailCard = (props: AssetDetailProps) => {
         >
             <ProCard.TabPane key="Info" tab="资产信息" >
                 <div>
-                    <ProCard split="horizontal">
-                        <ProCard split="vertical">
-                            <ProCard title="资产名称">{DetailInfo?.Name}</ProCard>
-                            <ProCard title="ID">{DetailInfo?.ID}</ProCard>
-                            <ProCard title="创建时间">{DateTransform(DetailInfo?.CreateTime)}</ProCard>
-                        </ProCard>
-                        <ProCard split="vertical">
-                            <ProCard title="当前所有者">{DetailInfo?.Owner}</ProCard>
-                            <ProCard title="资产类别">{DetailInfo?.Class}</ProCard>
-                            <ProCard title="状态">
-                                <Badge status={renderStatusBadge(DetailInfo?.Status)} text={renderStatus(DetailInfo?.Status)} />
-                            </ProCard>
-                        </ProCard>
-                        <ProCard split="vertical">
-                            <ProCard title="资产描述">
-                                {ReactHtmlParser(DetailInfo?.Description)}
-                            </ProCard>
-                        </ProCard>
-                    </ProCard>
+                    <Descriptions title="资产信息" bordered>
+                        <Descriptions.Item label="资产名称">{DetailInfo.Name}</Descriptions.Item>
+                        <Descriptions.Item label="ID">{DetailInfo.ID}</Descriptions.Item>
+                        <Descriptions.Item label="创建时间">{DateTransform(DetailInfo.CreateTime)}</Descriptions.Item>
+                        <Descriptions.Item label="当前所有者">{DetailInfo?.Owner}</Descriptions.Item>
+                        <Descriptions.Item label="状态" span={2}>
+                            <Badge status={renderStatusBadge(DetailInfo?.Status)} text={renderStatus(DetailInfo.Status)} />
+                        </Descriptions.Item>
+                        <Descriptions.Item label="类别" >
+                            {DetailInfo.Class}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="资产类型" span={2}>
+                            {renderAssetType(DetailInfo.Type)}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="资产自定义属性" span={3}>
+                            {DetailInfo.PropetyName?.map((name, index) => (
+                                <div key={index}>
+                                    <span>{name}:  </span>
+                                    <span>{DetailInfo.PropetyValue[index]}</span>
+                                </div>
+                            ))}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="主资产" >
+                            {DetailInfo.Parent}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="位置" span={2}>
+                            {DetailInfo.Position}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="价值">
+                            {DetailInfo.Volume}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="折旧类型">
+                            {renderLossStyle(DetailInfo.LossStyle)}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="过期时间" span={3}>
+                            {DetailInfo.Time}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="资产描述" span={3}>
+                            {ReactHtmlParser(DetailInfo?.Description)}
+                        </Descriptions.Item>
+                    </Descriptions>
                     <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
                         <Button key="back" type="primary" onClick={() => { UpdateLabel(DetailInfo, false); setLabelChangeVisible(false); props.setVisibleDetail(false); }} style={{ marginRight: "10px" }}>
                             返回

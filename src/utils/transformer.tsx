@@ -153,6 +153,18 @@ const renderKey = (key: keyof LabelVisible) => {
     default: return "";
     }
 };
+const renderAssetType = (type:number)=>{   //数量型 or 条目型
+    switch(type){
+    case 0: return "条目型";
+    case 1: return "数量型";
+    }
+};
+const renderLossStyle = (type:number)=>{   //指数折旧 or 线性折旧
+    switch(type){
+    case 0: return "指数折旧";
+    case 1: return "线性折旧";
+    }
+};
 export {
     renderAuthority,
     renderStatus,
@@ -160,5 +172,7 @@ export {
     renderStatusBadge,
     renderStatusChanges,
     renderValue,
-    renderKey
+    renderKey,
+    renderLossStyle,
+    renderAssetType,
 };
