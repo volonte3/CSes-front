@@ -107,3 +107,61 @@ export interface LabelVisible{
     CreateTime:boolean,
     Class: boolean,
 }
+const url_list = [
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/blue.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/chess1.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/chess2.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/green.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/player.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/okset.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/1.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/47.png",
+    "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/53.png",
+];
+
+export const TestDetailInfo: AssetDetailInfo = {
+    Name: "测试资产",
+    ID: 1,
+    Status: 1,
+    Owner: "张三",
+    Description: "这是一个测试资产",
+    CreateTime: "2022-04-23",
+    Class: "一本好书",
+    History: [
+        {
+            Review_Time: "2022-04-23",
+            ID: 1,
+            Type: 1,
+            Initiator: "李四",
+            Participant: "王五",
+            Asset_Admin: "赵六",
+        },
+        {
+            Review_Time: "2022-04-22",
+            ID: 2,
+            Type: 2,
+            Initiator: "王五",
+            Participant: "赵六",
+            Asset_Admin: "李四",
+        },
+        {
+            Review_Time: "2022-04-21",
+            ID: 3,
+            Type: 3,
+            Initiator: "赵六",
+            Participant: "李四",
+            Asset_Admin: "王五",
+        },
+    ],
+    PropertyName: ["大小", "高低"],
+    // PropertyValue: ["100", "200"],
+    LabelVisible: {
+        Name: true,
+        Class: true,
+        Status: true,
+        Owner: true,
+        Description: true,
+        CreateTime: false,
+    },
+    ImageUrl:url_list
+};
