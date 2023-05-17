@@ -70,7 +70,7 @@ const LoginUI = (props: LoginScreenProps) => {
             <Head>
                 <style>{`
             * {
-                box-sizing: border-box;
+                // box-sizing: border-box;
             }
             body {
                 margin: 0;
@@ -81,11 +81,12 @@ const LoginUI = (props: LoginScreenProps) => {
               text-align: center;
               color: black;
               margin-bottom: 30px;
+              margin-top:-5px
           	}
 			h1 {
 				text-align: center;
 				color: black;
-				margin-bottom: 30px;
+				margin-bottom: 40px;
 			}
         `}</style>
             </Head>
@@ -93,7 +94,7 @@ const LoginUI = (props: LoginScreenProps) => {
               	<h1>企业资产管理系统</h1>
                 <div className={`${styles.loginBox}`}>
                     <h2>登录</h2>
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} className="login-form">
                         <div className={`${styles.item}`}>
                             <input
                                 type="text"
@@ -101,8 +102,10 @@ const LoginUI = (props: LoginScreenProps) => {
                                 value={formData.username}
                                 onChange={handleInputChange}
                                 required
+                                autoComplete="off"
+                                
                             />
-                            <label htmlFor="">&nbsp;&nbsp;用户名</label>
+                            <label className="input-label" htmlFor="">&nbsp;&nbsp;用户名</label>
                         </div>
                         <div className={`${styles.item}`}>
                             <input
@@ -111,11 +114,13 @@ const LoginUI = (props: LoginScreenProps) => {
                                 value={formData.password}
                                 onChange={handleInputChange}
                                 required
+                                autoComplete="off"
+                                style={{border:0}}
                             />
                             <label htmlFor="">&nbsp;&nbsp;密码</label>
                         </div>
                         <div>
-                            <button type="submit" className={`${styles.btn}`} style={{ margin: "30px" }}>提交
+                            <button type="submit" className={`${styles.btn}`} style={{ margin: "30px" }}>登录
                                 <span></span>
                                 <span></span>
                                 <span></span>
