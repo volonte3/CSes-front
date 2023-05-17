@@ -153,16 +153,18 @@ const renderKey = (key: keyof LabelVisible) => {
     default: return "";
     }
 };
-const renderAssetType = (type:number)=>{   //数量型 or 条目型
+const renderAssetType = (type:number|undefined)=>{   //数量型 or 条目型
     switch(type){
     case 0: return "条目型";
     case 1: return "数量型";
+    default: return "";
     }
 };
-const renderLossStyle = (type:number)=>{   //指数折旧 or 线性折旧
+const renderLossStyle = (type:number|undefined)=>{   //指数折旧 or 线性折旧
     switch(type){
     case 0: return "指数折旧";
     case 1: return "线性折旧";
+    default: return "";
     }
 };
 export {
