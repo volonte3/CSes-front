@@ -1,7 +1,7 @@
 import React from "react";
-import { theme, Space, Table, Button, Modal, Menu } from "antd";
+import { theme, Space, Table, Button, Modal, Empty } from "antd";
 import { useRouter } from "next/router";
-import { useState, useEffect, useRef  } from "react";
+import { useState, useEffect, useRef } from "react";
 import { request } from "../utils/network";
 import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
 import { ApplyApprovalData } from "../utils/types"; //对列表中数据的定义在 utils/types 中
@@ -13,6 +13,8 @@ interface AssetListProps {
 }
 const ApplyApprovalList = () => {
     const [Loading, setLoading] = useState(false);
+    const [ApplyReason, setApplyReason] = useState("");      //申请理由
+    const [ShowApplyReason, setShowApplyReason] = useState(false); //显示申请理由Modal
     const handleApproval = (type: boolean, approval_id: string) => {
         setLoading(true);
         request(`/api/Asset/Approval/${LoadSessionID()}`, "POST",
@@ -24,7 +26,7 @@ const ApplyApprovalList = () => {
             .then(() => {
                 Modal.success({
                     title: "批复成功",
-                    content: type?"成功批准请求":"成功驳回请求",
+                    content: type ? "成功批准请求" : "成功驳回请求",
                 });
                 setLoading(false);
                 ref.current?.reload();  //重新渲染表格
@@ -37,7 +39,7 @@ const ApplyApprovalList = () => {
                             content: err.toString().substring(5),
                         });
                     }
-                    ref.current?.reload(); 
+                    ref.current?.reload();
                 }
             );
     };
@@ -97,8 +99,9 @@ const ApplyApprovalList = () => {
             render: (text, record, _, action) => {
                 return (
                     <Space>
-                        <Button loading= {Loading} type="primary" disabled={!record.Valid} onClick={()=>{handleApproval(true,record.ApplyID);}}>同意申请</Button>
-                        <Button loading= {Loading} danger onClick={()=>{handleApproval(false,record.ApplyID);}}>驳回申请</Button>
+                        <Button loading={Loading} type="primary" disabled={!record.Valid} onClick={() => { handleApproval(true, record.ApplyID); }}>同意申请</Button>
+                        <Button loading={Loading} danger onClick={() => { handleApproval(false, record.ApplyID); }}>驳回申请</Button>
+                        <Button type="link" onClick={() => { setApplyReason(record.Message); setShowApplyReason(true); }}> 查看申请理由</Button>
                     </Space>
                 );
             }
@@ -114,42 +117,62 @@ const ApplyApprovalList = () => {
     }, [router, query]);
 
     return (
-        <ProTable
-            columns={columns}
-            options={{reload:true,setting:false}}
-            // dataSource={TestData}
-            actionRef={ref}
-            request={async (params = {}) =>
-                request(`/api/Asset/Approval/${LoadSessionID()}`, "GET")
-                    .then(response => {    // 将request请求的对象保存到state中
-                        // 对获取到的信息进行筛选，其中创建时间设为不可筛选项，描述、物品名称和所有者设为包含搜索，状态和ID设为严格搜索
-                        // TODO ID到底是number还是string，前后端统一一下
-                        // TODO 强等于弱等于的问题，暂时没去管
-                        return Promise.resolve({ data: response.ApprovalList, success: true });
-                    })
-            }
-            form={{
-                // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
-                syncToUrl: (values, type) => {
-                    if (type === "get") {
-                        return {
-                            ...values,
-                            created_at: [values.startTime, values.endTime],
-                        };
-                    }
-                    return values;
-                },
-            }}
-            // scroll={{ x: "100%", y: "calc(100vh - 300px)" }}
-            pagination={{
-                showSizeChanger: true
-            }}
-            search={false}
+        <div>
+
+            <ProTable
+                columns={columns}
+                options={{ reload: true, setting: false }}
+                // dataSource={TestData}
+                actionRef={ref}
+                request={async (params = {}) =>
+                    request(`/api/Asset/Approval/${LoadSessionID()}`, "GET")
+                        .then(response => {    // 将request请求的对象保存到state中
+                            // 对获取到的信息进行筛选，其中创建时间设为不可筛选项，描述、物品名称和所有者设为包含搜索，状态和ID设为严格搜索
+                            // TODO ID到底是number还是string，前后端统一一下
+                            // TODO 强等于弱等于的问题，暂时没去管
+                            return Promise.resolve({ data: response.ApprovalList, success: true });
+                        })
+                }
+                form={{
+                    // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
+                    syncToUrl: (values, type) => {
+                        if (type === "get") {
+                            return {
+                                ...values,
+                                created_at: [values.startTime, values.endTime],
+                            };
+                        }
+                        return values;
+                    },
+                }}
+                // scroll={{ x: "100%", y: "calc(100vh - 300px)" }}
+                pagination={{
+                    showSizeChanger: true
+                }}
+                search={false}
 
 
-        // /* </ConfigProvider> */ 
-        // /* </div> */ 
-        />
+            // /* </ConfigProvider> */ 
+            // /* </div> */ 
+            />
+
+            <Modal title="申请理由" open={ShowApplyReason} onOk={() => setShowApplyReason(false)}>
+                <div style={{ maxHeight: "400px", minHeight: "50px", overflowY: "auto" }}>
+                    {ApplyReason != ""
+                        ?
+                        <span>
+                            {ApplyReason}
+                        </span>
+                        :
+                        <Empty
+                            description={
+                                <span>
+                                    无申请信息
+                                </span>}
+                        />}
+                </div>
+            </Modal>
+        </div>
     );
 };
 export default ApplyApprovalList;
