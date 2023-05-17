@@ -283,6 +283,7 @@ a {
   margin-top: 10px;
 }
 
+
 .custom-upload-button:before {
   /* 添加图标或其他样式 */
   content: '选择文件';
@@ -294,5 +295,32 @@ a {
 }
 
 .custom-upload-button:active {
+  background-color: #ccc;
+}
+
+.custom-upload-button-add {
+  /* 添加自定义样式 */
+  display: inline-block;
+  padding: 5px 5px;
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid rgb(147, 147, 147);
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: -30px;
+  
+}
+.custom-upload-button-add:before {
+  /* 添加图标或其他样式 */
+  content: '选择文件';
+  font-size: 14px;
+  
+}
+
+.custom-upload-button-add:hover {
+  background-color: #e0e0e0;
+}
+
+.custom-upload-button-add:active {
   background-color: #ccc;
 }

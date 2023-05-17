@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useRef } from "react";
 import {
     FileOutlined, PlusSquareOutlined, UpOutlined, DownOutlined
 } from "@ant-design/icons";
-import type { MenuProps } from "antd";
+import { MenuProps, Tooltip } from "antd";
 import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, Switch, Modal, Button, Radio } from "antd";
 import type { RadioChangeEvent } from "antd";
 const { Column } = Table;
@@ -14,18 +14,21 @@ import MenuItem from "antd/es/menu/MenuItem";
 import { renderAuthority } from "../utils/transformer";
 import type { ColumnsType } from "antd/es/table";
 import { DataType, MemberData } from "../utils/types";
-
+import { ActionType, ProColumns, ProTable } from "@ant-design/pro-components";
+import { EditOutlined } from "@ant-design/icons";
 
 interface MemberListProps {
     Members: MemberData[] | undefined;
     department_page: boolean;
     department_path: string;
 }
-const plainOptions = ["Apple", "Pear"];
-const options = [
-    { label: "资产管理员", value: 2 },
-    { label: "普通用户", value: 3 },
-];
+interface UrlData {
+    Name?:string;
+    Department?: string;
+    Authority?: number;
+    pageSize:number;
+    current?: number;
+}
 const MemberList = (props: MemberListProps) => {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [ChangeAuthorityValue, setChangeAuthorityValue] = useState(2);
@@ -224,6 +227,7 @@ const MemberList = (props: MemberListProps) => {
     };
     const router = useRouter();
     const query = router.query;
+    const tableRef = useRef<ActionType>(null);
     useEffect(() => {
         if (!router.isReady) {
             return;
@@ -232,58 +236,91 @@ const MemberList = (props: MemberListProps) => {
         console.log("ChangeAuthorityValue has been updated:", ChangeAuthorityValue);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query, ChangeAuthorityValue, props]);
+    const columns: ProColumns<MemberData>[] = [
+        {
+            title:"姓名",
+            dataIndex:"Name",
+            key:"Name"
+        },
+        {
+            title:"所属部门",
+            dataIndex:"Department",
+            key:"Department"
+        },
+        {
+            title:"身份",
+            dataIndex:"Authority",
+            key:"Authority",
+            valueType: "select",
+            valueEnum: {
+                2: {
+                    text: "资产管理员",
+                    color: "blue"
+                },
+                3: {
+                    text: "员工",
+                },
+            },
+        },
+        {
+            title:"管理",
+            key:"action",
+            render:(text, record, _, action) => (
+                <Space size="middle">
+                    <Switch checkedChildren="解锁" unCheckedChildren="锁定" onChange={() => { ChangeLock(record.Name); }} checked={!record.lock} loading={LockLoading} />
+                    <Button danger onClick={() => { showRemakeModal(record.Name, record.Authority); }}>重置密码</Button>
+                    <Modal title="重置密码" open={isRemakeModalOpen} onOk={() => { RemakePassword(record.Name); }} onCancel={handleRemakeCancel} mask={false}>
+                                将 {NowAuthority} {NowUser} 密码重置为 yiqunchusheng
+                    </Modal>
+                    <Button danger onClick={() => { console.log("record.Name:",record.Name);console.log("record.Authority:",record.Authority);showRemoveModal(record.Name, record.Authority); }}>删除员工</Button>
+                    <Modal title="删除员工" open={IsRemoveModalOpen} onOk={() => {console.log("NowUserWhileRemove",NowUser);RemoveUser(NowUser, NowAuthority); }} onCancel={handleRemoveCancel} mask={false}>
+                                请确认删除 {NowAuthority} {NowUser}
+                    </Modal>
+                    {record.Authority == 3 && <Button type="text" onClick={() => { ChangeAuthority(record.Name, record.Authority); }} icon={<UpOutlined />}>提拔为资产管理员</Button>}
+                    {record.Authority == 2 && <Button type="text" danger onClick={() => { ChangeAuthority(record.Name, record.Authority); }} icon={<DownOutlined />}>降为普通员工</Button>}
+                </Space>
+            )
+        }
+    ];
     return (
         <div>
-            <Table /* rowSelection={props.department_page ? rowSelection : undefined}*/ dataSource={data} rowKey={"Name"}
-                scroll={{ x: "max-content", y: "calc(100vh - 300px)" }}>
-                <Column title="姓名" dataIndex="Name" key="Name" />
-                <Column title="所属部门" dataIndex="Department" key="Department" />
-                <Column
-                    title="身份"
-                    dataIndex="Authority"
-                    key="Authority"
-                    render={(Authority) => (
-                        <Tag color="blue" key={Authority}>{renderAuthority(Authority)}</Tag>
-                    )}
-                />
-                <Column
-                    title="个人资产"
-                    key="action"
-                    render={(_: any, record: DataType) => (
-                        <Space size="middle">
-                            <Button onClick={() => {}}>查看员工资产</Button>
-                        </Space>
-                    )}
-                />
-                <Column
-                    title="管理"
-                    key="action"
-                    render={(_: any, record: DataType) => (
-                        <Space size="middle">
-
-                            <Switch checkedChildren="解锁" unCheckedChildren="锁定" onChange={() => { ChangeLock(record.Name); }} checked={!record.lock} loading={LockLoading} />
-                            <Button danger onClick={() => { showRemakeModal(record.Name, record.Authority); }}>重置密码</Button>
-                            <Modal title="重置密码" open={isRemakeModalOpen} onOk={() => { RemakePassword(record.Name); }} onCancel={handleRemakeCancel} mask={false}>
-                                将 {NowAuthority} {NowUser} 密码重置为 yiqunchusheng
-                            </Modal>
-                            <Button danger onClick={() => { console.log("record.Name:",record.Name);console.log("record.Authority:",record.Authority);showRemoveModal(record.Name, record.Authority); }}>删除员工</Button>
-                            <Modal title="删除员工" open={IsRemoveModalOpen} onOk={() => {console.log("NowUserWhileRemove",NowUser);RemoveUser(NowUser, NowAuthority); }} onCancel={handleRemoveCancel} mask={false}>
-                                请确认删除 {NowAuthority} {NowUser}
-                            </Modal>
-                            {record.Authority == 3 && <Button type="text" onClick={() => { ChangeAuthority(record.Name, record.Authority); }} icon={<UpOutlined />}>提拔为资产管理员</Button>}
-                            {record.Authority == 2 && <Button type="text" danger onClick={() => { ChangeAuthority(record.Name, record.Authority); }} icon={<DownOutlined />}>降为普通员工</Button>}
-                        </Space>
-                    )}
-                />
-            </Table>
-            {/* {props.department_page &&
-                <>
-                    <Button type="primary" disabled={!hasSelected}>移动员工</Button>
-                    <span style={{ marginLeft: 8 }}>
-                        {hasSelected ? `选择了${selectedRowKeys.length}位用户` : ""}
-                    </span>
-                </>
-            } */}
+            <ProTable className="ant-pro-table"
+                columns={columns}
+                options={{ reload: true, setting: false }}
+                rowKey="ID"
+                actionRef={tableRef}
+                request={async (params = {}) => {
+                    const loadSessionID = LoadSessionID();
+                    let urldata:UrlData={pageSize:20, current:params.current, Name:"", Department:"", Authority:-1};
+                    if(params.Name != undefined) urldata.Name=params.Name;
+                    if(params.Department != undefined) urldata.Department=params.Department;
+                    if(params.Authority != undefined) urldata.Authority=params.Authority;
+                    let url = `/api/User/member/${loadSessionID}/${urldata.current}/Name=${urldata.Name}/Department=${urldata.Department}/Authority=${urldata.Authority}`;
+                    console.log(url);
+                    return (
+                        request(
+                            url,
+                            "GET"
+                        )
+                            .then((res) => {
+                                return Promise.resolve({ data: res.member, success: true , total:res.TotalNum});
+                            })
+                    );
+                }
+                }
+                scroll={{ x: "max-content", y: "calc(100vh - 300px)" }}
+                pagination={{
+                    showSizeChanger:false,
+                }}
+                search={{
+                    defaultCollapsed: false,
+                    defaultColsNumber: 1,
+                    split: true,
+                    span: 8,
+                    searchText: "查询"
+                }}
+                toolBarRender={() => []}
+            />
         </div>
     );
 };

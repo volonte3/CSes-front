@@ -269,7 +269,8 @@ const UserSetting = (props:UserSettingProps) => {
             </div>
             <Panel style={{ marginTop: "30px", marginLeft: "18px", marginBottom: "40px" }} header={UserInfoAuthority} key="4" />
             {(UserAuthority != 0) && <Panel style={{ marginLeft: "16px", marginBottom: "40px" }} header={UserInfoEntity} key="5" />}
-            {(UserAuthority === 2 || UserAuthority === 3) && <Panel style={{ marginLeft: "16px", marginBottom: "30px" }} header={UserInfoDepartment} key="6" />}
+            {(UserAuthority === 2 || UserAuthority === 3) && <Panel style={{ marginLeft: "16px", marginBottom: "40px" }} header={UserInfoDepartment} key="6" />}
+            <Panel style={{marginLeft: "16px", marginBottom: "30px" }} header={UserInfoName} key="7" />
             <Collapse
                 accordion
                 bordered={false}
@@ -281,26 +282,6 @@ const UserSetting = (props:UserSettingProps) => {
                 )}
                 ghost
             >
-                <Panel header={UserInfoName} key="1">
-                    <Form
-                        form={form}
-                        onFinish={handleSubmit1}
-                        style={{ maxWidth: "400px", marginLeft: "24px" }}
-                    >
-                        <Form.Item
-                            name="username"
-                            // label="新用户名"
-                            rules={[{ message: "请输入新用户名" }]}
-                        >
-                            <Input placeholder="请输入新用户名" />
-                        </Form.Item>
-                        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                            <Button type="primary" htmlType="submit">
-                                                确认更改用户名
-                            </Button>
-                        </Form.Item>
-                    </Form>
-                </Panel>
                 <Panel header={UserInfoPhone} key="2">
                     <Form
                         form={form}
