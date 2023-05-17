@@ -4,81 +4,18 @@ import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
-import { AssetData, AssetDetailInfo, AssetHistory, MemberData, LabelVisible } from "../utils/types"; //对列表中数据的定义在 utils/types 中
+import { AssetData, AssetDetailInfo, AssetHistory, MemberData, LabelVisible, TestDetailInfo } from "../utils/types"; //对列表中数据的定义在 utils/types 中
 import { ProTable, ProColumns, TableDropdown, ProCard, ProForm, ModalForm, ProFormTreeSelect, ActionType } from "@ant-design/pro-components";
 import { DateTransform, renderStatus, renderStatusChanges, renderStatusBadge, renderKey } from "../utils/transformer";
-import { DownloadOutlined } from "@ant-design/icons";
-import LabelDef from "./AssetLabelUI";
 import OSS from "ali-oss";
-import ReactHtmlParser from "react-html-parser";
-import { Image } from "antd-mobile";
+import { AssetDetailCard } from "./AssetDetailInfoUI";
 interface AssetListProps {
     ManagerName: string;
     setVisibleDetail: (visible: boolean) => void;
     setAssetName: (name: string) => void;
     VisibleDetail: boolean;
-
 }
-const url_list = [
-    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/blue.png",
-    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/chess1.png",
-    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/chess2.png",
-    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/green.png",
-    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/player.png",
-    "https://cs-company.oss-cn-beijing.aliyuncs.com/test/okset.png",
-    "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/1.png",
-    "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/47.png",
-    "https://cs-company.oss-cn-beijing.aliyuncs.com/asset_label/53.png",
 
-
-];
-const TestDetailInfo: AssetDetailInfo = {
-    Name: "测试资产",
-    ID: 1,
-    Status: 1,
-    Owner: "张三",
-    Description: "这是一个测试资产",
-    CreateTime: "2022-04-23",
-    Class: "一本好书",
-    History: [
-        {
-            Review_Time: "2022-04-23",
-            ID: 1,
-            Type: 1,
-            Initiator: "李四",
-            Participant: "王五",
-            Asset_Admin: "赵六",
-        },
-        {
-            Review_Time: "2022-04-22",
-            ID: 2,
-            Type: 2,
-            Initiator: "王五",
-            Participant: "赵六",
-            Asset_Admin: "李四",
-        },
-        {
-            Review_Time: "2022-04-21",
-            ID: 3,
-            Type: 3,
-            Initiator: "赵六",
-            Participant: "李四",
-            Asset_Admin: "王五",
-        },
-    ],
-    PropertyName: ["大小", "高低"],
-    // PropertyValue: ["100", "200"],
-    LabelVisible: {
-        Name: true,
-        Class: true,
-        Status: true,
-        Owner: true,
-        Description: true,
-        CreateTime: false,
-    },
-    ImageUrl:url_list
-};
-const TestPropList: string[] = ["a", "b", "c", "d"];
 const { Option } = Select;
 
 const layout = {
@@ -127,6 +64,7 @@ const AssetList = (props: AssetListProps) => {
     const [AllowDownload, setAllowDownload] = useState(false);   //下载标签按钮是否允许点击
     const [LabelChangeVisible, setLabelChangeVisible] = useState(false);
     const [showSkeleton, setShowSkeleton] = useState(false); //从资产列表跳到资产详细页面时的占位骨架
+    const [ShowAssetID,setShowAssetID] = useState(0);   //将展示的详细信息的资产ID
     const Historycolumns: ProColumns<AssetHistory>[] = [
 
         {
@@ -203,7 +141,6 @@ const AssetList = (props: AssetListProps) => {
         },
     ];
     const downloadLabel = async () => {
-        // var LabelDownloadPath = "";
         request(`/api/Asset/Label/${LoadSessionID()}/${DetailInfo?.ID}`, "GET")
             .then(
                 (res) => {
@@ -281,7 +218,8 @@ const AssetList = (props: AssetListProps) => {
                     <div>
                         <Tooltip title="点击查看详情">
                             <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => {
-                                FetchDetail(record.ID); props.setVisibleDetail(true); 
+                                FetchDetail(record.ID);
+                                props.setVisibleDetail(true); 
                                 props.setAssetName(record.Name);
                                 setShowSkeleton(true); 
                                 setTimeout(() => {
@@ -701,7 +639,7 @@ const AssetList = (props: AssetListProps) => {
             {!props.VisibleDetail && <Divider orientation="center" >自定义属性</Divider>}
             {!props.VisibleDetail && <PropSearch />}
             {!props.VisibleDetail && <Divider orientation="center" >基本属性</Divider>}
-            {props.VisibleDetail && !showSkeleton && <ProCard
+            {/* {props.VisibleDetail && !showSkeleton && <ProCard
                 tabs={{
                     type: "card",
                     onChange: (key) => { setLabelChangeVisible(false); }
@@ -876,8 +814,10 @@ const AssetList = (props: AssetListProps) => {
                             返回
                         </Button>
                     )}
-                </ProCard.TabPane> */}
-            </ProCard >}
+                </ProCard.TabPane> 
+            </ProCard >} */}
+            {props.VisibleDetail && !showSkeleton && <AssetDetailCard setVisibleDetail={props.setVisibleDetail} DetailInfo={DetailInfo}/>}
+
             {
                 !props.VisibleDetail && <ProTable className="ant-pro-table"
                     columns={columns}
