@@ -2,7 +2,7 @@ import { ProTable, ProColumns, ProFormDateTimePicker, ModalForm, ProForm, ProFor
 import React from "react";
 import { Form, Input, List, Slider, InputNumber } from "antd";
 import { AssetData } from "../utils/types"; //对列表中数据的定义在 utils/types 中
-import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, DatePicker, Modal, Button, TimePicker } from "antd";
+import { Breadcrumb, Layout, Menu, Col, Space, Table, Row, DatePicker, Modal, Button, TimePicker } from "antd";
 const { Column } = Table;
 import { useRouter } from "next/router";
 import { useState, useEffect, useRef } from "react";
@@ -39,6 +39,8 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
     const [ApplyDate, setApplyDate] = useState(""); //申请更新的截止日期，仅仅用于维保
     const [ApplyVolumn, setApplyVolumn] = useState(0); //申请的量,仅用于领用数量型资产,目前的规则是，对于批量领用，统一用-1.对于单个领用，若是条目型资产，则是1，若是数量型资产
     const [NowAssetID, setNowAssetID] = useState<number[]>([]);  //当前操作资产的ID
+    const [ApplyMaxVolumn, setApplyMaxVolumn] = useState(0); //允许的最大领用量，即该资产的数量
+    const [ApplyAssetType, setApplyAssetType] = useState(0); //获取资产的类型0就是条目型，1就是数量型
 
     const fetchList = (myasset: number) => { // 传入1代表显示个人资产，传入0代表显示闲置资产
         setMyAsset(myasset);
@@ -78,7 +80,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
         default: return apply;
         }
     };
-    const handleChange = (AssetIDList:number[],MoveTo: string = "", Type: string = "") => {
+    const handleChange = (AssetIDList: number[], MoveTo: string = "", Type: string = "") => {
         setloading(true);
         request(`/api/Asset/Apply/${LoadSessionID()}`, "POST",
             {
@@ -98,6 +100,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                 setApplyDate("");
                 setApplyTime("");
                 setApplyReason("");
+                setApplyMaxVolumn(0);
                 Modal.success({
                     title: "申请成功",
                     content: "成功提交请求",
@@ -110,6 +113,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                         setApplyDate("");
                         setApplyTime("");
                         setApplyReason("");
+                        setApplyMaxVolumn(0);
                         Modal.error({
                             title: "申请失败",
                             content: err.toString().substring(5),
@@ -172,13 +176,43 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                                 onClick={() => {
                                     setOpenApplyCondition(true);
                                     setApplyType(0);
+                                    setApplyVolumn(1);
+                                    setApplyMaxVolumn(record.Number);
+                                    setApplyAssetType(record.Type);
                                     setNowAssetID([record.ID]);
                                 }}>
                                 领用
                             </Button>}
-                        {MyAsset == 1 && <Button loading={loading} key="receive" title="退库" disabled={!IsReturn} onClick={() => {  setNowAssetID([record.ID]); setOpenApplyCondition(true); setApplyType(1); }}>退库</Button>}
-                        {MyAsset == 1 && <Button loading={loading} key="receive" title="维保" disabled={!IsMaintenance} onClick={() => { setNowAssetID([record.ID]); setOpenApplyCondition(true); setApplyType(2);  }}>维保</Button>}
-                        {MyAsset == 1 && <Button loading={loading} key="receive" title="转移" disabled={!IsTransfers} onClick={() => { setNowAssetID([record.ID]);setOpenApplyCondition(true); setTransferAsset(record); setApplyType(3); GetMemberList(); }}>转移</Button>}
+                        {MyAsset == 1 &&
+                            <Button loading={loading} key="receive" title="退库" disabled={!IsReturn}
+                                onClick={() => {
+                                    setNowAssetID([record.ID]);
+                                    setOpenApplyCondition(true);
+                                    setApplyType(1);
+                                }}>
+                                退库
+                            </Button>}
+                        {MyAsset == 1 &&
+                            <Button loading={loading} key="receive" title="维保" disabled={!IsMaintenance}
+                                onClick={() => {
+                                    setNowAssetID([record.ID]);
+                                    setOpenApplyCondition(true);
+                                    setApplyTime(record.Time);
+                                    setApplyType(2);
+                                }}>
+                                维保
+                            </Button>}
+                        {MyAsset == 1 &&
+                            <Button loading={loading} key="receive" title="转移" disabled={!IsTransfers}
+                                onClick={() => {
+                                    setNowAssetID([record.ID]);
+                                    setOpenApplyCondition(true);
+                                    setTransferAsset(record);
+                                    setApplyType(3);
+                                    GetMemberList();
+                                }}>
+                                转移
+                            </Button>}
                     </Space>
                 );
             },
@@ -311,7 +345,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                                     onClick={() => {
                                         setApplyType(4);
                                         setOpenApplyCondition(true);
-                                        
+
                                         GetMemberList();
                                     }}>转移资产</Button>}
                         </Space>
@@ -328,13 +362,21 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
             </ProTable>
             <Modal
                 title="完善申请信息"
-                onCancel={() => { setApplyType(-1); setOpenApplyCondition(false); }}
+                onCancel={() => {
+                    setApplyType(-1);
+                    setOpenApplyCondition(false);
+                    setApplyDate("");
+                    setApplyTime("");
+                    setApplyReason("");
+                    setApplyMaxVolumn(0);
+
+                }}
                 open={OpenApplyCondition}
                 onOk={
                     () => {
                         if (ApplyType === 3 || ApplyType === 4) {
                             setOpenApplyCondition(false);
-                            console.log("NowAssetID!!!!!!!!!!!!",NowAssetID);
+                            console.log("NowAssetID!!!!!!!!!!!!", NowAssetID);
                             setOpen1(true);
                         }
                         else {
@@ -343,34 +385,74 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                     }
                 }
             >
-                <Input
-                    placeholder="申请理由"
-                    value={ApplyReason}
-                    onChange={handleChangeReason}
-                />
-                {ApplyType === 2 && <DatePicker
-                    onChange={handleChangeDate}
-                    format="YYYY-MM-DD"
-                    defaultOpenValue={dayjs("0000-00-00", "YYYY-MM-DD")}
-                />}
-                {ApplyType === 2 && <TimePicker
-                    onChange={handleChangeTime}
-                    format="HH:mm:ss"
-                    defaultOpenValue={dayjs("00:00:00", "HH:mm:ss")}
-                />}
-                {ApplyType === 0 && <Slider
-                    min={1}
-                    max={20}
-                    onChange={handleChangeVolumn}
-                    value={typeof ApplyVolumn === "number" ? ApplyVolumn : 0}
-                />}
-                {ApplyType === 0 && <InputNumber
-                    min={1}
-                    max={20}
-                    style={{ margin: "0 16px" }}
-                    value={ApplyVolumn}
-                    onChange={handleChangeVolumn}
-                />}
+                <Row>
+                    <Col span={24}>
+                        <div style={{ "display": "flex", "alignItems": "center" }}>
+                            <Col span={4}>
+                                <h4>申请理由</h4>
+                            </Col>
+                            <Col span={20}>
+                                <Input
+                                    placeholder="对申请解释说明"
+                                    value={ApplyReason}
+                                    onChange={handleChangeReason}
+                                />
+                            </Col>
+                        </div>
+                    </Col>
+                    {ApplyType === 2 && <Col span={24}>
+
+                        <div style={{ "display": "flex", "alignItems": "center" }}>
+                            <Col span={6}>
+                                <h4>资产截止时间</h4>
+                            </Col>
+                            <Col span={9}>
+                                {ApplyType === 2 && <DatePicker
+                                    onChange={handleChangeDate}
+                                    format="YYYY-MM-DD"
+                                    placeholder="年-月-日"
+                                    defaultOpenValue={dayjs(ApplyTime.split(" ")[0], "YYYY-MM-DD")}
+                                />}
+                            </Col>
+                            <Col span={9}>
+                                {ApplyType === 2 && <TimePicker
+                                    onChange={handleChangeTime}
+                                    format="HH:mm:ss"
+                                    placeholder="时-分-秒"
+                                    defaultOpenValue={dayjs(ApplyTime.split(" ")[1], "HH:mm:ss")}
+                                />}
+                            </Col>
+                        </div>
+                    </Col>}
+                    {ApplyType === 0 && ApplyAssetType === 1 && <Col span={24}>
+
+                        <div style={{ "display": "flex", "alignItems": "center" }}>
+
+                            <Col span={4}>
+                                <h4> 申请数量 </h4>
+                            </Col>
+                            <Col span={12}>
+                                <Slider
+                                    min={1}
+                                    max={ApplyMaxVolumn}
+                                    onChange={handleChangeVolumn}
+                                    defaultValue={1}
+                                    value={typeof ApplyVolumn === "number" ? ApplyVolumn : 0}
+                                />
+                            </Col>
+                            <Col span={8}>
+                                <InputNumber
+                                    min={1}
+                                    max={ApplyMaxVolumn}
+                                    style={{ margin: "0 16px" }}
+                                    value={ApplyVolumn}
+                                    defaultValue={1}
+                                    onChange={handleChangeVolumn}
+                                />
+                            </Col>
+                        </div>
+                    </Col>}
+                </Row>
             </Modal>
             <Modal
                 title="请选择要转移到的员工"
@@ -413,15 +495,15 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                 loading={loading}
                 onFinish={async (values) => {
                     if (SelectedRows.length > 0) {
-                        console.log("SelectedRows",SelectedRows);
+                        console.log("SelectedRows", SelectedRows);
                         setApplyType(3);
-                        handleChange(SelectedRows.map((row: any) => row.ID),selectedEmployee?.Name, values.class);
+                        handleChange(SelectedRows.map((row: any) => row.ID), selectedEmployee?.Name, values.class);
                     }
                     else {
-                        console.log("selectedTransferAsset",selectedTransferAsset);
+                        console.log("selectedTransferAsset", selectedTransferAsset);
                         setNowAssetID([selectedTransferAsset ? selectedTransferAsset.ID : 0]);
                         setApplyType(3);
-                        handleChange(NowAssetID,selectedEmployee?.Name, values.class);
+                        handleChange(NowAssetID, selectedEmployee?.Name, values.class);
                     }
                     if (tableRef.current?.clearSelected) tableRef.current?.clearSelected();
                     return true;

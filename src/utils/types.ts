@@ -21,7 +21,10 @@ export interface AssetData{
     IsReturn: boolean;  //是否可以退库（目前资产在该员工名下且状态为使用中）
     IsMaintenance: boolean; //是否可以维保（目前资产在该员工名下且状态为使用中）
     IsTransfers: boolean;   //是否可以转移（目前资产在该员工名下且状态为使用中）
-    Class:string;
+    Class:string;   //资产所属的固定分类
+    Time:string;    //资产的截至时间
+    Number:number;  //如果是数量型资产，表示资产数量，如果不是数量型则返回1
+    Type:number;  //0就是条目型，1就是数量型
 }
 
 export interface ApplyApprovalData{
