@@ -5,6 +5,8 @@ import { useRouter } from "next/router";
 import { LoadSessionID,CreateCookie } from "../utils/CookieOperation";
 import { request } from "../utils/network";
 import CryptoJS from "crypto-js";
+import styles from "../styles/login.module.css";
+import Head from "next/head";
 
 interface LoginInit {
     initUserName: string,
@@ -16,33 +18,7 @@ export interface LoginScreenProps {
 
 
 const LoginUI = (props: LoginScreenProps) => {
-    const [UserName, setUserName] = useState<string>(props.init?.initUserName ?? "");
-    const [Password, setPassword] = useState<string>(props.init?.initPassword ?? "");
-    const [loading, setLoading] = useState(false);
     const router = useRouter();
-    const loginSendMessage = () => {
-        setLoading(true);
-        request(
-            "/api/User/login",
-            "POST",
-            {
-                UserName: UserName,
-                SessionID: LoadSessionID(),
-                Password: CryptoJS.MD5(Password).toString(),
-            }
-        )
-            .then(() => {router.push("/main_page"); setLoading(false);})
-            // .catch((err) => alert(FAILURE_PREFIX + err));
-            .catch((err) => ErrorInfo(err));
-    };
-    const onFinish = (values: any) => {
-        setLoading(true);
-        setTimeout(() => {
-            setLoading(false);
-            console.log("Received values of form: ", values);
-        }, 2000);
-    };
-
     const ErrorInfo = (errinfo:string) => {
         Modal.error({
             title: "登录失败",
@@ -50,63 +26,125 @@ const LoginUI = (props: LoginScreenProps) => {
         });
     };
 
+    const [formData, setFormData] = useState({
+        username: "",
+        password: "",
+        // 其他表单字段
+	  });
+	
+	  // 处理表单输入变化的函数
+	  function handleInputChange(event: any) {
+        const { name, value } = event.target;
+        setFormData(prevFormData => ({
+		  ...prevFormData,
+		  [name]: value
+        }));
+	  }
+	
+	  // 处理表单提交的函数
+	  function handleSubmit(event: any) {
+        CreateCookie("SessionID");
+        event.preventDefault();
+        console.log(formData);
+        // 在这里访问表单的填写内容
+        request(
+            "/api/User/login",
+            "POST",
+            {
+                UserName: formData.username,
+                SessionID: LoadSessionID(),
+                Password: CryptoJS.MD5(formData.password).toString(),
+            }
+        )
+            .then(() => {router.push("/main_page");})
+            // .catch((err) => alert(FAILURE_PREFIX + err));
+            .catch((err) => ErrorInfo(err));
+	  }
+
+    const handlefeishu = () => {
+        router.push("https://passport.feishu.cn/suite/passport/oauth/authorize?client_id=cli_a4d587450378500e&redirect_uri=http%3A%2F%2Fcs-company-frontend-debug-cses.app.secoder.net%2Fmain_page&response_type=code&state=STATE");
+    };
+
     return (
-        <div style={{
-            display: "flex", justifyContent: "center", alignItems: "center", height: "100vh",
-            backgroundImage: "url(\"LoginBackground.png\")", backgroundSize: "cover", backgroundPosition: "center"
-        }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <h1 style={{ marginBottom: 24 }}>企业资产管理系统</h1>
-                <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", width: 300 }}>
-                    
-                    <Form
-                        name="normal_login"
-                        className="login-form"
-                        initialValues={{ remember: true }}
-                        onFinish={onFinish}
-                        style={{ width: 300 }}
-                    >
-                        <Form.Item
-                            name="username"
-                            rules={[{ required: true, message: "用户名不能为空!" }]}
-                        >
-                            <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Username"
-                                onChange={(e) => setUserName(e.target.value)}
+        <>
+            <Head>
+                <style>{`
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                padding: 0;
+                font: 16px/20px microsft yahei;
+             }
+             h2 {
+              text-align: center;
+              color: black;
+              margin-bottom: 30px;
+          	}
+			h1 {
+				text-align: center;
+				color: black;
+				margin-bottom: 30px;
+			}
+        `}</style>
+            </Head>
+            <div className={`${styles.wrap}`}>
+              	<h1>企业资产管理系统</h1>
+                <div className={`${styles.loginBox}`}>
+                    <h2>登录</h2>
+                    <form onSubmit={handleSubmit}>
+                        <div className={`${styles.item}`}>
+                            <input
+                                type="text"
+                                name="username"
+                                value={formData.username}
+                                onChange={handleInputChange}
+                                required
                             />
-                        </Form.Item>
-
-                        <Form.Item
-                            name="password"
-                            rules={[{ required: true, message: "密码不能为空!" }]}
-                        >
-                            <Input.Password
-                                prefix={<LockOutlined className="site-form-item-icon" />}
+                            <label htmlFor="">&nbsp;&nbsp;用户名</label>
+                        </div>
+                        <div className={`${styles.item}`}>
+                            <input
                                 type="password"
-                                placeholder="Password"
-                                onChange={(e) => setPassword(e.target.value)}
+                                name="password"
+                                value={formData.password}
+                                onChange={handleInputChange}
+                                required
                             />
-                        </Form.Item>
-                        {/* <img
-              width={200}
-              src="LoginBackground.png"
-            ></img> */}
-                        <Form.Item >
-                            <div style={{ display: "flex", justifyContent: "center" }}>
-                                <Button type="primary" htmlType="submit" className="login-form-button" loading={loading} 
-                                    onClick={() => {CreateCookie("SessionID");loginSendMessage();}}>
-                                    登录
-                                </Button>
-                                <Button type="link" htmlType="submit" className="login-form-button" loading={loading} 
-                                    onClick={() => {router.push("https://passport.feishu.cn/suite/passport/oauth/authorize?client_id=cli_a4d587450378500e&redirect_uri=http%3A%2F%2Fcs-company-frontend-debug-cses.app.secoder.net%2Fmain_page&response_type=code&state=STATE");}}>
-                                    使用飞书登录
-                                </Button>
-                            </div>
-                        </Form.Item>
-
-                    </Form>
+                            <label htmlFor="">&nbsp;&nbsp;密码</label>
+                        </div>
+                        <div>
+                            <button type="submit" className={`${styles.btn}`} style={{ margin: "30px" }}>提交
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </button>
+                            <button type="button" className={`${styles.btn}`} onClick={handlefeishu}>通过飞书登录
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </button>
+                        </div>                  
+                    </form>
                 </div>
+                <ul>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                </ul>
             </div>
-        </div>
+        </>
+        
     );
 };
 
