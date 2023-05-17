@@ -16,7 +16,7 @@ import {
     ProList,
     ProFormDateTimePicker,
 } from "@ant-design/pro-components";
-import { Layout, Menu, theme, Modal, Button, Breadcrumb, Row, Col, Form, message } from "antd";
+import { Layout, Menu, theme, Modal, Button, Breadcrumb, Row, Col, Form, message, Space } from "antd";
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
@@ -151,6 +151,15 @@ const App = () => {
     const handleFileChange = (e: any) => {
         const files: File[] = Array.from(e.target.files); // 获取所有选择的文件
         setoneFiles(files); // 存储文件数组
+        const selectedFileName = document.getElementById("selected-file-name");
+        if(selectedFileName) {
+            selectedFileName.textContent="";
+            for (let i=0; i<files.length;i++){
+                if(i>0) selectedFileName.textContent= selectedFileName.textContent+" / "+ files[i].name;
+                else selectedFileName.textContent = files[i].name;            
+            }
+            selectedFileName.textContent += `  共 ${files.length}个文件`;
+        }
         // 在这里处理获取到的文件
         console.log("上传的文件:", files);
     };
@@ -187,6 +196,7 @@ const App = () => {
         console.log(param);
         const now_files = files[param];
         console.log(now_files);
+        const selectedFileName = document.getElementById("selected-file-name");
         now_files?.forEach(async (file) => {
             try {
                 const filename = Date.now();
@@ -195,7 +205,9 @@ const App = () => {
                 console.log(file);
                 const result = await client.put(path, file, { headers });
                 console.log("上传成功", result);
+                if(selectedFileName) selectedFileName.textContent="";
             } catch (e) {
+                if(selectedFileName) selectedFileName.textContent="";
                 console.error("上传失败", e);
             }
             console.log("上传的文件:", file);
@@ -545,7 +557,16 @@ const App = () => {
                                         />
                                     </ProForm.Group>
                                     <ProForm.Group tooltip="支持一次性选中多个图片" title="资产图片">
-                                        <input type="file" onChange={handleFileChange} multiple/>
+                                        <label htmlFor="upload-input" style={{marginTop:"-20px"}}className="custom-upload-button-add">
+                                        </label>
+                                        <input
+                                            type="file"
+                                            id="upload-input"
+                                            onChange={handleFileChange}
+                                            style={{ display: "none" }}
+                                            multiple
+                                        />
+                                        <span id="selected-file-name"></span>
                                     </ProForm.Group>
                                     <MyForm inputCount={ProperList.length} />
                                 </ModalForm>

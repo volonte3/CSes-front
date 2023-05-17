@@ -3,7 +3,7 @@ import {
     UploadOutlined,
     PlusOutlined,
 } from "@ant-design/icons";
-import { Button, Upload, Modal, message } from "antd";
+import { Button, Upload, Modal, message, Space } from "antd";
 import * as XLSX from "xlsx";
 import { request } from "../utils/network";
 import { LoadSessionID } from "../utils/CookieOperation";
@@ -70,6 +70,8 @@ const AssetAddFromExcelUI = () => {
             now_dic["Property"] = pro_dic;
             AddList.push(now_dic);
         }
+        const selectedFileName = document.getElementById("selected-file-name-excel");
+        if(selectedFileName) selectedFileName.textContent = "";
         request(
             `/api/Asset/MutiAppend/${LoadSessionID()}`,
             "POST",
@@ -108,6 +110,8 @@ const AssetAddFromExcelUI = () => {
 
     const handleUpload = (event: any) => {
         const file = event.target.files[0];
+        const selectedFileName = document.getElementById("selected-file-name-excel");
+        if(selectedFileName) selectedFileName.textContent = file.name;
         const reader = new FileReader();
         reader.onload = (e) => {
             const fileContent = e.target?.result as ArrayBuffer;
@@ -131,11 +135,22 @@ const AssetAddFromExcelUI = () => {
                 onOk={handleOk}
                 confirmLoading={confirmLoading}
                 onCancel={handleCancel}
+                destroyOnClose={true}
             >   
                 <a href="https://cloud.tsinghua.edu.cn/f/9d0da52504d74bcbb1e8/?dl=1" target="_blank" rel="noopener noreferrer">点此下载模板文件</a>
                 <br />
                 <br />
-                <input type="file" onChange={handleUpload} />
+                <input
+                    type="file"
+                    id="upload-input-excel"
+                    onChange={handleUpload}
+                    style={{ display: "none" }}
+                />
+                <label htmlFor="upload-input-excel" className="custom-upload-button">
+                </label>
+                <Space style={{width:"20px"}}> </Space>
+                <span id="selected-file-name-excel"></span>
+                {/* <input type="file" onChange={handleUpload} /> */}
             </Modal>
             
         </div>       

@@ -17,6 +17,7 @@ import { request } from "../../../../utils/network";
 import { LoadSessionID } from "../../../../utils/CookieOperation";
 import UserInfo from "../../../../components/UserInfoUI";
 import SiderMenu from "../../../../components/SiderUI";
+import EChartsReact from "echarts-for-react";
 const { Option } = Select;
 const waitTime = (time: number = 100) => {
     return new Promise((resolve) => {
