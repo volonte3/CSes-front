@@ -11,7 +11,10 @@ import { DateTransform } from "../utils/transformer";
 interface AssetListProps {
     Assets: ApplyApprovalData[]
 }
-const ApplyApprovalList = () => {
+interface ApplyApprovalListProps {
+    refList:React.MutableRefObject<any>[];
+}
+const ApplyApprovalList = (props:ApplyApprovalListProps) => {
     const [Loading, setLoading] = useState(false);
     const [ApplyReason, setApplyReason] = useState("");      //申请理由
     const [ShowApplyReason, setShowApplyReason] = useState(false); //显示申请理由Modal
@@ -99,9 +102,9 @@ const ApplyApprovalList = () => {
             render: (text, record, _, action) => {
                 return (
                     <Space>
-                        <Button loading={Loading} type="primary" disabled={!record.Valid} onClick={() => { handleApproval(true, record.ApplyID); }}>同意申请</Button>
-                        <Button loading={Loading} danger onClick={() => { handleApproval(false, record.ApplyID); }}>驳回申请</Button>
-                        <Button type="link" onClick={() => { setApplyReason(record.Message); setShowApplyReason(true); }}> 查看申请理由</Button>
+                        <Button ref={props.refList[0]} loading={Loading} type="primary" disabled={!record.Valid} onClick={() => { handleApproval(true, record.ApplyID); }}>同意申请</Button>
+                        <Button ref={props.refList[1]} loading={Loading} danger onClick={() => { handleApproval(false, record.ApplyID); }}>驳回申请</Button>
+                        <Button ref={props.refList[2]} type="link" onClick={() => { setApplyReason(record.Message); setShowApplyReason(true); }}> 查看申请理由</Button>
                     </Space>
                 );
             }

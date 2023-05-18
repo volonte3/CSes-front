@@ -1,5 +1,9 @@
-import React from "react";
-import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, Switch, Modal, Button } from "antd";
+import React ,{useRef}from "react";
+import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, Switch, Modal, Tour,Button } from "antd";
+import {
+    QuestionCircleOutlined
+} from "@ant-design/icons";
+import type {TourProps} from "antd";
 const { Column, ColumnGroup } = Table;
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
@@ -22,9 +26,36 @@ const App = () => {
     const [Entity, setEntity] = useState<string>(""); // 实体名称
     const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
     const [UserID, setUserID]= useState(0);
+    const [TourOpen, setTourOpen] = useState(false);
     const {
         token: { colorBgContainer },
     } = theme.useToken();
+    const ref1 = useRef(null);
+    const ref2 = useRef(null);
+    const ref3 = useRef(null);
+    const ref4 = useRef(null);
+    const steps: TourProps["steps"] = [
+        {
+            title: "资产审批列表",
+            description: "显示所有部门员工提交的资产更改申请，点击右上角按钮可实现刷新和调整列表密度",
+            target: () => ref1.current,
+        },
+        {
+            title: "批复申请",
+            description: "通过员工提出的申请，由于申请间存在相互影响，一些申请不能同意，只能拒绝",
+            target: () => ref2.current,
+        },
+        {
+            title: "拒绝申请",
+            description: "拒绝员工提出的申请",
+            target: () => ref3.current,
+        },
+        {
+            title: "查看申请理由",
+            description: "点击可以查看员工提出申请的解释信息",
+            target: () => ref4.current,
+        }
+    ];
     useEffect(() => {
         if (!router.isReady) {
             return;
@@ -71,14 +102,18 @@ const App = () => {
                 <Layout className="site-layout" >
                     <Header className="ant-layout-header">
                         <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true} ID={UserID}></UserInfo>
+                        <Button style={{  margin: 30}} className="header_button" onClick={() => { setTourOpen(true); }} icon={<QuestionCircleOutlined />}>
+                            使用帮助
+                        </Button>
                     </Header>
                     <Content>
                         <Breadcrumb style={{ margin: "30px" }}>
-                            <Breadcrumb.Item>资产审批</Breadcrumb.Item>
+                            <Breadcrumb.Item >资产审批</Breadcrumb.Item>
                         </Breadcrumb>
-                        <div style={{background: colorBgContainer }}>
-                            <ApplyApprovalList />
+                        <div style={{background: colorBgContainer }} >
+                            <ApplyApprovalList refList={[ref2,ref3,ref4]}/>
                         </div>
+                        <Tour open={TourOpen} onClose={() => setTourOpen(false)} steps={steps} />
                     </Content>
                 </Layout>
             </Layout>

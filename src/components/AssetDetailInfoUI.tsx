@@ -1,12 +1,12 @@
 import React from "react";
-import { Button, Modal, Badge, Checkbox, Col, Row, Descriptions } from "antd";
+import { Button, Modal, Badge, Checkbox, Col, Row, Descriptions, Empty } from "antd";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
 import { AssetDetailInfo, AssetHistory, LabelVisible, TestDetailInfo } from "../utils/types"; //对列表中数据的定义在 utils/types 中
 import { ProTable, ProColumns, ProCard } from "@ant-design/pro-components";
-import { DateTransform, renderStatus, renderStatusBadge, renderKey,renderAssetType,renderLossStyle } from "../utils/transformer";
+import { DateTransform, renderStatus, renderStatusBadge, renderKey, renderAssetType, renderLossStyle } from "../utils/transformer";
 import { DownloadOutlined } from "@ant-design/icons";
 import LabelDef from "./AssetLabelUI";
 import OSS from "ali-oss";
@@ -174,7 +174,7 @@ export const AssetDetailCard = (props: AssetDetailProps) => {
         >
             <ProCard.TabPane key="Info" tab="资产信息" >
                 <div>
-                    <Descriptions title="资产信息" bordered>
+                    <Descriptions title="资产信息" bordered labelStyle={{ fontWeight: "bold" }}>
                         <Descriptions.Item label="资产名称">{DetailInfo.Name}</Descriptions.Item>
                         <Descriptions.Item label="ID">{DetailInfo.ID}</Descriptions.Item>
                         <Descriptions.Item label="创建时间">{DateTransform(DetailInfo.CreateTime)}</Descriptions.Item>
@@ -317,7 +317,7 @@ export const AssetDetailCard = (props: AssetDetailProps) => {
             </ProCard.TabPane>
             <ProCard.TabPane key="photos" tab="资产图片">
                 <div style={{ height: "400px", overflowY: "auto", overflowX: "hidden", display: "flex", flexWrap: "wrap" }}>
-                    {DetailInfo.ImageUrl.map((url, index) => (
+                    {DetailInfo.ImageUrl.length != 0 ? DetailInfo.ImageUrl.map((url, index) => (
                         <div
                             style={{ flex: "0 0 50%", marginBottom: "10px" }}
                             key={url}
@@ -333,7 +333,12 @@ export const AssetDetailCard = (props: AssetDetailProps) => {
                                 />
                             </div>
                         </div>
-                    ))}
+                    )) : <Empty
+                        description={
+                            <span>
+                                暂无图片
+                            </span>}
+                    />}
                 </div>
                 <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
                     <Button key="back" type="primary" onClick={() => { UpdateLabel(DetailInfo, false); setLabelChangeVisible(false); props.setVisibleDetail(false); }} style={{ marginRight: "10px" }}>
