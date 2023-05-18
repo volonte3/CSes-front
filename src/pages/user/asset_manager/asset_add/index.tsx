@@ -282,12 +282,12 @@ const App = () => {
     };
 
     const add = () => {
-        setLoading(true);
         let ok = true;
         if (AddList.length == 0) {
             message.warning("没有数据!");
             return;
         }
+        setLoading(true);
         for (let i = 0; i < AddList.length; i = i + 1) {
             let item = AddList[i];
             let nowList = AllProList[i];
