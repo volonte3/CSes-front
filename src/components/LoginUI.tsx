@@ -68,6 +68,7 @@ const LoginUI = (props: LoginScreenProps) => {
 	  }
 
     const handlefeishu = () => {
+        CreateCookie("SessionID");
         router.push("https://passport.feishu.cn/suite/passport/oauth/authorize?client_id=cli_a4d587450378500e&redirect_uri=http%3A%2F%2Fcs-company-frontend-debug-cses.app.secoder.net%2Fmain_page&response_type=code&state=STATE");
     };
 
