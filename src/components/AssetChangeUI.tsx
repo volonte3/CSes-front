@@ -222,6 +222,9 @@ const AssetChange = () => {
                             initialValues={{
                                 name: record.Name,
                                 describe: record.Description,
+                                count: record.Number,
+                                position: record.Position,
+                                money: record.Price,
                             }}
                             modalProps={{
                                 destroyOnClose: true,
@@ -305,8 +308,7 @@ const AssetChange = () => {
                                     label="资产价值"
                                     name="money"
                                     locale="zh-CN"
-                                    initialValue={0.00}
-                                    min={0}
+                                    min={0.01}
                                     rules={[{ required: true, message: "这是必填项" }]} 
                                 />
                             </ProForm.Group>
@@ -352,7 +354,7 @@ const AssetChange = () => {
                 for (let i = 0; i < assetlist.length; i = i + 1) {
                     let item = assetlist[i];
                     setAssetList((AssetList) => {
-                        AssetList[item.ID] = item.Name + " (" + item.Description + ")";
+                        AssetList[item.ID] = item.Name + " (" + item.ID + ")";
                         return AssetList;
                     });
                 }
