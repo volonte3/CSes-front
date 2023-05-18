@@ -1,4 +1,4 @@
-import { ProTable, ProColumns, ProFormDateTimePicker, ModalForm, ProForm, ProFormTreeSelect, ActionType } from "@ant-design/pro-components";
+import { ProTable, ProColumns, ProFormDateTimePicker, ModalForm, ProForm, ProFormTreeSelect, ActionType, ProList } from "@ant-design/pro-components";
 import React from "react";
 import { Form, Input, List, Slider, InputNumber } from "antd";
 import { AssetData } from "../utils/types"; //对列表中数据的定义在 utils/types 中
@@ -41,7 +41,8 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
     const [NowAssetID, setNowAssetID] = useState<number[]>([]);  //当前操作资产的ID
     const [ApplyMaxVolumn, setApplyMaxVolumn] = useState(0); //允许的最大领用量，即该资产的数量
     const [ApplyAssetType, setApplyAssetType] = useState(0); //获取资产的类型0就是条目型，1就是数量型
-
+    const [PageID, setPageID] = useState(1);
+    const [TotalNum, setTotalNum] = useState(0  );
     const fetchList = (myasset: number) => { // 传入1代表显示个人资产，传入0代表显示闲置资产
         setMyAsset(myasset);
         request(`/api/Asset/Info/${LoadSessionID()}`, "GET")
@@ -223,7 +224,6 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
         request(`/api/User/member/${LoadSessionID()}/1`, "GET")
             .then((res) => {
                 const newmembers = res.member.filter((item: MemberData) => (item.Name != props.EmployeeName));
-                // const Member = JSON.parse(res.jsonString) as MemberData;
                 setEmployee(newmembers);
             })
             .catch((err) => {
@@ -345,7 +345,6 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                                     onClick={() => {
                                         setApplyType(4);
                                         setOpenApplyCondition(true);
-
                                         GetMemberList();
                                     }}>转移资产</Button>}
                         </Space>
@@ -464,7 +463,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                 okText="下一步"
             >
                 <Input placeholder="搜索员工或部门名称" value={searchText} onChange={handleSearch} />
-                <List
+                <ProList
                     dataSource={filteredData}
                     renderItem={item => (
                         <List.Item
@@ -476,7 +475,8 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                         </List.Item>
                     )}
                     pagination={{
-                        pageSize: 20
+                        showSizeChanger:false,
+                        
                     }}
                 />
             </Modal>

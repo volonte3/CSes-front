@@ -161,7 +161,7 @@ const UserInfo = (props:UserinfoProps) => {
                 </Menu.Item>
             }
             {!props.TOREAD && 
-                <Menu.Item key="4" onClick={() => {if(props.Authority == 3) router.push("/user/employee/message");else router.push("/user/asset_manager/message");}}>
+                <Menu.Item key="4" onClick={() => {}}>
                     暂无新消息
                 </Menu.Item>
             }
@@ -182,7 +182,7 @@ const UserInfo = (props:UserinfoProps) => {
                     /> }></Button>
                 </Dropdown>
                 <Space>{""}</Space>
-                {(props.Authority==2 || props.Authority==3) && (!props.TODO && !props.TOREAD) && <Dropdown overlay={DropdownMenu}>
+                {(!props.TODO && !props.TOREAD) && <Dropdown overlay={DropdownMenu}>
                     <Button type = "text" className="header_button" icon={<BellOutlined />}>消息列表<DownOutlined /></Button>
                 </Dropdown>}
                 {(props.Authority==2 || props.Authority==3) && (props.TODO || props.TOREAD) && <Dropdown overlay={DropdownMenu}>
