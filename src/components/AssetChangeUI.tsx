@@ -138,7 +138,7 @@ const AssetChange = () => {
     
     const columns: ProColumns<AssetData>[] = [
         {
-            title: "资产编号",
+            title: "编号",
             dataIndex: "ID",
             key: "ID",
         },

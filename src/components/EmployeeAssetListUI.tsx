@@ -210,7 +210,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                                     setOpenApplyCondition(true);
                                     setTransferAsset(record);
                                     setApplyType(3);
-                                    GetMemberList();
+                                    GetMemberList("", 1);
                                 }}>
                                 转移
                             </Button>}
@@ -220,11 +220,11 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
         }
     ];
     // 资产转移第一步modal的相关函数
-    const GetMemberList = () => {
-        request(`/api/User/member/${LoadSessionID()}/1`, "GET")
+    const GetMemberList = (Name:string,PageID: number) => {
+        request(`/api/User/member/${LoadSessionID()}/${PageID}/Name=${Name}/Department=/Authority=-1`, "GET")
             .then((res) => {
-                const newmembers = res.member.filter((item: MemberData) => (item.Name != props.EmployeeName));
-                setEmployee(newmembers);
+                setTotalNum(res.TotalNum);
+                setEmployee(res.member);
             })
             .catch((err) => {
                 if (IfCodeSessionWrong(err, router)) {
@@ -238,6 +238,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
     };
     const handleSearch = (e: any) => {
         setSearchText(e.target.value);
+        GetMemberList(e.target.value, 1);
     };
     const handleSelectEmployee = (employee: MemberData) => {
         setSelectedEmployee(employee);
@@ -345,14 +346,20 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                                     onClick={() => {
                                         setApplyType(4);
                                         setOpenApplyCondition(true);
-                                        GetMemberList();
+                                        GetMemberList("", 1);
                                     }}>转移资产</Button>}
                         </Space>
                     );
                 }}
                 dataSource={AssetList}
                 pagination={{
-                    showSizeChanger: true
+                    current: PageID,
+                    pageSize: 20,
+                    total: TotalNum,
+                    onChange: (page: number) => {
+                        setPageID(page);
+                        
+                    },
                 }}
                 search={false}
                 toolBarRender={false}
@@ -476,7 +483,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                     )}
                     pagination={{
                         showSizeChanger:false,
-                        
+
                     }}
                 />
             </Modal>

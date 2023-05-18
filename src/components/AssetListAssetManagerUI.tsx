@@ -165,6 +165,40 @@ const AssetList = (props: AssetListProps) => {
             },
         }
     ];
+    // 分页多选相关
+    const [mySelectedRowKeys,handleMySelectedRowKeys] = useState<number[]>([]);  // 选中的项目
+    // 由于cancleRowKeys不影响dom，所以不使用useState定义
+    let cancleRowKeys:number[] = []; // 取消选择的项目
+
+    const onSelect = (record:AssetData, selected:any) => {
+        if (!selected) {
+            cancleRowKeys = [record.ID];
+        }
+    };
+	
+    const onMulSelect = (selected:any, selectedRows:any, changeRows:any) => {
+        if (!selected) {
+            cancleRowKeys = changeRows.map((item:AssetData) => item.ID);
+        }
+    };
+	
+    const onChange = (selectedRowKeys:any, selectedRows:any) => {
+        if (cancleRowKeys.length) {
+            const keys = mySelectedRowKeys.filter((item) => !cancleRowKeys.includes(item));
+            handleMySelectedRowKeys(keys);
+            cancleRowKeys = [];
+        } else {
+            const mergedRowKeys = mySelectedRowKeys.concat(selectedRowKeys);
+            const uniqueRowKeys:number[] = [];
+            for (const key of mergedRowKeys) {
+                if (!uniqueRowKeys.includes(key)) {
+                    uniqueRowKeys.push(key);
+                }
+            }
+            handleMySelectedRowKeys(uniqueRowKeys);
+        }
+    };
+
     const router = useRouter();
     const query = router.query;
     const [PropForm] = Form.useForm();
@@ -261,7 +295,7 @@ const AssetList = (props: AssetListProps) => {
 
             >
                 <ProForm.Group>
-                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center", marginLeft:"28px" }}>
                         <Form.Item name="Prop" label="自定义属性"
                         // rules={[{ required: true, message: "属性不能为空" }]}
                         >
@@ -357,23 +391,14 @@ const AssetList = (props: AssetListProps) => {
                     options={{ reload: true, setting: false }}
                     rowKey="ID"
                     rowSelection={{
-                        // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
-                        // 注释该行则默认不显示下拉选项
-                        selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
-                        defaultSelectedRowKeys: [],
+                        selectedRowKeys: mySelectedRowKeys,
+                        onSelect,
+                        onSelectMultiple: onMulSelect,
+                        onSelectAll: onMulSelect,
+                        onChange,
                     }}
-                    tableAlertRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => {
-                        setIsSomeRowCanNotDispatch(selectedRows.some(row => row.Status != 0));
-                        setSelectedRows(selectedRows);
-                        console.log(selectedRowKeys, selectedRows);
-                        return (
-                            <Space size={4}>
-                                已选 {selectedRowKeys.length} 项
-                                <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={onCleanSelected} >
-                                    取消选择
-                                </a>
-                            </Space>
-                        );
+                    tableAlertRender={() => {
+                        return `已选择 ${mySelectedRowKeys.length} 项`;
                     }}
                     tableAlertOptionRender={() => {
                         return (
@@ -392,11 +417,13 @@ const AssetList = (props: AssetListProps) => {
                         if(params.Status != undefined) urldata.Status=params.Status;
                         if(params.Class != undefined) urldata.Class=params.Class;
                         if(params.Owner != undefined) urldata.Owner=params.Owner;
-                        if (PropForm.getFieldValue("Prop") && PropForm.getFieldValue("PropValue")) {
+                        if (PropForm.getFieldValue("Prop")) {
                             urldata.Prop=PropForm.getFieldValue("Prop");
-                            urldata.PropValue=PropForm.getFieldValue("PropValue");
+                            if(PropForm.getFieldValue("PropValue")){
+                                urldata.PropValue=PropForm.getFieldValue("PropValue");
+                            }
                         }
-                        let url = `/api/Asset/Warn/${loadSessionID}/${urldata.current}/ID=${urldata.ID}/Name=${urldata.Name}/Class=${urldata.Class}/Status=${urldata.Status}/Owner=${urldata.Owner}/Prop=${urldata.Prop}/PropValue=${urldata.PropValue}`;
+                        let url = `/api/Asset/Info/${loadSessionID}/${urldata.current}/ID=${urldata.ID}/Name=${urldata.Name}/Class=${urldata.Class}/Status=${urldata.Status}/Owner=${urldata.Owner}/Prop=${urldata.Prop}/PropValue=${urldata.PropValue}`;
                         console.log(url);
                         return (
                             request(
@@ -404,6 +431,7 @@ const AssetList = (props: AssetListProps) => {
                                 "GET"
                             )
                                 .then((res) => {
+                                    setPropList(res.DepartmentProp);
                                     return Promise.resolve({ data: res.Asset, success: true , total:res.TotalNum});
                                 })
                         );
