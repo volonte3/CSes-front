@@ -86,7 +86,7 @@ const LoginUI = (props: LoginScreenProps) => {
              h2 {
                 text-align: center;
                 color: black;
-                margin-bottom: 30px;
+                margin-bottom: 35px;
                 margin-top:-15px;
                 font-size:25px;
           	}
