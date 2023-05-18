@@ -1,5 +1,7 @@
-import React from "react";
-import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, Switch, Modal, Button } from "antd";
+import React,{useRef} from "react";
+import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, Switch, Modal, Button,Tour } from "antd";
+import {QuestionCircleOutlined} from "@ant-design/icons";
+import type {TourProps} from "antd";
 const { Column, ColumnGroup } = Table;
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
@@ -30,6 +32,34 @@ const App = () => {
     const {
         token: { colorBgContainer },
     } = theme.useToken();
+    const [TourOpen, setTourOpen] = useState(false);
+
+    const ref1 = useRef(null);
+    const ref2 = useRef(null);
+    const ref3 = useRef(null);
+    const ref4 = useRef(null);
+    const steps: TourProps["steps"] = [
+        {
+            title: "自定义属性搜索面板",
+            description: "根据资产的自定义属性查找资产，检索时需输入自定义属性的键，若不填入自定义属性值，则默认检索所有具有该自定义属性键的资产",
+            target: () => ref1.current,
+        },
+        {
+            title: "基本属性搜索面板",
+            description: "根据资产的基本属性搜索资产，除编号外均为模糊匹配",
+            target: () => ref2.current,
+        },
+        {
+            title: "资产名称",
+            description: "显示资产的名称，点击名称可跳转至详细信息界面",
+            target: () => ref3.current,
+        },
+        {
+            title: "资产操作",
+            description: "展开下拉框可看到资产相关操作，包括清退、退维、调拨三种",
+            target: () => ref4.current,
+        }
+    ];
 
     useEffect(() => {
         if (!router.isReady) {
@@ -78,6 +108,9 @@ const App = () => {
                     <Layout className="site-layout" >
                         <Header className="site-header">
                             <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true} ID={UserID}></UserInfo>
+                            <Button disabled={VisibleDetail} style={{  margin: 30}} className="header_button" onClick={() => { setTourOpen(true); }} icon={<QuestionCircleOutlined />}>
+                                使用帮助
+                            </Button>
                         </Header>
                         <Content>
                             <Breadcrumb style={{ margin: "30px" }}>
@@ -85,8 +118,9 @@ const App = () => {
                                 {VisibleDetail && <Breadcrumb.Item className="ant-breadcrumb-item">{AssetName}</Breadcrumb.Item>}
                             </Breadcrumb>
                             <div className="Div">
-                                <AssetList ManagerName={UserName} setVisibleDetail={setVisibleDetail} VisibleDetail={VisibleDetail} setAssetName={setAssetName}/>
+                                <AssetList ManagerName={UserName} setVisibleDetail={setVisibleDetail} VisibleDetail={VisibleDetail} setAssetName={setAssetName} refList={[ref1,ref2,ref3,ref4]} setTourOpen={setTourOpen}/>
                             </div>
+                            <Tour open={TourOpen} onClose={() => setTourOpen(false)} steps={steps} />
                         </Content>
                     </Layout>
                 </Layout>

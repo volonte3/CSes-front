@@ -14,17 +14,19 @@ interface AssetListProps {
     setVisibleDetail: (visible: boolean) => void;
     setAssetName: (name: string) => void;
     VisibleDetail: boolean;
+    refList: React.MutableRefObject<any>[];
+    setTourOpen:(t:boolean)=>void;
 }
 interface UrlData {
-    pageSize:number;
+    pageSize: number;
     current?: number;
-    Name?:string;
+    Name?: string;
     ID?: number;
-    Class?:string;
-    Status?:number;
-    Owner?:string;
-    Prop?:string;
-    PropValue?:string;
+    Class?: string;
+    Status?: number;
+    Owner?: string;
+    Prop?: string;
+    PropValue?: string;
 }
 const { Option } = Select;
 
@@ -63,7 +65,7 @@ const AssetList = (props: AssetListProps) => {
     const [form] = Form.useForm<{ class: string; }>(); // 第二个Modal的格式
     const [loading, setLoading] = useState(false);
     const [showSkeleton, setShowSkeleton] = useState(false); //从资产列表跳到资产详细页面时的占位骨架
-    
+
     const columns: ProColumns<AssetData>[] = [
         {
             title: "资产编号",
@@ -77,13 +79,14 @@ const AssetList = (props: AssetListProps) => {
             tip: "点击资产可查看详情信息",
             render: (_: any, record) => {
                 return (
-                    <div>
+                    <div ref={props.refList[2]}>
                         <Tooltip title="点击查看详情">
-                            <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => {
+                            <a  style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => {
+                                props.setTourOpen(false);
                                 FetchDetail(record.ID);
-                                props.setVisibleDetail(true); 
+                                props.setVisibleDetail(true);
                                 props.setAssetName(record.Name);
-                                setShowSkeleton(true); 
+                                setShowSkeleton(true);
                                 setTimeout(() => {
                                     setShowSkeleton(false);
                                 }, 3000);
@@ -156,40 +159,42 @@ const AssetList = (props: AssetListProps) => {
                     </Menu.Item>
                 ));
                 return (
-                    <TableDropdown
-                        key="actionGroup"
-                        onSelect={() => action?.reload()}
-                        menus={options}
-                    />
+                    <div ref={props.refList[3]}>
+                        <TableDropdown
+                            key="actionGroup"
+                            onSelect={() => action?.reload()}
+                            menus={options}
+                        />
+                    </div>
                 );
             },
         }
     ];
     // 分页多选相关
-    const [mySelectedRowKeys,handleMySelectedRowKeys] = useState<number[]>([]);  // 选中的项目
+    const [mySelectedRowKeys, handleMySelectedRowKeys] = useState<number[]>([]);  // 选中的项目
     // 由于cancleRowKeys不影响dom，所以不使用useState定义
-    let cancleRowKeys:number[] = []; // 取消选择的项目
+    let cancleRowKeys: number[] = []; // 取消选择的项目
 
-    const onSelect = (record:AssetData, selected:any) => {
+    const onSelect = (record: AssetData, selected: any) => {
         if (!selected) {
             cancleRowKeys = [record.ID];
         }
     };
-	
-    const onMulSelect = (selected:any, selectedRows:any, changeRows:any) => {
+
+    const onMulSelect = (selected: any, selectedRows: any, changeRows: any) => {
         if (!selected) {
-            cancleRowKeys = changeRows.map((item:AssetData) => item.ID);
+            cancleRowKeys = changeRows.map((item: AssetData) => item.ID);
         }
     };
-	
-    const onChange = (selectedRowKeys:any, selectedRows:any) => {
+
+    const onChange = (selectedRowKeys: any, selectedRows: any) => {
         if (cancleRowKeys.length) {
             const keys = mySelectedRowKeys.filter((item) => !cancleRowKeys.includes(item));
             handleMySelectedRowKeys(keys);
             cancleRowKeys = [];
         } else {
             const mergedRowKeys = mySelectedRowKeys.concat(selectedRowKeys);
-            const uniqueRowKeys:number[] = [];
+            const uniqueRowKeys: number[] = [];
             for (const key of mergedRowKeys) {
                 if (!uniqueRowKeys.includes(key)) {
                     uniqueRowKeys.push(key);
@@ -295,7 +300,7 @@ const AssetList = (props: AssetListProps) => {
 
             >
                 <ProForm.Group>
-                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center", marginLeft:"28px" }}>
+                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center", marginLeft: "28px" }}>
                         <Form.Item name="Prop" label="自定义属性"
                         // rules={[{ required: true, message: "属性不能为空" }]}
                         >
@@ -380,10 +385,15 @@ const AssetList = (props: AssetListProps) => {
     return (
         <>
             {showSkeleton && <Skeleton active />}
-            {!props.VisibleDetail && <Divider orientation="center" >自定义属性</Divider>}
-            {!props.VisibleDetail && <PropSearch />}
-            {!props.VisibleDetail && <Divider orientation="center" >基本属性</Divider>}
-            {props.VisibleDetail && !showSkeleton && <AssetDetailCard setVisibleDetail={props.setVisibleDetail} DetailInfo={DetailInfo}/>}
+            <div ref={props.refList[0]}>
+
+                {!props.VisibleDetail && <Divider orientation="center" >自定义属性</Divider>}
+                {!props.VisibleDetail && <PropSearch />}
+            </div>
+            <div ref={props.refList[1]}>
+                {!props.VisibleDetail && <Divider orientation="center" >基本属性</Divider>}
+            </div>
+            {props.VisibleDetail && !showSkeleton && <AssetDetailCard setVisibleDetail={props.setVisibleDetail} DetailInfo={DetailInfo} />}
 
             {
                 !props.VisibleDetail && <ProTable className="ant-pro-table"
@@ -410,17 +420,17 @@ const AssetList = (props: AssetListProps) => {
                     }}
                     actionRef={tableRef}
                     request={async (params = {}) => {
-                        const loadSessionID = LoadSessionID();            
-                        let urldata:UrlData={pageSize:20, current:params.current, Name:"", ID:-1, Status:-1, Class:"",Owner:"",Prop:"",PropValue:""};
-                        if(params.Name != undefined) urldata.Name=params.Name;
-                        if(params.ID != undefined) urldata.ID=params.ID;
-                        if(params.Status != undefined) urldata.Status=params.Status;
-                        if(params.Class != undefined) urldata.Class=params.Class;
-                        if(params.Owner != undefined) urldata.Owner=params.Owner;
+                        const loadSessionID = LoadSessionID();
+                        let urldata: UrlData = { pageSize: 20, current: params.current, Name: "", ID: -1, Status: -1, Class: "", Owner: "", Prop: "", PropValue: "" };
+                        if (params.Name != undefined) urldata.Name = params.Name;
+                        if (params.ID != undefined) urldata.ID = params.ID;
+                        if (params.Status != undefined) urldata.Status = params.Status;
+                        if (params.Class != undefined) urldata.Class = params.Class;
+                        if (params.Owner != undefined) urldata.Owner = params.Owner;
                         if (PropForm.getFieldValue("Prop")) {
-                            urldata.Prop=PropForm.getFieldValue("Prop");
-                            if(PropForm.getFieldValue("PropValue")){
-                                urldata.PropValue=PropForm.getFieldValue("PropValue");
+                            urldata.Prop = PropForm.getFieldValue("Prop");
+                            if (PropForm.getFieldValue("PropValue")) {
+                                urldata.PropValue = PropForm.getFieldValue("PropValue");
                             }
                         }
                         let url = `/api/Asset/Info/${loadSessionID}/${urldata.current}/ID=${urldata.ID}/Name=${urldata.Name}/Class=${urldata.Class}/Status=${urldata.Status}/Owner=${urldata.Owner}/Prop=${urldata.Prop}/PropValue=${urldata.PropValue}`;
@@ -432,10 +442,10 @@ const AssetList = (props: AssetListProps) => {
                             )
                                 .then((res) => {
                                     setPropList(res.DepartmentProp);
-                                    return Promise.resolve({ data: res.Asset, success: true , total:res.TotalNum});
+                                    return Promise.resolve({ data: res.Asset, success: true, total: res.TotalNum });
                                 })
                         );
-                        
+
                     }
                     }
                     form={{
@@ -459,11 +469,12 @@ const AssetList = (props: AssetListProps) => {
                         defaultColsNumber: 1,
                         split: true,
                         span: 8,
-                        searchText: "查询"
+                        searchText: "查询",
                     }}
                     toolBarRender={() => []}
                 />
             }
+
             {
                 !props.VisibleDetail && <Modal
                     title="请选择要转移到的管理员"

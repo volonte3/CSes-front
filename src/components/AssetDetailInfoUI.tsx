@@ -316,30 +316,36 @@ export const AssetDetailCard = (props: AssetDetailProps) => {
                 </div>
             </ProCard.TabPane>
             <ProCard.TabPane key="photos" tab="资产图片">
-                <div style={{ height: "400px", overflowY: "auto", overflowX: "hidden", display: "flex", flexWrap: "wrap" }}>
-                    {DetailInfo.ImageUrl.length != 0 ? DetailInfo.ImageUrl.map((url, index) => (
-                        <div
-                            style={{ flex: "0 0 50%", marginBottom: "10px" }}
-                            key={url}
-                        >
-                            <div style={{ position: "relative", width: "100%", paddingBottom: "100%" }}>
-                                <Image
-                                    key={index}
-                                    src={url}
-                                    fit="scale-down"
-                                    style={{ position: "absolute", top: 0, left: 0, borderRadius: 8, width: "100%", height: "100%" }}
-                                    alt={DetailInfo.ID + "_" + index}
-                                    lazy
-                                />
+                {DetailInfo.ImageUrl.length != 0 ?
+                    <div style={{ height: "400px", overflowY: "auto", overflowX: "hidden", display: "flex", flexWrap: "wrap" }}>
+                        {DetailInfo.ImageUrl.map((url, index) => (
+                            <div
+                                style={{ flex: "0 0 50%", marginBottom: "10px" }}
+                                key={url}
+                            >
+                                <div style={{ position: "relative", width: "100%", paddingBottom: "100%" }}>
+                                    <Image
+                                        key={index}
+                                        src={url}
+                                        fit="scale-down"
+                                        style={{ position: "absolute", top: 0, left: 0, borderRadius: 8, width: "100%", height: "100%" }}
+                                        alt={DetailInfo.ID + "_" + index}
+                                        lazy
+                                    />
+                                </div>
                             </div>
-                        </div>
-                    )) : <Empty
-                        description={
-                            <span>
-                                暂无图片
-                            </span>}
-                    />}
-                </div>
+                        ))}
+                    </div>
+                    :
+                    <div style={{ display: "fill" }}>
+                        <Empty
+                            description={
+                                <span>
+                                    暂无图片
+                                </span>
+                            }
+                        />
+                    </div>}
                 <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
                     <Button key="back" type="primary" onClick={() => { UpdateLabel(DetailInfo, false); setLabelChangeVisible(false); props.setVisibleDetail(false); }} style={{ marginRight: "10px" }}>
                         返回
