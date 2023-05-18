@@ -201,6 +201,7 @@
     -webkit-transition: color 500000s ease-out, background-color 500000s ease-out !important;
 	background-color:transparent !important;
     background-image: none !important;
+	
 }
 
 
@@ -231,6 +232,7 @@
 }
 .item
 .item input:hover+label,
+.item input:-webkit-autofill+label,
 .item input:focus+label,
 .item input:valid+label {
     top: -14px;

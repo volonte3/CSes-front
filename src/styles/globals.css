@@ -187,10 +187,17 @@ a {
   cursor: pointer;
   /* 添加其他鼠标悬停时的样式 */
 }
-.employee-item.selected {
-  transform: scale(1.05);
+.employee-name {
+  /* transform: scale(1.05);
   border: 2px solid #1890ff;
-  border-radius: 4px;
+  border-radius: 4px; */
+  margin-left: 2px;
+}
+.employee-item.selected {
+  /* transform: scale(1.05);
+  border: 2px solid #1890ff;
+  border-radius: 4px; */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 .blank {
   height: 100px;
