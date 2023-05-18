@@ -3,6 +3,7 @@ import React from "react";
 import {
     PlusOutlined,
     CheckOutlined,
+    QuestionCircleOutlined
 } from "@ant-design/icons";
 import {
     ModalForm,
@@ -16,7 +17,8 @@ import {
     ProList,
     ProFormDateTimePicker,
 } from "@ant-design/pro-components";
-import { Layout, Menu, theme, Modal, Button, Breadcrumb, Row, Col, Form, message, Space } from "antd";
+import { Layout, Menu, theme, Modal, Button, Breadcrumb, Row, Col, Form, message, Tour } from "antd";
+import type {TourProps} from "antd";
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
@@ -149,6 +151,35 @@ const App = () => {
     const [files, setfiles] = useState<File[][]>([]); // 使用useState来管理files数组
 
     const [onefiles, setoneFiles] = useState<File[]>([]);
+
+    const [TourOpen, setTourOpen] = useState(false);
+
+    const ref1 = useRef(null);
+    const ref2 = useRef(null);
+    const ref3 = useRef(null);
+    const ref4 = useRef(null);
+    const steps: TourProps["steps"] = [
+        {
+            title: "新建资产",
+            description: "用于添加单个资产，点击后请在弹出的提示框内完善相关资产信息",
+            target: () => ref1.current,
+        },
+        {
+            title: "批量添加",
+            description: "用于批量添加资产，点击后会下载一个格式化的 Excel 表格，请在表格内完善资产后上传该表格。请注意！由于 Secoder 平台限制，批量提交的资产数量不应多于 100 条",
+            target: () => ref2.current,
+        },
+        {
+            title: "待录入资产列表",
+            description: "完善录入资产信息后，待录入资产会在此处生成预览列表",
+            target: () => ref3.current,
+        },
+        {
+            title: "录入",
+            description: "确认录入信息无误后，点击录入键最终实现资产录入信息提交",
+            target: () => ref4.current,
+        }
+    ];
 
     const handleFileChange = (e: any) => {
         const files: File[] = Array.from(e.target.files); // 获取所有选择的文件
@@ -407,6 +438,9 @@ const App = () => {
                 <Layout className="site-layout" >
                     <Header className="ant-layout-header">
                         <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true} ID={UserID}></UserInfo>
+                        <Button style={{  margin: 30}} className="header_button" onClick={() => { setTourOpen(true); }} icon={<QuestionCircleOutlined />}>
+                            使用帮助
+                        </Button>
                     </Header>   
                     <Content>           
                         <Breadcrumb style={{ margin: "30px" }}>
@@ -426,11 +460,12 @@ const App = () => {
                             }>
                                     title="新建资产"
                                     trigger={
-                                        <Button type="primary">
+                                        <Button type="primary" ref={ref1}>
                                             <PlusOutlined />
                                         新建资产
                                         </Button>
                                     }
+                                    
                                     form={form}
                                     autoFocusFirstInput
                                     modalProps={{
@@ -582,22 +617,23 @@ const App = () => {
                                 </ModalForm>
                             </Col>
                             <Col offset={17}>
-                                <Button loading={loading} type="primary" icon={<CheckOutlined />} onClick={add}>
+                                <Button ref={ref4} loading={loading} type="primary" icon={<CheckOutlined />} onClick={add}>
                                     录入
                                 </Button>
                             </Col>
                         </Row>
                         <Row>
                             <Col style={{ margin: "30px" }}>
-                                <AssetAddFromExcelUI/>
+                                <AssetAddFromExcelUI refList={[ref2]}/>
                             </Col>
                         </Row>
                         <Row align="top">
-                            <Col span={20} style={{marginLeft:"10px", fontSize:"16px"}}>
+                            <Col span={20} style={{marginLeft:"10px", fontSize:"16px"}} ref={ref3}>
                                 <ProList<DataItem>
                                     key={ListKey}
                                     rowKey="id"
                                     headerTitle="待录入资产列表"
+                                    
                                     dataSource={dataSource}
                                     showActions="hover"
                                     editable={{
@@ -638,6 +674,7 @@ const App = () => {
                                 />
                             </Col>
                         </Row>
+                        <Tour open={TourOpen} onClose={() => setTourOpen(false)} steps={steps} />
                     </Content>
                 </Layout>
             </Layout >

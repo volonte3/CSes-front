@@ -22,8 +22,10 @@ interface SendDic {
 }
 
 let AddList: MyDic[] = [];
-
-const AssetAddFromExcelUI = () => {
+interface AssetAddFromExcelProps {
+    refList:React.MutableRefObject<any>[];
+}
+const AssetAddFromExcelUI = (props:AssetAddFromExcelProps) => {
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [itemlist, setitemlist] = useState<any[]>([]);
@@ -127,7 +129,7 @@ const AssetAddFromExcelUI = () => {
       
     return (
         <div>
-            <Button type="primary" onClick={showModal} icon={<PlusOutlined/>}>
+            <Button ref = {props.refList[0]} type="primary" onClick={showModal} icon={<PlusOutlined/>}>
                 通过Excel批量录入
             </Button>
             <Modal title="通过Excel批量录入"
