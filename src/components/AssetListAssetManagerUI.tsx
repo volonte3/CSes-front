@@ -15,7 +15,17 @@ interface AssetListProps {
     setAssetName: (name: string) => void;
     VisibleDetail: boolean;
 }
-
+interface UrlData {
+    pageSize:number;
+    current?: number;
+    Name?:string;
+    ID?: number;
+    Class?:string;
+    Status?:number;
+    Owner?:string;
+    Prop?:string;
+    PropValue?:string;
+}
 const { Option } = Select;
 
 const layout = {
@@ -375,55 +385,30 @@ const AssetList = (props: AssetListProps) => {
                     }}
                     actionRef={tableRef}
                     request={async (params = {}) => {
-                        const loadSessionID = LoadSessionID();
-                        let url = `/api/Asset/Info/${loadSessionID}`;
+                        const loadSessionID = LoadSessionID();            
+                        let urldata:UrlData={pageSize:20, current:params.current, Name:"", ID:-1, Status:-1, Class:"",Owner:"",Prop:"",PropValue:""};
+                        if(params.Name != undefined) urldata.Name=params.Name;
+                        if(params.ID != undefined) urldata.ID=params.ID;
+                        if(params.Status != undefined) urldata.Status=params.Status;
+                        if(params.Class != undefined) urldata.Class=params.Class;
+                        if(params.Owner != undefined) urldata.Owner=params.Owner;
                         if (PropForm.getFieldValue("Prop") && PropForm.getFieldValue("PropValue")) {
-                            url = `/api/Asset/InfoProp/${loadSessionID}/${PropForm.getFieldValue("Prop")}/${PropForm.getFieldValue("PropValue")}`;
+                            urldata.Prop=PropForm.getFieldValue("Prop");
+                            urldata.PropValue=PropForm.getFieldValue("PropValue");
                         }
-                        return (request(url, "GET")
-                            .then(response => {    // 将request请求的对象保存到state中
-                                // 对获取到的信息进行筛选，其中创建时间设为不可筛选项，描述、物品名称和所有者设为包含搜索，状态和ID设为严格搜索
-                                // TODO ID到底是number还是string，前后端统一一下
-                                // TODO 强等于弱等于的问题，暂时没去管
-                                setPropList(response.DepartmentProp);
-                                // setPropList(TestPropList);
-                                let filteredData = response.Asset;
-                                console.log(filteredData);
-                                if (params.Description) {
-                                    filteredData = filteredData.filter(
-                                        (item: AssetData) => item.Description.includes(params.Description)
-                                    );
-                                }
-                                if (params.Owner) {
-                                    filteredData = filteredData.filter(
-                                        (item: AssetData) => item.Owner.includes(params.Owner)
-                                    );
-                                }
-                                if (params.ID) {
-                                    filteredData = filteredData.filter(
-                                        (item: AssetData) => item.ID == params.ID
-                                    );
-                                }
-                                if (params.Name) {
-                                    filteredData = filteredData.filter(
-                                        (item: AssetData) => item.Name.includes(params.Name)
-                                    );
-                                }
-                                if (params.Status) {
-                                    filteredData = filteredData.filter(
-                                        (item: AssetData) => item.Status == params.Status
-                                    );
-                                }
-                                if (params.Class) {
-                                    filteredData = filteredData.filter(
-                                        (item: AssetData) => item.Class.includes(params.Class)
-                                    );
-                                }
-                                return Promise.resolve({ data: filteredData, success: true });
-                            }));
+                        let url = `/api/Asset/Warn/${loadSessionID}/${urldata.current}/ID=${urldata.ID}/Name=${urldata.Name}/Class=${urldata.Class}/Status=${urldata.Status}/Owner=${urldata.Owner}/Prop=${urldata.Prop}/PropValue=${urldata.PropValue}`;
+                        console.log(url);
+                        return (
+                            request(
+                                url,
+                                "GET"
+                            )
+                                .then((res) => {
+                                    return Promise.resolve({ data: res.Asset, success: true , total:res.TotalNum});
+                                })
+                        );
+                        
                     }
-
-
                     }
                     form={{
                         // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下

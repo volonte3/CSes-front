@@ -32,7 +32,6 @@ const AssetWarnList = () => {
     const router = useRouter();
     const query = router.query;
     const tableRef = useRef<ActionType>(null);
-    const [Urldata, setUrldata]= useState<UrlData>();
     const [open1, setModal1open] = useState(false);
     const [open2, setModal2open] = useState(false);
     const [open3, setModal3open] = useState(false);
@@ -180,7 +179,7 @@ const AssetWarnList = () => {
             `/api/Asset/Warn/${LoadSessionID()}`,
             "POST",
             {
-                "AssetIdD": ChangeAsset?.ID,
+                "AssetID": ChangeAsset?.ID,
                 "WarnType": WarnType,
                 "WarnStrategy": `${NumWarnStrategy}`,
             }
@@ -210,7 +209,7 @@ const AssetWarnList = () => {
             {
                 "AssetIdD": ChangeAsset?.ID,
                 "WarnType": WarnType,
-                "WarnStrategy": `${Year}年${Month}月${Date}日`,
+                "WarnStrategy": `${Year}年${Month}月${Date}天`,
             }
         )
             .then((res) => {
@@ -260,7 +259,6 @@ const AssetWarnList = () => {
                     if(params.WarnType != undefined) urldata.WarnType=params.WarnType;
                     if(params.IsWarning != undefined) urldata.IsWarning=params.IsWarning;
                     // console.log("params参数："+params.Name+params.AssetType+params.WarnType);
-                    setUrldata(urldata);
                     let url = `/api/Asset/Warn/${loadSessionID}/${urldata.IsWarning}/${urldata.current}/Name=${urldata.Name}/AssetType=${urldata.AssetType}/WarnType=${urldata.WarnType}`;
                     console.log(url);
                     return (
