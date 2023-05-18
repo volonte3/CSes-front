@@ -10,8 +10,12 @@ import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { IfCodeSessionWrong, LoadSessionID } from "../utils/CookieOperation";
 import { AppData } from "../utils/types";
-
-const ApplicationUI = () => {
+interface ApplicationProps {
+    refList: React.MutableRefObject<any>[];
+    setTourOpen: (t: boolean) => void;
+    TourOpen: boolean;
+}
+const ApplicationUI = (props: ApplicationProps) => {
     const [Open, setOpen] = useState(false); //添加新url的侧边栏显示
     const [Authority, setAuthority] = useState(3); // 根据Authority判断当前应该显示的应用列表
     const [AppName, setAppName] = useState(""); //储存新建应用的名称
@@ -76,7 +80,7 @@ const ApplicationUI = () => {
                 }
             });
     };
-    
+
     const RemoveApp = (Authority: number, AppName: string) => {
         request(
             `/api/User/App/delete/${LoadSessionID()}/${Authority}/${AppName}`,
@@ -94,9 +98,9 @@ const ApplicationUI = () => {
                         content: err.toString().substring(5),
                     });
                 }
-                
+
             });
-        
+
     };
     const ChangeLock = (AppName: string, AppUrl: string) => {
         setLockLoading(true);
@@ -138,21 +142,23 @@ const ApplicationUI = () => {
             return;
         }
         fetchList(Authority);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query]);
-    return(
+    return (
         <Content>
             {Authority == 3 && <Button
                 type="primary"
                 style={{ float: "left", margin: 30 }}
-                onClick={() => {handleUser();}}
+                onClick={() => { handleUser(); }}
+                ref={props.refList[0]}
             >
                 切换到资产管理员应用列表
             </Button>}
             {Authority == 2 && <Button
                 type="primary"
                 style={{ float: "left", margin: 30 }}
-                onClick={() => {handleAM();}}
+                onClick={() => { handleAM(); }}
+                ref={props.refList[0]}
             >
                 切换到普通员工应用列表
             </Button>}
@@ -160,11 +166,12 @@ const ApplicationUI = () => {
                 type="primary"
                 icon={<PlusSquareOutlined />}
                 style={{ float: "left", margin: 30 }}
-                onClick={()=>setOpen(true)}
+                onClick={() => setOpen(true)}
+                ref={props.refList[1]}
             >
                 添加应用
             </Button>
-            <Drawer title="添加应用"  placement="right" onClose={onClose} open={Open}>
+            <Drawer title="添加应用" placement="right" onClose={onClose} open={Open} >
                 <Form
                     name="basic"
                     labelCol={{ span: 8 }}
@@ -173,35 +180,35 @@ const ApplicationUI = () => {
                 >
                     <Form.Item
                         label="应用名称"
-                        name = "AppName"
+                        name="AppName"
                         rules={[{ required: true, message: "请输入应用名称" }]}
                     >
                         <Input onChange={handleAppAdd} />
                     </Form.Item>
                     <Form.Item
                         label="应用url"
-                        name = "AppUrl"
+                        name="AppUrl"
                         rules={[{ required: true, message: "请输入应用url" }]}
                     >
                         <Input onChange={handleUrlAdd} />
                     </Form.Item>
                     <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                        <Button type="primary" htmlType="submit" loading = {Loading} onClick={() => {if (AppName && AppUrl) CreateNewApp(AppName, AppUrl, Authority);}}>
+                        <Button type="primary" htmlType="submit" loading={Loading} onClick={() => { if (AppName && AppUrl) CreateNewApp(AppName, AppUrl, Authority); }}>
                             确认提交
                         </Button>
                     </Form.Item>
                 </Form>
             </Drawer>
             <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
-                <Table  dataSource={AppList}>
+                <Table dataSource={AppList} ref={props.refList[2]}>
                     <Column title="应用名称" dataIndex="AppName" key="AppName" />
                     <Column
                         title="管理"
                         key="action"
                         render={(_: any, record: AppData) => (
                             <Space size="middle">
-                                <Switch checkedChildren="解锁" unCheckedChildren="禁用" onChange={() => { ChangeLock(record.AppName, record.AppUrl); }} checked={!record.IsLock} loading={LockLoading} />
-                                {!record.IsInternal && <Button type="primary" loading = {Loading} onClick={() => { RemoveApp(Authority, record.AppName);}}>移除该应用</Button>}
+                                <Switch ref={props.refList[3]}checkedChildren="解锁" unCheckedChildren="禁用" onChange={() => { if(!props.setTourOpen){ChangeLock(record.AppName, record.AppUrl); }}} checked={!record.IsLock} loading={LockLoading} />
+                                {!record.IsInternal && <Button type="primary" loading={Loading} onClick={() => { if(!props.setTourOpen){RemoveApp(Authority, record.AppName);} }} ref={props.refList[4]}>移除该应用</Button>}
 
                             </Space>
                         )}
