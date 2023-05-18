@@ -460,7 +460,7 @@ const App = () => {
                             }>
                                     title="新建资产"
                                     trigger={
-                                        <Button type="primary" ref={ref1}>
+                                        <Button type="primary" ref={ref1} disabled={TourOpen}>
                                             <PlusOutlined />
                                         新建资产
                                         </Button>
@@ -617,14 +617,14 @@ const App = () => {
                                 </ModalForm>
                             </Col>
                             <Col offset={17}>
-                                <Button ref={ref4} loading={loading} type="primary" icon={<CheckOutlined />} onClick={add}>
+                                <Button ref={ref4} loading={loading} type="primary" icon={<CheckOutlined />} onClick={()=>{if(!TourOpen){add();}}}>
                                     录入
                                 </Button>
                             </Col>
                         </Row>
                         <Row>
                             <Col style={{ margin: "30px" }}>
-                                <AssetAddFromExcelUI refList={[ref2]}/>
+                                <AssetAddFromExcelUI refList={[ref2]} TourOpen={TourOpen}/>
                             </Col>
                         </Row>
                         <Row align="top">
