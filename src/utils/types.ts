@@ -37,7 +37,7 @@ export interface ApplyApprovalData{
     ToPerson:string;    //这里写目标员工/资产管理员名
     Applicant:string;   //提出申请的人
     Valid:boolean;  //0表示不可以被同意，对应的情况比如多个人申请同一个资产，但资产管理员刚刚同意把资产转移到另一个人名下，那么其他人提出的申请就是无效的，虽然要向资产管理员展示但资产管理员只能驳回申请
-    Property:any;
+    Message:string;
 }
 
 export interface AppData {
@@ -92,11 +92,19 @@ export interface AssetDetailInfo{
     Description:string,
     CreateTime:string,
     History:AssetHistory[],
-    PropertyName:string[],
-    // PropertyValue:string[],
+    PropetyName:string[],  //自定义属性，键
+    PropetyValue:string[], //自定义属性，值
     Class:string,
     LabelVisible:LabelVisible,
     ImageUrl:string[],
+    AssetValue:number,  //（资产的价值，实时更新，需要支持小数）
+    Type:number,    //如果是0就是条目型，1就是数量型
+    LossStyle:number,  //0代表指数折旧，1代表线性折旧
+    Time:string,    //过期时间
+    Position:string,  //位置
+    Parent:string,  //父条目
+    Volume:number,  //如果是数量型资产，返回数量，如果是条目型返回1
+
 }
 
 export interface LabelVisible{
@@ -153,8 +161,8 @@ export const TestDetailInfo: AssetDetailInfo = {
             Asset_Admin: "王五",
         },
     ],
-    PropertyName: ["大小", "高低"],
-    // PropertyValue: ["100", "200"],
+    PropetyName: ["大小", "高低"],
+    PropetyValue: ["100", "200"],
     LabelVisible: {
         Name: true,
         Class: true,
@@ -163,5 +171,13 @@ export const TestDetailInfo: AssetDetailInfo = {
         Description: true,
         CreateTime: false,
     },
-    ImageUrl:url_list
+    ImageUrl:url_list,
+    Type:1,
+    AssetValue:90.8,
+    LossStyle:1,
+    Time:"2023-05-24 20:05:45",
+    Position:"老北京",
+    Parent:"父资产1",
+    Volume:1234,
+
 };
