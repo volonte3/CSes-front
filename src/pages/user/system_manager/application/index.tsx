@@ -1,9 +1,9 @@
-import React from "react";
+import React, {useRef} from "react";
 import {
-    FileOutlined, PlusSquareOutlined
+    FileOutlined, PlusSquareOutlined, QuestionCircleOutlined
 } from "@ant-design/icons";
-import type { MenuProps } from "antd";
-import { Layout, Menu, theme, Space, Table, Modal, Button, Input, Form, Drawer } from "antd";
+import type { MenuProps, TourProps } from "antd";
+import { Layout, Menu, theme, Space, Table, Modal, Button, Input, Form, Drawer,Tour } from "antd";
 const { Column } = Table;
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
@@ -31,6 +31,39 @@ const App = () => {
     const [UserID, setUserID]= useState(0);
     const [TOREAD, setTOREAD] = useState(false);
     const [TODO, setTODO] = useState(false);
+    const ref1 = useRef(null);
+    const ref2 = useRef(null);
+    const ref3 = useRef(null);
+    const ref4 = useRef(null);
+    const ref5 = useRef(null);
+    const [TourOpen, setTourOpen] = useState(false);
+    const steps: TourProps["steps"] = [
+        {
+            title: "添加业务实体",
+            description: "点击按钮添加业务实体及系统管理员",
+            target: () => ref1.current,
+        },
+        {
+            title: "飞书同步",
+            description: "点击按钮以同步所有飞书用户至指定部门",
+            target: () => ref2.current,
+        },
+        {
+            title: "业务实体列表",
+            description: "查看所有业务实体及对应的系统管理员,点击移除按钮可以删除对应实体及管理员,点击设置同步部门可以修改飞书同步的部门",
+            target: () => ref3.current,
+        },
+        {
+            title: "移除业务实体",
+            description: "删除业务实体及对应管理员",
+            target: () => ref4.current,
+        },
+        {
+            title: "业务实体列表",
+            description: "设置飞书同步部门,用于飞书同步",
+            target: () => ref5.current,
+        },
+    ];
     const router = useRouter();
     const {
         token: { colorBgContainer },
@@ -81,8 +114,12 @@ const App = () => {
                 <Layout className="site-layout" >
                     <Header className="ant-layout-header">
                         <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true} ID={UserID}></UserInfo>
+                        <Button style={{  margin: 30}} className="header_button" onClick={() => { setTourOpen(true); }} icon={<QuestionCircleOutlined />}>
+                            使用帮助
+                        </Button>
                     </Header>
-                    <ApplicationUI/>
+                    <ApplicationUI refList={[ref1,ref2,ref3,ref4,ref5]} setTourOpen={setTourOpen} TourOpen={TourOpen}/>
+                    <Tour open={TourOpen} onClose={() => setTourOpen(false)} steps={steps} />
                 </Layout>
             </Layout >
         );

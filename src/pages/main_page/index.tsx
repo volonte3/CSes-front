@@ -73,7 +73,6 @@ const App = () => {
             return;
         }
         if (query.hasOwnProperty("code")) { //飞书登录
-            CreateCookie("SessionID");
             request("/api/User/feishu_login", "POST", {
                 "code": query.code,
                 "SessionID": LoadSessionID()
