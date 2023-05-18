@@ -34,6 +34,8 @@ interface MyEditorState {
 }
 
 const { Item } = Form;
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
 
 class MyEditor extends React.Component<{ 
     name: string;
@@ -197,7 +199,15 @@ const App = () => {
         const now_files = files[param];
         console.log(now_files);
         const selectedFileName = document.getElementById("selected-file-name");
-        now_files?.forEach(async (file) => {
+        for (let i = 0; i < now_files.length; i++) {
+            const file = now_files[i];
+            if (file.size > MAX_FILE_SIZE) {
+                Modal.error({
+                    title: "图片" + file.name + "无法上传",
+                    content: "图片大小过大",
+                });
+                continue;
+            }
             try {
                 const filename = Date.now();
                 const fileExtension = file?.name.split(".").pop();
@@ -205,13 +215,13 @@ const App = () => {
                 console.log(file);
                 const result = await client.put(path, file, { headers });
                 console.log("上传成功", result);
-                if(selectedFileName) selectedFileName.textContent="";
+                if (selectedFileName) selectedFileName.textContent = "";
             } catch (e) {
-                if(selectedFileName) selectedFileName.textContent="";
+                if (selectedFileName) selectedFileName.textContent = "";
                 console.error("上传失败", e);
             }
             console.log("上传的文件:", file);
-        });
+        }
     };
 
 
@@ -556,7 +566,7 @@ const App = () => {
                                             rules={[{ required: true, message: "这是必填项" }]}
                                         />
                                     </ProForm.Group>
-                                    <ProForm.Group tooltip="支持一次性选中多个图片" title="资产图片">
+                                    <ProForm.Group tooltip="支持一次性选中多个图片，单个图片不能超过10MB" title="资产图片">
                                         <label htmlFor="upload-input" style={{marginTop:"-20px"}}className="custom-upload-button-add">
                                         </label>
                                         <input

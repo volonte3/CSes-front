@@ -83,6 +83,7 @@ const AssetChange = () => {
 
     const [files, setfiles] = useState<File[]>([]);
     const [nowid, setnowid] = useState(0);
+    const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
     const handleFileChange = (e: any) => {
         const files: File[] = Array.from(e.target.files); // 获取所有选择的文件
@@ -112,8 +113,15 @@ const AssetChange = () => {
             "x-oss-tagging": "Tag1=1&Tag2=2",
             "x-oss-forbid-overwrite": "true",
         };
-
-        files?.forEach(async (file) => {
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            if (file.size > MAX_FILE_SIZE) {
+                Modal.error({
+                    title: "图片" + file.name + "无法上传",
+                    content: "图片大小过大",
+                });
+                continue;
+            }
             try {
                 const filename = Date.now();
                 const fileExtension = file?.name.split(".").pop();
@@ -125,7 +133,7 @@ const AssetChange = () => {
                 console.error("上传失败", e);
             }
             console.log("上传的文件:", file);
-        });
+        }
     };
     
     const columns: ProColumns<AssetData>[] = [
@@ -320,7 +328,7 @@ const AssetChange = () => {
                                     rules={[{ required: true, message: "这是必填项" }]}
                                 />
                             </ProForm.Group>
-                            <ProForm.Group tooltip="支持一次性选中多个图片" title="资产图片">
+                            <ProForm.Group tooltip="支持一次性选中多个图片，单个图片不能超过10MB" title="资产图片">
                                 <input type="file" onChange={handleFileChange} multiple/>
                             </ProForm.Group>
                         </ModalForm>

@@ -1,6 +1,6 @@
 import React from "react";
-import { Layout, Menu, Dropdown, Button, Divider, Space, Modal, MenuProps, Descriptions, Form, Input, Collapse } from "antd";
-import { UserOutlined, BellOutlined, DownOutlined, PoweroffOutlined, LockOutlined, PhoneOutlined } from "@ant-design/icons";
+import { Layout, Tooltip, Button, Space, Modal, MenuProps, Descriptions, Form, Input, Collapse } from "antd";
+import { PictureOutlined, BellOutlined, DownOutlined, PoweroffOutlined, LockOutlined, PhoneOutlined } from "@ant-design/icons";
 import { logout, LoadSessionID, IfCodeSessionWrong, CreateCookie } from "../utils/CookieOperation";
 import { useRouter } from "next/router";
 import { request } from "../utils/network";
@@ -191,6 +191,8 @@ const UserSetting = (props:UserSettingProps) => {
             secure: true,
         });
 
+        const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
         const headers = {
             // 添加跨域请求头
             "Access-Control-Allow-Origin": "*",
@@ -211,6 +213,15 @@ const UserSetting = (props:UserSettingProps) => {
             console.log(error);
         }
         try {
+            if (File) {
+                if (File.size > MAX_FILE_SIZE) {
+                    Modal.error({
+                        title: "头像" + File.name + "无法上传",
+                        content: "图片大小过大",
+                    });
+                    return;
+                }
+            }
             //更新头像
             const path = `/Profile/${props.UserId}.png`;
             console.log(File);
@@ -344,6 +355,7 @@ const UserSetting = (props:UserSettingProps) => {
                         style={{ display: "none" }}
                     />
                     <label htmlFor="upload-input" className="custom-upload-button">
+                        (小于10MB)
                     </label>
                     <Space style={{width:"20px"}}> </Space>
                     <span id="selected-file-name"></span>
