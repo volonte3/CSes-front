@@ -72,9 +72,7 @@ const App = () => {
         if (!router.isReady) {
             return;
         }
-        console.log("query.code", query);
-        console.log("cookie.load(\"SessionID\")", cookie.load("SessionID"));
-        if (query.hasOwnProperty("code") && !cookie.load("SessionID")) { //飞书登录
+        if (query.hasOwnProperty("code")) { //飞书登录
             CreateCookie("SessionID");
             request("/api/User/feishu_login", "POST", {
                 "code": query.code,
