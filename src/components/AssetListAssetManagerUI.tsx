@@ -15,7 +15,8 @@ interface AssetListProps {
     setAssetName: (name: string) => void;
     VisibleDetail: boolean;
     refList: React.MutableRefObject<any>[];
-    setTourOpen:(t:boolean)=>void;
+    setTourOpen: (t: boolean) => void;
+    TourOpen: boolean;
 }
 interface UrlData {
     pageSize: number;
@@ -81,15 +82,17 @@ const AssetList = (props: AssetListProps) => {
                 return (
                     <div ref={props.refList[2]}>
                         <Tooltip title="点击查看详情">
-                            <a  style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => {
-                                props.setTourOpen(false);
-                                FetchDetail(record.ID);
-                                props.setVisibleDetail(true);
-                                props.setAssetName(record.Name);
-                                setShowSkeleton(true);
-                                setTimeout(() => {
-                                    setShowSkeleton(false);
-                                }, 3000);
+                            <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => {
+                                if (!props.TourOpen) {
+                                    props.setTourOpen(false);
+                                    FetchDetail(record.ID);
+                                    props.setVisibleDetail(true);
+                                    props.setAssetName(record.Name);
+                                    setShowSkeleton(true);
+                                    setTimeout(() => {
+                                        setShowSkeleton(false);
+                                    }, 3000);
+                                }
                             }}>{record.Name}</a>
                         </Tooltip>
                     </div >);
@@ -149,9 +152,9 @@ const AssetList = (props: AssetListProps) => {
             key: "option",
             render: (text, record, _, action) => {
                 const options = [
-                    { key: "receive", name: "清退", onClick: () => hanleChange([record.ID], 0) },
-                    { key: "return", name: "退维", disabled: record.Status != 2, onClick: () => hanleChange([record.ID], 1) },
-                    { key: "maintenance", name: "调拨", disabled: record.Status != 0, onClick: () => { setOpen1(true); setTransferAsset(record); GetMemberList(); } },
+                    { key: "receive", name: "清退", onClick: () => {if(!props.TourOpen){hanleChange([record.ID], 0);}} },
+                    { key: "return", name: "退维", disabled: record.Status != 2, onClick: () => {if(!props.TourOpen){hanleChange([record.ID], 1);}} },
+                    { key: "maintenance", name: "调拨", disabled: record.Status != 0, onClick: () => { if(!props.TourOpen){setOpen1(true); setTransferAsset(record); GetMemberList();} } },
                 ];
                 const menuItems = options.map(option => (
                     <Menu.Item key={option.key} disabled={option.disabled} onClick={option.onClick}>
@@ -162,7 +165,7 @@ const AssetList = (props: AssetListProps) => {
                     <div ref={props.refList[3]}>
                         <TableDropdown
                             key="actionGroup"
-                            onSelect={() => action?.reload()}
+                            onSelect={() => {action?.reload();}}
                             menus={options}
                         />
                     </div>
@@ -334,7 +337,7 @@ const AssetList = (props: AssetListProps) => {
     };
     // 资产转移第一步modal的相关函数
     const GetMemberList = () => {
-        request(`/api/User/member/${LoadSessionID()}`, "GET")
+        request(`/api/User/member/${LoadSessionID()}/1/Name=/Department=/Authority=-1`, "GET")
             .then((res) => {
                 const members = res.member.filter((item: MemberData) => (item.Name != props.ManagerName && item.Authority == 2));
                 console.log(members);

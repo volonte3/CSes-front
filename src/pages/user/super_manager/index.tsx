@@ -353,7 +353,7 @@ const App = () => {
                             type="primary"
                             icon={<PlusSquareOutlined />}
                             style={{ float: "left", margin: 30 }}
-                            onClick={showDrawer}
+                            onClick={()=>{if(!TourOpen){showDrawer();}}}
                             ref={ref1}
                         >
                             添加业务实体
@@ -362,7 +362,7 @@ const App = () => {
                             <Button type="text" ref={ref2}
                                 icon={<NewLark theme="filled" size="25" fill="#4a90e2" strokeLinejoin="bevel" />}
                                 style={{ float: "right", margin: 30 }}
-                                onClick={() => setShowSynchronousFeishu(true)}
+                                onClick={() => {if(!TourOpen){setShowSynchronousFeishu(true);}}}
                             >
                             </Button>
                         </Tooltip>
@@ -441,11 +441,11 @@ const App = () => {
                                     key="action"
                                     render={(_: any, record: SystemData) => (
                                         <Space size="middle">
-                                            <Button danger onClick={() => Remove(record.Manager, record.Entity)} ref={ref4}>
+                                            <Button danger onClick={() => {if(!TourOpen){Remove(record.Manager, record.Entity);}}} ref={ref4}>
                                                 移除
                                             </Button>
                                             <Button type="default"
-                                                onClick={() => { handleShowDepartments(record.ID); setShowFeishu(true); }} 
+                                                onClick={() => { if(!TourOpen){handleShowDepartments(record.ID); setShowFeishu(true);} }} 
                                                 ref={ref5}> 
                                                 设置飞书同步部门
                                             </Button>

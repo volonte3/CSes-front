@@ -118,7 +118,7 @@ const App = () => {
                                 {VisibleDetail && <Breadcrumb.Item className="ant-breadcrumb-item">{AssetName}</Breadcrumb.Item>}
                             </Breadcrumb>
                             <div className="Div">
-                                <AssetList ManagerName={UserName} setVisibleDetail={setVisibleDetail} VisibleDetail={VisibleDetail} setAssetName={setAssetName} refList={[ref1,ref2,ref3,ref4]} setTourOpen={setTourOpen}/>
+                                <AssetList ManagerName={UserName} setVisibleDetail={setVisibleDetail} VisibleDetail={VisibleDetail} setAssetName={setAssetName} refList={[ref1,ref2,ref3,ref4]} setTourOpen={setTourOpen} TourOpen={TourOpen}/>
                             </div>
                             <Tour open={TourOpen} onClose={() => setTourOpen(false)} steps={steps} />
                         </Content>
