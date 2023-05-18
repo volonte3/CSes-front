@@ -230,8 +230,7 @@ const MemberList = (props: MemberListProps) => {
             title:"所属部门",
             dataIndex:"Department",
             key:"Department",
-            search: props.department_page ? false: undefined,
-
+            search: false,
             width:"150px"
         },
         {

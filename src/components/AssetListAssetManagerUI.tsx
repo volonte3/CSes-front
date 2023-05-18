@@ -5,10 +5,11 @@ import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
 import { AssetData, AssetDetailInfo, AssetHistory, MemberData, LabelVisible, TestDetailInfo } from "../utils/types"; //对列表中数据的定义在 utils/types 中
-import { ProTable, ProColumns, TableDropdown, ProCard, ProForm, ModalForm, ProFormTreeSelect, ActionType } from "@ant-design/pro-components";
+import { ProTable, ProColumns, TableDropdown, ProCard, ProForm, ModalForm, ProFormTreeSelect, ActionType, ProList } from "@ant-design/pro-components";
 import { DateTransform, renderStatus, renderStatusChanges, renderStatusBadge, renderKey } from "../utils/transformer";
 import OSS from "ali-oss";
 import { AssetDetailCard } from "./AssetDetailInfoUI";
+import { table } from "console";
 interface AssetListProps {
     ManagerName: string;
     setVisibleDetail: (visible: boolean) => void;
@@ -154,7 +155,7 @@ const AssetList = (props: AssetListProps) => {
                 const options = [
                     { key: "receive", name: "清退", onClick: () => {if(!props.TourOpen){hanleChange([record.ID], 0);}} },
                     { key: "return", name: "退维", disabled: record.Status != 2, onClick: () => {if(!props.TourOpen){hanleChange([record.ID], 1);}} },
-                    { key: "maintenance", name: "调拨", disabled: record.Status != 0, onClick: () => { if(!props.TourOpen){setOpen1(true); setTransferAsset(record); GetMemberList();} } },
+                    { key: "maintenance", name: "调拨", disabled: record.Status != 0, onClick: () => { if(!props.TourOpen){setOpen1(true); setTransferAsset(record); GetMemberList(1, "");} } },
                 ];
                 const menuItems = options.map(option => (
                     <Menu.Item key={option.key} disabled={option.disabled} onClick={option.onClick}>
@@ -241,6 +242,7 @@ const AssetList = (props: AssetListProps) => {
     }, [router, query, DetailInfo]);
     const hanleChange = (AssetIDList: number[], operation: number, MoveTo: string = "", Type = "") => {
         setLoading(true);
+        handleMySelectedRowKeys([]);
         request(`/api/Asset/Manage/${LoadSessionID()}`, "POST",
             {
                 "operation": operation,
@@ -336,12 +338,13 @@ const AssetList = (props: AssetListProps) => {
         );
     };
     // 资产转移第一步modal的相关函数
-    const GetMemberList = () => {
-        request(`/api/User/member/${LoadSessionID()}/1/Name=/Department=/Authority=-1`, "GET")
+    const [PageID, setPageID] = useState(1);
+    const [TotalNum, setTotalNum] = useState(0);
+    const GetMemberList = (PageID:number, Name: string) => {
+        request(`/api/User/member/${LoadSessionID()}/${PageID}/Name=${Name}/Department=/Authority=2`, "GET")
             .then((res) => {
-                const members = res.member.filter((item: MemberData) => (item.Name != props.ManagerName && item.Authority == 2));
-                console.log(members);
-                setEmployee(members);
+                setTotalNum(res.TotalNum);
+                setEmployee(res.member);
             })
             .catch((err) => {
                 if (IfCodeSessionWrong(err, router)) {
@@ -355,14 +358,12 @@ const AssetList = (props: AssetListProps) => {
     };
     const handleSearch = (e: any) => {
         setSearchText(e.target.value);
+        GetMemberList(PageID, e.target.value);
     };
     const handleSelectEmployee = (employee: MemberData) => {
         setSelectedEmployee(employee);
     };
-    const filteredData = Employee ? Employee.filter(
-        item => (item.Name.includes(searchText) ||
-            item.Department.includes(searchText))
-    ) : [];
+    const filteredData = Employee ? Employee : [];
     const handleOk1 = () => { // 资产转移第一步的ok键，获取部门的资产分类树，同时打开第二步的modal
         request(
             "/api/Asset/DepartmentTree",
@@ -384,6 +385,15 @@ const AssetList = (props: AssetListProps) => {
             });
         setOpen1(false);
         setOpen2(true);
+    };
+    const pagination = {
+        current: PageID,
+        pageSize: 20,
+        total: TotalNum,
+        onChange: (page: number) => {
+            setPageID(page);
+            GetMemberList(page, searchText);
+        },
     };
     return (
         <>
@@ -411,13 +421,23 @@ const AssetList = (props: AssetListProps) => {
                         onChange,
                     }}
                     tableAlertRender={() => {
-                        return `已选择 ${mySelectedRowKeys.length} 项`;
+                        return (
+                            <Space size={4}>
+                                已选 {mySelectedRowKeys.length} 项
+                                <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => {
+                                    handleMySelectedRowKeys([]);
+                                }}>
+                                    取消选择
+                                </a>
+
+                            </Space>
+                        );
                     }}
                     tableAlertOptionRender={() => {
                         return (
                             <Space size={16} >
-                                <Button type="primary" loading={loading} onClick={() => { hanleChange(SelectedRows.map((row: any) => row.ID), 0); if (tableRef.current?.clearSelected) tableRef.current?.clearSelected(); }}>清退资产</Button>
-                                <Button type="primary" loading={loading} disabled={IsSomeRowCanNotDispatch} onClick={() => { setOpen1(true); GetMemberList(); }}>调拨资产</Button>
+                                <Button type="primary" loading={loading} onClick={() => {hanleChange(mySelectedRowKeys, 0);}}>清退资产</Button>
+                                <Button type="primary" loading={loading} disabled={IsSomeRowCanNotDispatch} onClick={() => { setOpen1(true); GetMemberList(1, ""); }}>调拨资产</Button>
                             </Space>
                         );
                     }}
@@ -489,8 +509,8 @@ const AssetList = (props: AssetListProps) => {
                     okText="下一步"
                 >
                     <Input placeholder="搜索员工或部门名称" value={searchText} onChange={handleSearch} />
-                    <List
-                        dataSource={filteredData}
+                    <ProList
+                        dataSource={Employee ? Employee : []}
                         renderItem={item => (
                             <List.Item
                                 onClick={() => handleSelectEmployee(item)}
@@ -500,9 +520,7 @@ const AssetList = (props: AssetListProps) => {
                                 <div className="department">{item.Department}</div>
                             </List.Item>
                         )}
-                        pagination={{
-                            pageSize: 20
-                        }}
+                        pagination={pagination}
                     />
                 </Modal>
             }
@@ -520,10 +538,9 @@ const AssetList = (props: AssetListProps) => {
                     submitTimeout={1000}
                     open={Open2}
                     onFinish={async (values) => {
-                        if (SelectedRows.length > 0) hanleChange(SelectedRows.map((row: any) => row.ID), 2, selectedEmployee?.Name, values.class);
+                        if (mySelectedRowKeys.length > 0) hanleChange(mySelectedRowKeys, 2, selectedEmployee?.Name, values.class);
                         else hanleChange([selectedTransferAsset ? selectedTransferAsset.ID : 0], 2, selectedEmployee?.Name, values.class);
                         setOpen2(false);
-                        if (tableRef.current?.clearSelected) tableRef.current?.clearSelected();
                         return true;
                     }}
                 >
