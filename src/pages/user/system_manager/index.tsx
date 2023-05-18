@@ -69,25 +69,25 @@ const App = () => {
                 });
             });
         // setState(true);
-        if (state) {
-            request(`/api/User/member/${LoadSessionID()}`, "GET")
-                .then((res) => {
-                    // const Member = JSON.parse(res.jsonString) as MemberData;
-                    setMember(res.member);
-                })
-                .catch((err) => {
-                    console.log(err.message);
-                    if (IfCodeSessionWrong(err, router)) {
+        // if (state) {
+        //     request(`/api/User/member/${LoadSessionID()}`, "GET")
+        //         .then((res) => {
+        //             // const Member = JSON.parse(res.jsonString) as MemberData;
+        //             setMember(res.member);
+        //         })
+        //         .catch((err) => {
+        //             console.log(err.message);
+        //             if (IfCodeSessionWrong(err, router)) {
 
-                        setState(false);
-                        Modal.error({
-                            title: "无权获取用户列表",
-                            content: "请重新登录",
-                            onOk: () => { window.location.href = "/"; }
-                        });
-                    }
-                });
-        }
+        //                 setState(false);
+        //                 Modal.error({
+        //                     title: "无权获取用户列表",
+        //                     content: "请重新登录",
+        //                     onOk: () => { window.location.href = "/"; }
+        //                 });
+        //             }
+        //         });
+        // }
     }, [router, query, state]);
     if (state) {
 

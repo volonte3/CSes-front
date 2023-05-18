@@ -162,7 +162,7 @@
 .loginBox {
     width: 400px;
     height: 364px;
-    background-color: rgba(222, 227, 252, 0.4);
+    background-color: rgba(249, 250, 252, 0.571);
 	/* background: white; */
 	margin:auto;
 	justify-items: center;
@@ -258,7 +258,7 @@
 	border: none;
 	font-size: 18px;
 	font-weight: 1000;
-	border-radius: 5px;
+	border-radius: 10px;
 }
 
 .btn:hover {
@@ -295,7 +295,7 @@
 .btn>span:nth-child(2) {
     width: 2px;
     height: 100%;
-    background: -webkit-linear-gradient(top, transparent, #0096F0);
+    background: -webkit-linear-gradient(top, transparent, #039efe);
     right: 0px;
     top: -100%;
     animation: line2 1s 0.25s linear infinite;

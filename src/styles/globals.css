@@ -110,6 +110,7 @@ a {
   /* justify-content: space-between; */
   border-radius: 20px;
   margin-bottom: 10PX;
+  padding: 10px;
 }
 .right-menu {
   display: flex;
