@@ -53,7 +53,7 @@ const DepartmentUI = () => {
     };
     const fetchList = (Path: string) => {
         request(
-            `/api/User/department/${LoadSessionID()}/${Path}`,
+            `/api/User/department/${LoadSessionID()}/${Path}/1/Name=/Authority=-1`,
             "GET"
         )
             .then((res) => {

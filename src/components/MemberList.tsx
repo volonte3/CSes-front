@@ -39,24 +39,11 @@ const MemberList = (props: MemberListProps) => {
     const [data, setData] = useState<DataType[] | undefined>(); // 存储加载该系统管理员管理的资产管理员和员工的信息
     const [IsRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
     const [Loading, setLoading] = useState(false);
+    const router = useRouter();
+    const query = router.query;
+    const tableRef = useRef<ActionType>(null);
     const FetchMemberList = () => {
-        if (!props.department_page) {
-            request(`/api/User/member/${LoadSessionID()}`, "GET")
-                .then((res) => {
-                    const now_data: DataType[] = [];
-                    for (let i = 0; i < res.member.length; i++) {
-                        now_data.push({
-                            key: i,
-                            Name: res.member[i].Name,
-                            Department: res.member[i].Department,
-                            Authority: res.member[i].Authority,
-                            lock: res.member[i].lock
-                        });
-                    }
-                    setData(now_data);
-                });
-        }
-        else {
+        if(props.department_page) {
             request(
                 `/api/User/department/${LoadSessionID()}/${props.department_path}`,
                 "GET"
@@ -168,7 +155,7 @@ const MemberList = (props: MemberListProps) => {
                     title: "成功",
                     content: `身份已设为${renderAuthority(ans)}`,
                 });
-                FetchMemberList();
+                tableRef.current?.reload();
             })
             .catch((err: string) => {
                 if (IfCodeSessionWrong(err, router)) {
@@ -191,7 +178,7 @@ const MemberList = (props: MemberListProps) => {
         )
             .then(() => {
                 setLockLoading(false);
-                FetchMemberList();
+                tableRef.current?.reload();
 
             })
             .catch((err: string) => {
@@ -213,7 +200,7 @@ const MemberList = (props: MemberListProps) => {
                 let answer: string = `成功删除${renderAuthority(Authority)} ${UserName}`;
                 Modal.success({ title: "删除成功", content: answer });
                 handleRemoveOk();
-                FetchMemberList();
+                tableRef.current?.reload();
             })
             .catch((err: string) => {
                 if (IfCodeSessionWrong(err, router)) {
@@ -225,14 +212,11 @@ const MemberList = (props: MemberListProps) => {
             });
         
     };
-    const router = useRouter();
-    const query = router.query;
-    const tableRef = useRef<ActionType>(null);
     useEffect(() => {
         if (!router.isReady) {
             return;
         }
-        FetchMemberList();
+        // FetchMemberList();
         console.log("ChangeAuthorityValue has been updated:", ChangeAuthorityValue);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query, ChangeAuthorityValue, props]);
@@ -245,7 +229,10 @@ const MemberList = (props: MemberListProps) => {
         {
             title:"所属部门",
             dataIndex:"Department",
-            key:"Department"
+            key:"Department",
+            search: props.department_page ? false: undefined,
+
+            width:"150px"
         },
         {
             title:"身份",
@@ -265,17 +252,15 @@ const MemberList = (props: MemberListProps) => {
         {
             title:"管理",
             key:"action",
+            search:false,
+            width:"300px",
             render:(text, record, _, action) => (
                 <Space size="middle">
                     <Switch checkedChildren="解锁" unCheckedChildren="锁定" onChange={() => { ChangeLock(record.Name); }} checked={!record.lock} loading={LockLoading} />
                     <Button danger onClick={() => { showRemakeModal(record.Name, record.Authority); }}>重置密码</Button>
-                    <Modal title="重置密码" open={isRemakeModalOpen} onOk={() => { RemakePassword(record.Name); }} onCancel={handleRemakeCancel} mask={false}>
-                                将 {NowAuthority} {NowUser} 密码重置为 yiqunchusheng
-                    </Modal>
-                    <Button danger onClick={() => { console.log("record.Name:",record.Name);console.log("record.Authority:",record.Authority);showRemoveModal(record.Name, record.Authority); }}>删除员工</Button>
-                    <Modal title="删除员工" open={IsRemoveModalOpen} onOk={() => {console.log("NowUserWhileRemove",NowUser);RemoveUser(NowUser, NowAuthority); }} onCancel={handleRemoveCancel} mask={false}>
-                                请确认删除 {NowAuthority} {NowUser}
-                    </Modal>
+                    
+                    <Button danger onClick={() => {showRemoveModal(record.Name, record.Authority); }}>删除员工</Button>
+                    
                     {record.Authority == 3 && <Button type="text" onClick={() => { ChangeAuthority(record.Name, record.Authority); }} icon={<UpOutlined />}>提拔为资产管理员</Button>}
                     {record.Authority == 2 && <Button type="text" danger onClick={() => { ChangeAuthority(record.Name, record.Authority); }} icon={<DownOutlined />}>降为普通员工</Button>}
                 </Space>
@@ -296,6 +281,7 @@ const MemberList = (props: MemberListProps) => {
                     if(params.Department != undefined) urldata.Department=params.Department;
                     if(params.Authority != undefined) urldata.Authority=params.Authority;
                     let url = `/api/User/member/${loadSessionID}/${urldata.current}/Name=${urldata.Name}/Department=${urldata.Department}/Authority=${urldata.Authority}`;
+                    if (props.department_page) url = `/api/User/department/${loadSessionID}/${props.department_path}/${urldata.current}/Name=${urldata.Name}/Authority=${urldata.Authority}`;
                     console.log(url);
                     return (
                         request(
@@ -319,8 +305,14 @@ const MemberList = (props: MemberListProps) => {
                     span: 8,
                     searchText: "查询"
                 }}
-                toolBarRender={() => []}
+                toolBarRender={false}
             />
+            <Modal title="重置密码" open={isRemakeModalOpen} onOk={() => { RemakePassword(NowUser); }} onCancel={handleRemakeCancel}>
+                将 {NowUser} 密码重置为 yiqunchusheng
+            </Modal>
+            <Modal title="删除员工" open={IsRemoveModalOpen} onOk={() => {console.log("NowUserWhileRemove",NowUser);RemoveUser(NowUser, NowAuthority); }} onCancel={handleRemoveCancel} >
+                请确认删除 {renderAuthority(NowAuthority)} {NowUser}
+            </Modal>
         </div>
     );
 };
