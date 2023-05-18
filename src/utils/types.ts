@@ -25,6 +25,8 @@ export interface AssetData{
     Time:string;    //资产的截至时间
     Number:number;  //如果是数量型资产，表示资产数量，如果不是数量型则返回1
     Type:number;  //0就是条目型，1就是数量型
+    Position:string;
+    Price:number;
 }
 
 export interface ApplyApprovalData{
