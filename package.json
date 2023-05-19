@@ -13,7 +13,6 @@
     "eject": "react-scripts eject"
   },
   "dependencies": {
-    "@ant-design/graphs": "^1.4.0",
     "@ant-design/pro-components": "^2.4.4",
     "@icon-park/react": "^1.4.2",
     "@types/ali-oss": "^6.16.7",
