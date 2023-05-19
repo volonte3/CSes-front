@@ -183,9 +183,10 @@ const MessageUI = (props: MessageProps) => {
             <Button ref={props.refList[2]} className={!newinfo ? "log_title_select" : "log_title"} type="text" key="0" onClick={() => { if (!props.TourOpen) { fetchList(1); } }}>
                 全部消息
             </Button>
+            <Button style={{marginLeft:"820px"}} type="primary" ref={props.refList[5]} onClick={() => { if (!props.TourOpen) { handleChange(-1); } }}>全部已读</Button>
             <div ref={props.refList[0]}>
 
-                <ProTable style={{ marginTop: "-20px", marginLeft: "-20px" }}
+                <ProTable style={{ marginTop: "-20px", marginLeft: "-33px" }}
                     key={changekey}
                     columns={columns}
                     actionRef={tableRef}
@@ -208,11 +209,10 @@ const MessageUI = (props: MessageProps) => {
                     // pagination={{
                     //     showSizeChanger: true
                     // }}
-                    search={false} />
+                    search={false}
+                />
             </div>
-            <Space size="large">
-                <Button ref={props.refList[5]} onClick={() => { if (!props.TourOpen) { handleChange(-1); } }}>全部已读</Button>
-            </Space>
+            
 
         </div>
     );

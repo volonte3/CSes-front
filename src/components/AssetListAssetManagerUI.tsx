@@ -295,7 +295,6 @@ const AssetList = (props: AssetListProps) => {
     };
     const PropSearch = () => {
         return (
-
             <Form
                 {...layout}
                 form={PropForm}
@@ -358,7 +357,8 @@ const AssetList = (props: AssetListProps) => {
     };
     const handleSearch = (e: any) => {
         setSearchText(e.target.value);
-        GetMemberList(PageID, e.target.value);
+        setPageID(1);
+        GetMemberList(1, e.target.value);
     };
     const handleSelectEmployee = (employee: MemberData) => {
         setSelectedEmployee(employee);
@@ -485,7 +485,7 @@ const AssetList = (props: AssetListProps) => {
                     }}
                     scroll={{ x: "100%", y: "calc(100vh - 300px)" }}
                     pagination={{
-                        showSizeChanger: true
+                        showSizeChanger: false
                     }}
                     search={{
                         defaultCollapsed: false,
@@ -500,7 +500,7 @@ const AssetList = (props: AssetListProps) => {
 
             {
                 !props.VisibleDetail && <Modal
-                    title="请选择要转移到的管理员"
+                    title="请选择要调拨到的管理员"
                     bodyStyle={{ padding: "20px" }}
                     visible={Open1}
                     onCancel={() => setOpen1(false)}
@@ -508,7 +508,7 @@ const AssetList = (props: AssetListProps) => {
                     okButtonProps={{ disabled: !selectedEmployee }}
                     okText="下一步"
                 >
-                    <Input placeholder="搜索员工或部门名称" value={searchText} onChange={handleSearch} />
+                    <Input placeholder="搜索管理员名称" value={searchText} onChange={handleSearch} />
                     <ProList
                         dataSource={Employee ? Employee : []}
                         renderItem={item => (
