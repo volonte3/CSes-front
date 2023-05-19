@@ -39,21 +39,29 @@ const App = () => {
             title: "资产审批列表",
             description: "显示所有部门员工提交的资产更改申请，点击右上角按钮可实现刷新和调整列表密度",
             target: () => ref1.current,
+            nextButtonProps:{children:"下一步"},
+            prevButtonProps:{children:"上一步"},
         },
         {
             title: "批复申请",
             description: "通过员工提出的申请，由于申请间存在相互影响，一些申请不能同意，只能拒绝",
             target: () => ref2.current,
+            nextButtonProps:{children:"下一步"},
+            prevButtonProps:{children:"上一步"},
         },
         {
             title: "拒绝申请",
             description: "拒绝员工提出的申请",
             target: () => ref3.current,
+            nextButtonProps:{children:"下一步"},
+            prevButtonProps:{children:"上一步"},
         },
         {
             title: "查看申请理由",
             description: "点击可以查看员工提出申请的解释信息",
             target: () => ref4.current,
+            nextButtonProps:{children:"结束导览"},
+            prevButtonProps:{children:"上一步"},
         }
     ];
     useEffect(() => {

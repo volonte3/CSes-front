@@ -83,26 +83,36 @@ const App = () => {
             title: "添加业务实体",
             description: "点击按钮添加业务实体及系统管理员",
             target: () => ref1.current,
+            nextButtonProps:{children:"下一步"},
+            prevButtonProps:{children:"上一步"},
         },
         {
             title: "飞书同步",
             description: "点击按钮以同步所有飞书用户至指定部门",
             target: () => ref2.current,
+            nextButtonProps:{children:"下一步"},
+            prevButtonProps:{children:"上一步"},
         },
         {
             title: "业务实体列表",
             description: "查看所有业务实体及对应的系统管理员,点击移除按钮可以删除对应实体及管理员,点击设置同步部门可以修改飞书同步的部门",
             target: () => ref3.current,
+            nextButtonProps:{children:"下一步"},
+            prevButtonProps:{children:"上一步"},
         },
         {
             title: "移除业务实体",
             description: "删除业务实体及对应管理员",
             target: () => ref4.current,
+            nextButtonProps:{children:"下一步"},
+            prevButtonProps:{children:"上一步"},
         },
         {
             title: "业务实体列表",
             description: "设置飞书同步部门,用于飞书同步",
             target: () => ref5.current,
+            nextButtonProps:{children:"结束导览"},
+            prevButtonProps:{children:"上一步"},
         },
     ];
     const items: MenuProps["items"] = [

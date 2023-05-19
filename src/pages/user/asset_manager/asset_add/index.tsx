@@ -163,21 +163,29 @@ const App = () => {
             title: "新建资产",
             description: "用于添加单个资产，点击后请在弹出的提示框内完善相关资产信息",
             target: () => ref1.current,
+            nextButtonProps:{children:"下一步"},
+            prevButtonProps:{children:"上一步"},
         },
         {
             title: "批量添加",
             description: "用于批量添加资产，点击后会下载一个格式化的 Excel 表格，请在表格内完善资产后上传该表格。请注意！由于 Secoder 平台限制，批量提交的资产数量不应多于 100 条",
             target: () => ref2.current,
+            nextButtonProps:{children:"下一步"},
+            prevButtonProps:{children:"上一步"},
         },
         {
             title: "待录入资产列表",
             description: "完善录入资产信息后，待录入资产会在此处生成预览列表",
             target: () => ref3.current,
+            nextButtonProps:{children:"下一步"},
+            prevButtonProps:{children:"上一步"},
         },
         {
             title: "录入",
             description: "确认录入信息无误后，点击录入键最终实现资产录入信息提交",
             target: () => ref4.current,
+            nextButtonProps:{children:"结束导览"},
+            prevButtonProps:{children:"上一步"},
         }
     ];
 

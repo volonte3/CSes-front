@@ -43,21 +43,29 @@ const App = () => {
             title: "自定义属性搜索面板",
             description: "根据资产的自定义属性查找资产，检索时需输入自定义属性的键，若不填入自定义属性值，则默认检索所有具有该自定义属性键的资产",
             target: () => ref1.current,
+            nextButtonProps:{children:"下一步"},
+            prevButtonProps:{children:"上一步"},
         },
         {
             title: "基本属性搜索面板",
             description: "根据资产的基本属性搜索资产，除编号外均为模糊匹配",
             target: () => ref2.current,
+            nextButtonProps:{children:"下一步"},
+            prevButtonProps:{children:"上一步"},
         },
         {
             title: "资产名称",
             description: "显示资产的名称，点击名称可跳转至详细信息界面",
             target: () => ref3.current,
+            nextButtonProps:{children:"下一步"},
+            prevButtonProps:{children:"上一步"},
         },
         {
             title: "资产操作",
             description: "展开下拉框可看到资产相关操作，包括清退、退维、调拨三种",
             target: () => ref4.current,
+            nextButtonProps:{children:"结束导览"},
+            prevButtonProps:{children:"上一步"},
         }
     ];
 

@@ -62,26 +62,36 @@ const App = () => {
             title: "查看资产分类树",
             description: "资产分为条目型和数量型两类，点击有箭头的分类项可展开显示其下属子分类，用户可以在这个分类的基础上对定义进行进一步细化调整",
             target: () => ref1.current,
+            nextButtonProps:{children:"下一步"},
+            prevButtonProps:{children:"上一步"},
         },
         {
             title: "创建分类",
             description: "用户可根据自己需要，选择一个已有资产分类后，在其下定义新的子分类",
             target: () => ref2.current,
+            nextButtonProps:{children:"下一步"},
+            prevButtonProps:{children:"上一步"},
         },
         {
             title: "修改分类",
             description: "用户可根据自己需要，修改分类的定义，包括分类名称、折旧策略",
             target: () => ref3.current,
+            nextButtonProps:{children:"下一步"},
+            prevButtonProps:{children:"上一步"},
         },
         {
             title: "删除操作",
             description: "用户可以删除对应子分类",
             target: () => ref4.current,
+            nextButtonProps:{children:"下一步"},
+            prevButtonProps:{children:"上一步"},
         },
         {
             title: "增加自定义属性",
             description: "用户可以在某一资产分类中定义该分类特有的自定义属性，在添加自定义属性时，推荐在属性名中提示属性应填入的键，如房产（大、中、小），从而便于员工及其它资产管理员查看",
             target: () => ref5.current,
+            nextButtonProps:{children:"结束导览"},
+            prevButtonProps:{children:"上一步"},
         }
     ];
 
