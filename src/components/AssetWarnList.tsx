@@ -26,8 +26,14 @@ interface UrlData {
     IsWarning:number;
 }
 
+interface MessageProps {
+    refList: React.MutableRefObject<any>[];
+    setTourOpen: (t: boolean) => void;
+    TourOpen: boolean;
+}
+
 // DateTransform(DetailInfo?.CreateTime);
-const AssetWarnList = () => {
+const AssetWarnList = (props:MessageProps) => {
     const [activeKey, setActiveKey] = useState<React.Key | undefined>("1");
     const router = useRouter();
     const query = router.query;
