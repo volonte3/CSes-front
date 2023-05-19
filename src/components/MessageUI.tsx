@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { theme, Form, Modal, Button, Space, Breadcrumb} from "antd";
+import { theme, Form, Modal, Button, Space, Breadcrumb } from "antd";
 import {
     FormOutlined,
 } from "@ant-design/icons";
@@ -8,9 +8,9 @@ import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { IfCodeSessionWrong, LoadSessionID } from "../utils/CookieOperation";
 import { AssetData } from "../utils/types"; //对列表中数据的定义在 utils/types 中
-import { 
-    ProTable, 
-    ProColumns, 
+import {
+    ProTable,
+    ProColumns,
     ModalForm,
     ProForm,
     ProFormDigit,
@@ -24,10 +24,15 @@ import { DateTransform } from "../utils/transformer";
 interface MessageData {
     Time: string;
     Detail: string;
-    Is_Read:boolean;
+    Is_Read: boolean;
     ID: number;
 }
-const MessageUI = () => {
+interface MessageProps {
+    refList: React.MutableRefObject<any>[];
+    setTourOpen: (t: boolean) => void;
+    TourOpen: boolean;
+}
+const MessageUI = (props: MessageProps) => {
     const [MessageList, setMessageList] = useState<MessageData[]>();
     const [changekey, setchangekey] = useState(Date.now());
     const [newinfo, setnewinfo] = useState(true);
@@ -74,23 +79,23 @@ const MessageUI = () => {
             dataIndex: "",
             key: "",
             render: (_: any, record) => {
-                if(record.Is_Read == false){
+                if (record.Is_Read == false) {
                     return (
-                        <Button loading={loading} type="primary" key = "0" onClick={()=>handleChange(record.ID)}>设为已读</Button>
+                        <Button loading={loading} type="primary" key="0" ref={props.refList[3]} onClick={() => { if (!props.TourOpen) { handleChange(record.ID); } }}>设为已读</Button>
                     );
                 }
-                else if(record.Is_Read == true){
+                else if (record.Is_Read == true) {
                     return (
-                        <Button loading={loading} key = "0" onClick={()=>handleChange(record.ID)}>设为未读</Button>
+                        <Button loading={loading} key="0" ref={props.refList[4]} onClick={() => { if (!props.TourOpen) { handleChange(record.ID); } }}>设为未读</Button>
                     );
                 }
-                    
+
             },
         },
     ];
     const router = useRouter();
     const query = router.query;
-    const fetchList = (all:number) => {
+    const fetchList = (all: number) => {
         if (all == 0) {
             request(`/api/User/Message/New/${LoadSessionID()}`, "GET")
                 .then((res) => {
@@ -124,11 +129,11 @@ const MessageUI = () => {
                 });
         }
     };
-    const handleChange = (ID:number) => {
+    const handleChange = (ID: number) => {
         setloading(true);
         request(`/api/User/Message/New/${LoadSessionID()}`, "PUT",
             {
-                "ID":ID
+                "ID": ID
             }
         )
             .then(() => {
@@ -137,7 +142,7 @@ const MessageUI = () => {
                     content: "成功更改消息状态",
                 });
                 setloading(false);
-                if(newinfo) fetchList(0);
+                if (newinfo) fetchList(0);
                 else fetchList(1);
             })
             .catch(
@@ -169,43 +174,46 @@ const MessageUI = () => {
     };
     return (
         <div className="Div">
-            <Breadcrumb style={{ marginLeft: "6px", marginBottom:"20px"}}>
+            <Breadcrumb style={{ marginLeft: "6px", marginBottom: "20px" }}>
                 <Breadcrumb.Item>消息列表</Breadcrumb.Item>
             </Breadcrumb>
-            <Button className={newinfo ? "log_title_select":"log_title"} type="text" key="1" onClick={()=>fetchList(0)}>
+            <Button ref={props.refList[1]} className={newinfo ? "log_title_select" : "log_title"} type="text" key="1" onClick={() => { if (!props.TourOpen) { fetchList(0); } }}>
                 未读消息
             </Button>
-            <Button className={!newinfo ? "log_title_select":"log_title"} type="text" key="0" onClick={()=>fetchList(1)}>
+            <Button ref={props.refList[2]} className={!newinfo ? "log_title_select" : "log_title"} type="text" key="0" onClick={() => { if (!props.TourOpen) { fetchList(1); } }}>
                 全部消息
-            </Button> 
-            <ProTable style={{marginTop:"-20px", marginLeft:"-20px"}}
-                key={changekey}
-                columns={columns}
-                actionRef={tableRef}
-                options={false}
-                rowKey="ID"
-                dataSource={MessageList}
-                form={{
-                // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
-                    syncToUrl: (values, type) => {
-                        if (type === "get") {
-                            return {
-                                ...values,
-                                created_at: [values.startTime, values.endTime],
-                            };
-                        }
-                        return values;
-                    },
-                }}
-                scroll={{ x: "max-content", y: "calc(100vh - 300px)" }}
-                // pagination={{
-                //     showSizeChanger: true
-                // }}
-                search={false} />
+            </Button>
+            <div ref={props.refList[0]}>
+
+                <ProTable style={{ marginTop: "-20px", marginLeft: "-20px" }}
+                    key={changekey}
+                    columns={columns}
+                    actionRef={tableRef}
+                    options={false}
+                    rowKey="ID"
+                    dataSource={MessageList}
+                    form={{
+                        // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
+                        syncToUrl: (values, type) => {
+                            if (type === "get") {
+                                return {
+                                    ...values,
+                                    created_at: [values.startTime, values.endTime],
+                                };
+                            }
+                            return values;
+                        },
+                    }}
+                    scroll={{ x: "max-content", y: "calc(100vh - 300px)" }}
+                    // pagination={{
+                    //     showSizeChanger: true
+                    // }}
+                    search={false} />
+            </div>
             <Space size="large">
-                <Button onClick={() => handleChange(-1)}>全部已读</Button>
+                <Button ref={props.refList[5]} onClick={() => { if (!props.TourOpen) { handleChange(-1); } }}>全部已读</Button>
             </Space>
-            
+
         </div>
     );
 };
