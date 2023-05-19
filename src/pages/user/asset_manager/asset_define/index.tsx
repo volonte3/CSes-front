@@ -1,7 +1,9 @@
-import React from "react";
+import React,{useRef} from "react";
 import { 
-    Breadcrumb, Layout, message, Modal, Drawer, Form, Input, Row, Select, Col, Button, Space, TreeSelect 
+    Breadcrumb, Layout, message, Modal, Drawer, Form, Input, Row, Select, Col, Button, Space, TreeSelect,Tour 
 } from "antd";
+import {QuestionCircleOutlined} from "@ant-design/icons";
+import type {TourProps} from "antd";
 import {
     EditOutlined, ScissorOutlined, DeleteOutlined, PlusOutlined
 } from "@ant-design/icons";
@@ -48,6 +50,41 @@ const App = () => {
     const [TOREAD, setTOREAD] = useState(false);
     const [TODO, setTODO] = useState(false);
     const [UserID, setUserID]= useState(0);
+    const [TourOpen, setTourOpen] = useState(false);
+
+    const ref1 = useRef(null);
+    const ref2 = useRef(null);
+    const ref3 = useRef(null);
+    const ref4 = useRef(null);
+    const ref5 = useRef(null);
+    const steps: TourProps["steps"] = [
+        {
+            title: "查看资产分类树",
+            description: "资产分为条目型和数量型两类，点击有箭头的分类项可展开显示其下属子分类，用户可以在这个分类的基础上对定义进行进一步细化调整",
+            target: () => ref1.current,
+        },
+        {
+            title: "创建分类",
+            description: "用户可根据自己需要，选择一个已有资产分类后，在其下定义新的子分类",
+            target: () => ref2.current,
+        },
+        {
+            title: "修改分类",
+            description: "用户可根据自己需要，修改分类的定义，包括分类名称、折旧策略",
+            target: () => ref3.current,
+        },
+        {
+            title: "删除操作",
+            description: "用户可以删除对应子分类",
+            target: () => ref4.current,
+        },
+        {
+            title: "增加自定义属性",
+            description: "用户可以在某一资产分类中定义该分类特有的自定义属性，在添加自定义属性时，推荐在属性名中提示属性应填入的键，如房产（大、中、小），从而便于员工及其它资产管理员查看",
+            target: () => ref5.current,
+        }
+    ];
+
     const initvalue = () => {
         setAssetName("");
         setLossStyle(-1);
@@ -247,6 +284,9 @@ const App = () => {
                         {contextHolder}
                         <Header className="ant-layout-header">
                             <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true} ID={UserID}></UserInfo>
+                            <Button style={{  margin: 30}} className="header_button" onClick={() => { setTourOpen(true); }} icon={<QuestionCircleOutlined />}>
+                                使用帮助
+                            </Button>
                         </Header>
                         <Content>
                             <Breadcrumb style={{ margin: "30px" }}>
@@ -260,7 +300,8 @@ const App = () => {
                                         icon={<EditOutlined />} 
                                         disabled={ButtonDisable} 
                                         block 
-                                        onClick={() => {initvalue(); setOpenAdd(true);}}
+                                        onClick={() => {if(!TourOpen){initvalue(); setOpenAdd(true);}}}
+                                        ref={ref2}
                                     >
                                     在其下创建
                                     </Button>
@@ -272,7 +313,8 @@ const App = () => {
                                         icon={<ScissorOutlined />} 
                                         disabled={ButtonDisable} 
                                         block 
-                                        onClick={() => {initvalue(); setOpenModify(true);}}
+                                        onClick={() => {if(!TourOpen){initvalue(); setOpenModify(true);}}}
+                                        ref={ref3}
                                     >
                                     修改
                                     </Button>
@@ -285,7 +327,8 @@ const App = () => {
                                         disabled={ButtonDisable} 
                                         danger 
                                         block 
-                                        onClick={() => {delete_asset();}}
+                                        onClick={() => {if(!TourOpen){delete_asset();}}}
+                                        ref={ref4}
                                     >
                                     删除
                                     </Button>
@@ -296,7 +339,7 @@ const App = () => {
                                 }>
                                         title="增加自定义属性"
                                         trigger={
-                                            <Button type="primary" disabled={ButtonDisable}>
+                                            <Button type="primary" ref={ref5} disabled={TourOpen||ButtonDisable}>
                                                 <PlusOutlined />
                                             增加自定义属性
                                             </Button>
@@ -345,7 +388,7 @@ const App = () => {
                                 </Col>
                             </Row>
                             <Row style={{ margin: "30px" }} align="top">
-                                <Col span={18}>
+                                <Col span={18} ref={ref1}>
                                     <TreeSelect
                                         style={{ width: "100%" }}
                                         size="large"
@@ -355,6 +398,7 @@ const App = () => {
                                         placeholder="查看或修改资产"
                                         treeDefaultExpandAll
                                         onChange={onChange}
+                                        // ref={ref1}
                                     />
                                 </Col>
                             </Row>
@@ -439,6 +483,7 @@ const App = () => {
                                     </Row>
                                 </Form>
                             </Drawer>
+                            <Tour open={TourOpen} onClose={() => setTourOpen(false)} steps={steps} />
                         </Content>
                     </Layout>
                 </Layout>
