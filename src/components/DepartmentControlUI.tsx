@@ -1,6 +1,6 @@
 import React from "react";
 import {
-    FileOutlined, PlusSquareOutlined
+    FileOutlined, PlusSquareOutlined, BackwardOutlined
 } from "@ant-design/icons";
 import { Layout, Menu, theme, Space, Table, Modal, Button, Input, Form, Drawer, Breadcrumb } from "antd";
 const { Column } = Table;
@@ -197,8 +197,8 @@ const DepartmentUI = () => {
             </Breadcrumb>
             {DepartmentPath != "000000000" && <Button
                 type="primary"
-                icon={<PlusSquareOutlined />}
-                style={{ float: "left", margin: 30 }}
+                icon={<BackwardOutlined />}
+                style={{ float: "left", marginLeft:"30px", marginBottom:"15px"}}
                 onClick={() => {GoUp(DepartmentPath);}}
             >
                 回到上一级目录
@@ -206,19 +206,19 @@ const DepartmentUI = () => {
             <Button
                 type="primary"
                 icon={<PlusSquareOutlined />}
-                style={{ float: "left", margin: 30 }}
+                style={{ float: "left", marginLeft:"30px", marginBottom:"15px" }}
                 onClick={showDrawer1}
             >
                 添加部门
             </Button>
-            {IsLeafDepartment && <Button
+            {/* {IsLeafDepartment && <Button
                 type="primary"
                 icon={<PlusSquareOutlined />}
                 style={{ float: "left", margin: 30 }}
                 onClick={showDrawer2}
             >
                 新增员工
-            </Button>}
+            </Button>} */}
             <Drawer title="添加部门" placement="right" onClose={onClose1} open={open1}>
                 <Form
                     name="basic"
@@ -242,7 +242,7 @@ const DepartmentUI = () => {
                     </Form.Item>
                 </Form>
             </Drawer>
-            {IsLeafDepartment && <Drawer title="创建新员工" placement="right" onClose={onClose2} open={open2}>
+            {/* {IsLeafDepartment && <Drawer title="创建新员工" placement="right" onClose={onClose2} open={open2}>
                 <Form
                     name="basic"
                     labelCol={{ span: 8 }}
@@ -264,7 +264,7 @@ const DepartmentUI = () => {
                         </Button>
                     </Form.Item>
                 </Form>
-            </Drawer>}
+            </Drawer>} */}
             <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
                 {IsLeafDepartment && <MemberList
                     Members={DepartmentMemberList}

@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import {
     FileOutlined, PlusSquareOutlined, UpOutlined, DownOutlined
 } from "@ant-design/icons";
-import { MenuProps, Tooltip } from "antd";
+import { Drawer, Form, Input, MenuProps, Tooltip } from "antd";
 import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, Switch, Modal, Button, Radio } from "antd";
 import type { RadioChangeEvent } from "antd";
 const { Column } = Table;
@@ -224,13 +224,14 @@ const MemberList = (props: MemberListProps) => {
         {
             title:"姓名",
             dataIndex:"Name",
-            key:"Name"
+            key:"Name",
+            width:"200px"
         },
         {
             title:"所属部门",
             dataIndex:"Department",
             key:"Department",
-            search: false,
+            search: props.department_page?false:undefined,
             width:"150px"
         },
         {
@@ -238,6 +239,7 @@ const MemberList = (props: MemberListProps) => {
             dataIndex:"Authority",
             key:"Authority",
             valueType: "select",
+            width:"100px",
             valueEnum: {
                 2: {
                     text: "资产管理员",
@@ -245,6 +247,7 @@ const MemberList = (props: MemberListProps) => {
                 },
                 3: {
                     text: "员工",
+                    color: "yellow"
                 },
             },
         },
@@ -266,8 +269,80 @@ const MemberList = (props: MemberListProps) => {
             )
         }
     ];
+    const [open2, setOpen2] = useState(false);    //创建员工侧边栏的显示
+    const [UserName, setUserName] = useState("");// 储存新建用户的名称
+    const showDrawer2 = () => {
+        setOpen2(true);
+    };
+    // 在特定部门下创建新员工
+    const CreateNewUser = (DepartmentPath: string, UserName: string) => {
+        setLoading(true);
+        request(
+            "/api/User/add",
+            "POST",
+            {
+                "SessionID": LoadSessionID(),
+                "UserName": UserName,
+                "Department": DepartmentPath
+            }
+        )
+            .then((res) => {
+                setOpen2(false);
+                let answer: string = `成功创建员工 ${UserName}`;
+                Modal.success({ title: "创建成功", content: answer });
+                onClose2();
+                tableRef.current?.reload();
+                setLoading(false);
+            })
+            .catch((err: string) => {
+                if (IfCodeSessionWrong(err, router)) {
+                    setOpen2(false);
+                    Modal.error({
+                        title: "创建失败",
+                        content: err.toString().substring(5),
+                    });
+                    setLoading(false);
+                }
+            });
+        
+    };
+    const onClose2 = () => {
+        setOpen2(false);
+    };
+    const handleUserAdd = (e: any) => {
+        setUserName(e.target.value);
+    };
     return (
         <div>
+            {props.department_page && <Button
+                type="primary"
+                icon={<PlusSquareOutlined />}
+                style={{ float: "left", marginLeft: "30px", marginTop:"-24px" }}
+                onClick={showDrawer2}
+            >
+                新增员工
+            </Button>}
+            <Drawer title="创建新员工" placement="right" onClose={onClose2} open={open2}>
+                <Form
+                    name="basic"
+                    labelCol={{ span: 8 }}
+                    wrapperCol={{ span: 16 }}
+                    autoComplete="off"
+                >
+                    <Form.Item
+                        label="用户名"
+                        name = "UserName"
+                        rules={[{ required: true, message: "请输入员工用户名" }]}
+                    >
+                        <Input onChange={handleUserAdd} />
+                    </Form.Item>
+                    <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                        <Button type="primary" htmlType="submit" loading = {Loading} onClick={() => {if(UserName) CreateNewUser(props.department_path, UserName);}}>
+                            确认提交
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Drawer>
             <ProTable className="ant-pro-table"
                 columns={columns}
                 options={{ reload: true, setting: false }}
