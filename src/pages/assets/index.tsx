@@ -5,7 +5,7 @@ import { request } from "../../utils/network";
 import { LoadSessionID, IfCodeSessionWrong } from "../../utils/CookieOperation";
 import { useState, useEffect } from "react";
 import { AssetDetailInfo, AssetHistory, TestDetailInfo } from "../../utils/types"; //对列表中数据的定义在 utils/types 中
-import { Modal, Badge, Descriptions } from "antd";
+import { Modal, Badge, Descriptions,Empty } from "antd";
 import { DateTransform, renderStatus, renderStatusBadge, renderStatusChanges, renderAssetType, renderLossStyle } from "../../utils/transformer";
 import ReactHtmlParser from "react-html-parser";
 const AssetPage = () => {
@@ -166,7 +166,7 @@ const AssetPage = () => {
                             {DetailInfo?.Time}
                         </Descriptions.Item>
                         <Descriptions.Item label="资产描述" span={3}>
-                            {DetailInfo?.Description?ReactHtmlParser(DetailInfo?.Description):""}
+                            {DetailInfo?.Description ? ReactHtmlParser(DetailInfo?.Description) : ""}
                         </Descriptions.Item>
                     </Descriptions>
                 </Collapse.Panel>
@@ -217,25 +217,35 @@ const AssetPage = () => {
                     </List>
                 </Collapse.Panel>
                 <Collapse.Panel key="3" title="资产图片">
-                    <div style={{ height: "500px", overflowY: "auto", overflowX: "hidden", display: "flex", flexWrap: "wrap" }}>
-                        {DetailInfo?.ImageUrl.map((url, index) => (
-                            <div
-                                style={{ flex: "0 0 50%", marginBottom: "10px" }}
-                                key={url}
-                            >
-                                <div style={{ position: "relative", width: "100%", paddingBottom: "100%" }}>
-                                    <Image
-                                        key={index}
-                                        src={url}
-                                        fit="scale-down"
-                                        style={{ position: "absolute", top: 0, left: 0, borderRadius: 8, width: "100%", height: "100%" }}
-                                        alt={url}
-                                        lazy
-                                    />
+                    {DetailInfo?.ImageUrl.length != 0 ?
+                        <div style={{ height: "500px", overflowY: "auto", overflowX: "hidden", display: "flex", flexWrap: "wrap" }}>
+                            {DetailInfo?.ImageUrl.map((url, index) => (
+                                <div
+                                    style={{ flex: "0 0 50%", marginBottom: "10px" }}
+                                    key={url}
+                                >
+                                    <div style={{ position: "relative", width: "100%", paddingBottom: "100%" }}>
+                                        <Image
+                                            key={index}
+                                            src={url}
+                                            fit="scale-down"
+                                            style={{ position: "absolute", top: 0, left: 0, borderRadius: 8, width: "100%", height: "100%" }}
+                                            alt={url}
+                                            lazy
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                        : <div style={{ display: "fill" }}>
+                            <Empty
+                                description={
+                                    <span>
+                                        暂无图片
+                                    </span>
+                                }
+                            />
+                        </div>}
                 </Collapse.Panel>
             </Collapse>
         </div >
