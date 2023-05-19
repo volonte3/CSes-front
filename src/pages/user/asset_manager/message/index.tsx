@@ -1,5 +1,10 @@
-import React from "react";
-import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, Switch, Modal, Button } from "antd";
+import React,{useRef} from "react";
+import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, Switch, Modal, Button,Tour } from "antd";
+import {QuestionCircleOutlined} from "@ant-design/icons";
+import type {TourProps} from "antd";
+import {
+    EditOutlined, ScissorOutlined, DeleteOutlined, PlusOutlined
+} from "@ant-design/icons";
 const { Column, ColumnGroup } = Table;
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
@@ -21,6 +26,48 @@ const App = () => {
     const [Entity, setEntity] = useState<string>(""); // 实体名称
     const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
     const [UserID, setUserID]= useState(0);
+    const [TourOpen, setTourOpen] = useState(false);
+
+    const ref1 = useRef(null);
+    const ref2 = useRef(null);
+    const ref3 = useRef(null);
+    const ref4 = useRef(null);
+    const ref5 = useRef(null);
+    const ref6 = useRef(null);
+    const steps: TourProps["steps"] = [
+        {
+            title: "消息列表",
+            description: "展示资产管理员所属部门内所有操作信息，包括资产的申请审批，跨部门转移及对应的时间等信息",
+            placement:"center",
+            target: () => ref1.current,
+        },
+        {
+            title: "未读消息",
+            description: "展示所有未读消息，按照时间排列",
+            target: () => ref2.current,
+        },
+        {
+            title: "全部消息",
+            description: "展示所有消息，包括已读和未读，按照时间排列",
+            target: () => ref3.current,
+        },
+        {
+            title: "设为已读",
+            description: "标记已读消息",
+            target: () => ref4.current,
+        },
+        {
+            title: "设为未读",
+            description: "标记未读",
+            target: () => ref5.current,
+        },
+        {
+            title: "全部已读",
+            description: "一键实现所有消息已读",
+            target: () => ref6.current,
+        }
+    ];
+
     const {
         token: { colorBgContainer },
     } = theme.useToken();
@@ -63,11 +110,15 @@ const App = () => {
                 <Layout className="site-layout" >
                     <Header className="ant-layout-header">
                         <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true} ID={UserID}></UserInfo>
+                        <Button style={{  margin: 30}} className="header_button" onClick={() => { setTourOpen(true); }} icon={<QuestionCircleOutlined />}>
+                                使用帮助
+                        </Button>
                     </Header>
                     <Content>
                         <div style={{ padding: 24, background: colorBgContainer }}>
-                            <MessageUI />
+                            <MessageUI refList={[ref1,ref2,ref3,ref4,ref5,ref6]} setTourOpen={setTourOpen} TourOpen={TourOpen}/>
                         </div>
+                        <Tour open={TourOpen} onClose={() => setTourOpen(false)} steps={steps} />
                     </Content>
                 </Layout>
             </Layout>
