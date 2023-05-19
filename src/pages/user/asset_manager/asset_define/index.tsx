@@ -1,6 +1,6 @@
 import React,{useRef} from "react";
 import { 
-    Breadcrumb, Layout, message, Modal, Drawer, Form, Input, Row, Select, Col, Button, Space, TreeSelect,Tour 
+    Breadcrumb, Layout, message, Modal, Drawer, Form, Input, Row, Select, Col, Button, Space, Tag, Tour 
 } from "antd";
 import {QuestionCircleOutlined} from "@ant-design/icons";
 import type {TourProps} from "antd";
@@ -19,7 +19,7 @@ import { request } from "../../../../utils/network";
 import { LoadSessionID } from "../../../../utils/CookieOperation";
 import UserInfo from "../../../../components/UserInfoUI";
 import SiderMenu from "../../../../components/SiderUI";
-import EChartsReact from "echarts-for-react";
+import MyTreeChartComponent from "../../../../components/TreeUI";
 const { Option } = Select;
 const waitTime = (time: number = 100) => {
     return new Promise((resolve) => {
@@ -51,6 +51,7 @@ const App = () => {
     const [TODO, setTODO] = useState(false);
     const [UserID, setUserID]= useState(0);
     const [TourOpen, setTourOpen] = useState(false);
+    const [nowname, setnowname] = useState("");
 
     const ref1 = useRef(null);
     const ref2 = useRef(null);
@@ -98,6 +99,14 @@ const App = () => {
     const initvalue = () => {
         setAssetName("");
         setLossStyle(-1);
+    };
+
+    const handleDataFromChild = (data: any) => {
+        // 在父组件中处理来自子组件的数据
+        console.log(data);
+        setValue(data.value);
+        setnowname(data.name);
+        setButtonDisable(false);
     };
 
     const submit = () => {
@@ -179,12 +188,6 @@ const App = () => {
             });
     };
 
-    const onChange = (newValue: string) => {
-        console.log(newValue);
-        setButtonDisable(false);
-        setValue(newValue);
-    };
-
     const handlechange1 = (value: string) => {
         if (value == "l") {
             setLossStyle(1);
@@ -222,6 +225,21 @@ const App = () => {
         });
     };
     
+    interface Item {
+        title: string;
+        value: any;
+        children?: Item[];
+    }
+      
+    function mapTitleToName(item: Item): any {
+        const { title, ...rest } = item;
+        const newItem: any = { ...rest, name: title };
+        if (newItem.children) {
+            newItem.children = newItem.children.map(mapTitleToName);
+        }
+        return newItem;
+    }
+
     const onClose = () => {
         setOpenAdd(false);
         setOpenModify(false);
@@ -303,6 +321,17 @@ const App = () => {
                                 <Breadcrumb.Item>资产定义</Breadcrumb.Item>
                             </Breadcrumb>
                             <Row style={{ margin: "30px" }} gutter={[8,6]}>
+                                <Col>
+                                当前选择项：
+                                    {value ? (
+                                        <Tag>{nowname}</Tag>
+                                    
+                                    ) : (
+                                        <Tag>无</Tag>
+                                    )}
+                                </Col>
+                            </Row>
+                            <Row style={{ margin: "30px", marginTop: "30px" }} gutter={[8,6]}>
                                 <Col>
                                     <Button 
                                         type="primary"
@@ -397,22 +426,11 @@ const App = () => {
                                     </ModalForm>
                                 </Col>
                             </Row>
-                            <Row style={{ margin: "30px" }} align="top">
-                                <Col span={18} ref={ref1}>
-                                    <TreeSelect
-                                        style={{ width: "100%" }}
-                                        size="large"
-                                        value={value}
-                                        dropdownStyle={{ maxHeight: 1600, overflow: "auto" }}
-                                        treeData={Asset}
-                                        placeholder="查看或修改资产"
-                                        treeDefaultExpandAll
-                                        onChange={onChange}
-                                        // ref={ref1}
-                                    />
+                            <Row style={{ margin: "30px" }} align="bottom">
+                                <Col span={20} ref={ref1}>
+                                    <MyTreeChartComponent onDataFromChild={handleDataFromChild} data={Asset?.map(mapTitleToName) ?? []} /> 
                                 </Col>
-                            </Row>
-                    
+                            </Row>      
                             <Drawer
                                 title="增加资产"
                                 width={420}
