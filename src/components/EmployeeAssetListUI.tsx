@@ -1,7 +1,7 @@
 import { ProTable, ProColumns, ProFormDateTimePicker, ModalForm, ProForm, ProFormTreeSelect, ActionType, ProList } from "@ant-design/pro-components";
 import React from "react";
 import { Form, Input, List, Slider, InputNumber, Select } from "antd";
-import { AssetData } from "../utils/types"; //对列表中数据的定义在 utils/types 中
+import { AssetData} from "../utils/types"; //对列表中数据的定义在 utils/types 中
 import { Breadcrumb, Layout, Menu, Col, Space, Table, Row, DatePicker, Modal, Button, TimePicker } from "antd";
 const { Column } = Table;
 import { useRouter } from "next/router";
@@ -49,7 +49,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [SelectedRows, setSelectedRows] = useState<AssetData[]>([]); // 选择的所有行
     const [AssetList, setAssetList] = useState<AssetData[]>([]); // 最初获取的资产列表
-    const [MyAsset, setMyAsset] = useState(1);// 当前是否显示个人所有资产，值为1则显示个人,否则显示闲置\
+    const [MyAsset, setMyAsset] = useState(true);// 当前是否显示个人所有资产，值为true则显示个人,否则显示闲置
     const tableRef = useRef<ActionType>();
     // 下面是资产转移Modal的部分
     const [searchText, setSearchText] = useState(""); // 搜索框中的内容
@@ -71,7 +71,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
     const [ApplyMaxVolumn, setApplyMaxVolumn] = useState(0); //允许的最大领用量，即该资产的数量
     const [ApplyAssetType, setApplyAssetType] = useState(0); //获取资产的类型0就是条目型，1就是数量型
     const fetchList = (myasset: number) => { // 传入1代表显示个人资产，传入0代表显示闲置资产
-        setMyAsset(myasset);
+        setMyAsset(myasset==1 ? true : false);
         request(`/api/Asset/Info/${LoadSessionID()}`, "GET")
             .then(response => {
                 if (myasset == 1) {
@@ -97,7 +97,6 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
         if (!router.isReady) {
             return;
         }
-        fetchList(1);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query, props]);
     // 核心的提交函数，对应资产申请api
@@ -154,6 +153,11 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
     // 资产列表的column定义
     const columns: ProColumns<AssetData>[] = [
         {
+            title: "资产编号",
+            dataIndex: "ID",
+            key: "ID",
+        },
+        {
             title: "资产名称",
             dataIndex: "Name",
             key: "Name",
@@ -186,21 +190,23 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                     disabled: true,
                 }
             },
+            search: false
         },
         {
-            title: "描述",
-            dataIndex: "Description",
-            key: "Description",
+            title: "类别",
+            dataIndex: "Class",
+            key: "Class",
         },
         {
             title: "操作",
             valueType: "option",
+            search: false,
             key: "option",
             render: (text, record, _, action) => {
                 const { IsReceive, IsReturn, IsMaintenance, IsTransfers } = record;
                 return (
                     <Space>
-                        {MyAsset == 0 &&
+                        {MyAsset == false &&
                             <Button loading={loading} key="receive" title="领用" disabled={!IsReceive}
                                 onClick={() => {
                                     setOpenApplyCondition(true);
@@ -212,7 +218,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                                 }}>
                                 领用
                             </Button>}
-                        {MyAsset == 1 &&
+                        {MyAsset == true &&
                             <Button loading={loading} key="receive" title="退库" disabled={!IsReturn}
                                 onClick={() => {
                                     setNowAssetID([record.ID]);
@@ -221,7 +227,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                                 }}>
                                 退库
                             </Button>}
-                        {MyAsset == 1 &&
+                        {MyAsset == true &&
                             <Button loading={loading} key="receive" title="维保" disabled={!IsMaintenance}
                                 onClick={() => {
                                     setNowAssetID([record.ID]);
@@ -231,7 +237,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                                 }}>
                                 维保
                             </Button>}
-                        {MyAsset == 1 &&
+                        {MyAsset == true &&
                             <Button loading={loading} key="receive" title="转移" disabled={!IsTransfers}
                                 onClick={() => {
                                     setNowAssetID([record.ID]);
@@ -249,6 +255,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
     ];
     // 分页多选相关
     const [mySelectedRowKeys, handleMySelectedRowKeys] = useState<number[]>([]);  // 选中的项目
+    const [mySelectedRows, handleMySelectedRows] = useState<AssetData[]>([]);
     // 由于cancleRowKeys不影响dom，所以不使用useState定义
     let cancleRowKeys: number[] = []; // 取消选择的项目
 
@@ -267,17 +274,47 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
     const onChange = (selectedRowKeys: any, selectedRows: any) => {
         if (cancleRowKeys.length) {
             const keys = mySelectedRowKeys.filter((item) => !cancleRowKeys.includes(item));
+            const Rows = mySelectedRows.filter((item:AssetData) => !cancleRowKeys.includes(item.ID));
             handleMySelectedRowKeys(keys);
+            handleMySelectedRows(Rows);
+            console.log(Rows);
             cancleRowKeys = [];
+            let cannott=0;
+            let cannotr=0;
+            for (const newrow of Rows) {
+                if (newrow.Status!=1) {
+                    setIsSomeRowTransfersFalse(true);
+                    cannott=1;
+                }
+            }
+            if(cannott==0) setIsSomeRowTransfersFalse(false);
         } else {
             const mergedRowKeys = mySelectedRowKeys.concat(selectedRowKeys);
+            const mergedRows = mySelectedRows.concat(selectedRows);
             const uniqueRowKeys: number[] = [];
+            const uniqueRows: AssetData[] = [];
             for (const key of mergedRowKeys) {
                 if (!uniqueRowKeys.includes(key)) {
                     uniqueRowKeys.push(key);
                 }
             }
+            for (const row of mergedRows) {
+                if (!uniqueRows.includes(row)) {
+                    uniqueRows.push(row);
+                }
+            }
             handleMySelectedRowKeys(uniqueRowKeys);
+            handleMySelectedRows(uniqueRows);
+            console.log(uniqueRows);
+            let cannott=0;
+            let cannotr=0;
+            for (const newrow of uniqueRows) {
+                if (newrow.Status!=1) {
+                    setIsSomeRowTransfersFalse(true);
+                    cannott=1;
+                }
+            }
+            if(cannott==0) setIsSomeRowTransfersFalse(false);
         }
     };
     // 资产转移第一步modal的相关函数
@@ -421,13 +458,14 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                 </Breadcrumb.Item>
             </Breadcrumb>
             <div style={{ height: "15px" }}></div>
-            <Button className={MyAsset == 1 ? "log_title_select" : "log_title"} type="text" key="1" onClick={() => fetchList(1)}>
+            <Button className={MyAsset == true ? "log_title_select" : "log_title"} type="text" key="1" onClick={() => {setMyAsset(true);tableRef.current?.reload();}}>
                 个人资产
             </Button>
-            <Button className={MyAsset == 0 ? "log_title_select" : "log_title"} type="text" key="0" onClick={() => fetchList(0)}>
+            <Button className={MyAsset == false ? "log_title_select" : "log_title"} type="text" key="0" onClick={() => {setMyAsset(false);tableRef.current?.reload();}}>
                 部门闲置资产
             </Button>
-            <ProTable className="ant-pro-table"
+            <ProTable 
+                className="ant-pro-table"
                 columns={columns}
                 options={{ reload: true, setting: false }}
                 rowKey="ID"
@@ -454,8 +492,8 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                 tableAlertOptionRender={() => {
                     return (
                         <Space size={16}>
-                            {MyAsset == 0 &&
-                                <Button loading={loading} type="primary" disabled={IsSomeRowReceiveFalse}
+                            {MyAsset == false &&
+                                <Button loading={loading} type="primary"
                                     onClick={() => {
                                         setNowAssetID(mySelectedRowKeys);
                                         setApplyType(-1);
@@ -464,7 +502,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                                     }}>
                                     领用资产
                                 </Button>}
-                            {MyAsset == 1 &&
+                            {MyAsset == true &&
                                 <Button type="primary" disabled={IsSomeRowTransfersFalse}
                                     onClick={() => {
                                         setApplyType(4);
@@ -475,21 +513,21 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                     );
                 }}
                 actionRef={tableRef}
-                request={async (params = {}) => {
+                request={async (params={}) => {
                     const loadSessionID = LoadSessionID();
                     let urldata: UrlData = { pageSize: 20, current: params.current, Name: "", ID: -1, Status: -1, Class: "", Owner: "", Prop: "", PropValue: "" };
                     if (params.Name != undefined) urldata.Name = params.Name;
                     if (params.ID != undefined) urldata.ID = params.ID;
-                    if (params.Status != undefined) urldata.Status = params.Status;
                     if (params.Class != undefined) urldata.Class = params.Class;
-                    if (params.Owner != undefined) urldata.Owner = params.Owner;
                     if (PropForm.getFieldValue("Prop")) {
                         urldata.Prop = PropForm.getFieldValue("Prop");
                         if (PropForm.getFieldValue("PropValue")) {
                             urldata.PropValue = PropForm.getFieldValue("PropValue");
                         }
                     }
-                    let url = `/api/Asset/Info/${loadSessionID}/${urldata.current}/ID=${urldata.ID}/Name=${urldata.Name}/Class=${urldata.Class}/Status=${urldata.Status}/Owner=${urldata.Owner}/Prop=${urldata.Prop}/PropValue=${urldata.PropValue}`;
+                    let url="";
+                    if(MyAsset) url = `/api/Asset/Info/${loadSessionID}/${urldata.current}/ID=${urldata.ID}/Name=${urldata.Name}/Class=${urldata.Class}/Status=${urldata.Status}/Owner=${props.EmployeeName}/Prop=${urldata.Prop}/PropValue=${urldata.PropValue}`;
+                    else url = `/api/Asset/Info/${loadSessionID}/${urldata.current}/ID=${urldata.ID}/Name=${urldata.Name}/Class=${urldata.Class}/Status=0/Owner=/Prop=${urldata.Prop}/PropValue=${urldata.PropValue}`;
                     console.log(url);
                     return (
                         request(
