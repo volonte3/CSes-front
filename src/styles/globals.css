@@ -255,13 +255,13 @@ a {
 .log_title {
   font-size: 18px;
   font-weight: normal;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
   margin-left: -10px;
 }
 .log_title_select {
   font-size: 18px;
   font-weight: bold;
-  margin-bottom: 50px;
+  margin-bottom: 25px;
   margin-left: -10px;
   color: #0a79e1;
 }
