@@ -50,7 +50,8 @@ const tailLayout = {
 };
 
 const AssetList = (props: AssetListProps) => {
-    const [IsSomeRowCanNotDispatch, setIsSomeRowCanNotDispatch] = useState<boolean>(false);  //退还维保
+    const [IsSomeRowCanNotDispatch, setIsSomeRowCanNotDispatch] = useState<boolean>(false);  //是否可以调拨
+    const [IsSomeRowCanNotReturn, setIsSomeRowCanNotReturn] = useState<boolean>(false);  //是否可以清退
     const [SelectedRows, setSelectedRows] = useState<AssetData[]>([]);
     const [Detail, setDetail] = useState<boolean>(false);
     const [DetailInfo, setDetailInfo] = useState<AssetDetailInfo>(TestDetailInfo);
@@ -67,7 +68,7 @@ const AssetList = (props: AssetListProps) => {
     const [form] = Form.useForm<{ class: string; }>(); // 第二个Modal的格式
     const [loading, setLoading] = useState(false);
     const [showSkeleton, setShowSkeleton] = useState(false); //从资产列表跳到资产详细页面时的占位骨架
-
+    const [Loading2, setLoading2] = useState(false);
     const columns: ProColumns<AssetData>[] = [
         {
             title: "资产编号",
@@ -153,7 +154,7 @@ const AssetList = (props: AssetListProps) => {
             key: "option",
             render: (text, record, _, action) => {
                 const options = [
-                    { key: "receive", name: "清退", onClick: () => {if(!props.TourOpen){hanleChange([record.ID], 0);}} },
+                    { key: "receive", name: "清退", disabled: record.Status == 3, onClick: () => {if(!props.TourOpen){hanleChange([record.ID], 0);}} },
                     { key: "return", name: "退维", disabled: record.Status != 2, onClick: () => {if(!props.TourOpen){hanleChange([record.ID], 1);}} },
                     { key: "maintenance", name: "调拨", disabled: record.Status != 0, onClick: () => { if(!props.TourOpen){setOpen1(true); setTransferAsset(record); GetMemberList(1, "");} } },
                 ];
@@ -176,9 +177,9 @@ const AssetList = (props: AssetListProps) => {
     ];
     // 分页多选相关
     const [mySelectedRowKeys, handleMySelectedRowKeys] = useState<number[]>([]);  // 选中的项目
+    const [mySelectedRows, handleMySelectedRows] = useState<AssetData[]>([]);
     // 由于cancleRowKeys不影响dom，所以不使用useState定义
     let cancleRowKeys: number[] = []; // 取消选择的项目
-
     const onSelect = (record: AssetData, selected: any) => {
         if (!selected) {
             cancleRowKeys = [record.ID];
@@ -194,17 +195,57 @@ const AssetList = (props: AssetListProps) => {
     const onChange = (selectedRowKeys: any, selectedRows: any) => {
         if (cancleRowKeys.length) {
             const keys = mySelectedRowKeys.filter((item) => !cancleRowKeys.includes(item));
+            const Rows = mySelectedRows.filter((item:AssetData) => !cancleRowKeys.includes(item.ID));
             handleMySelectedRowKeys(keys);
+            handleMySelectedRows(Rows);
+            console.log(Rows);
             cancleRowKeys = [];
+            let cannotd=0;
+            let cannotr=0;
+            for (const newrow of Rows) {
+                if (newrow.Status!=0) {
+                    setIsSomeRowCanNotDispatch(true);
+                    cannotd=1;
+                }
+                if (newrow.Status==3) {
+                    setIsSomeRowCanNotReturn(true);
+                    cannotr=1;
+                }
+            }
+            if(cannotd==0) setIsSomeRowCanNotDispatch(false);
+            if(cannotr==0) setIsSomeRowCanNotReturn(false);
         } else {
             const mergedRowKeys = mySelectedRowKeys.concat(selectedRowKeys);
+            const mergedRows = mySelectedRows.concat(selectedRows);
             const uniqueRowKeys: number[] = [];
+            const uniqueRows: AssetData[] = [];
             for (const key of mergedRowKeys) {
                 if (!uniqueRowKeys.includes(key)) {
                     uniqueRowKeys.push(key);
                 }
             }
+            for (const row of mergedRows) {
+                if (!uniqueRows.includes(row)) {
+                    uniqueRows.push(row);
+                }
+            }
             handleMySelectedRowKeys(uniqueRowKeys);
+            handleMySelectedRows(uniqueRows);
+            console.log(uniqueRows);
+            let cannotd=0;
+            let cannotr=0;
+            for (const newrow of uniqueRows) {
+                if (newrow.Status!=0) {
+                    setIsSomeRowCanNotDispatch(true);
+                    cannotd=1;
+                }
+                if (newrow.Status==3) {
+                    setIsSomeRowCanNotReturn(true);
+                    cannotr=1;
+                }
+            }
+            if(cannotd==0) setIsSomeRowCanNotDispatch(false);
+            if(cannotr==0) setIsSomeRowCanNotReturn(false);
         }
     };
 
@@ -242,7 +283,9 @@ const AssetList = (props: AssetListProps) => {
     }, [router, query, DetailInfo]);
     const hanleChange = (AssetIDList: number[], operation: number, MoveTo: string = "", Type = "") => {
         setLoading(true);
+        setLoading2(true);
         handleMySelectedRowKeys([]);
+        handleMySelectedRows([]);
         request(`/api/Asset/Manage/${LoadSessionID()}`, "POST",
             {
                 "operation": operation,
@@ -253,6 +296,7 @@ const AssetList = (props: AssetListProps) => {
         )
             .then(() => {
                 setLoading(false);
+                setOpen2(false);
                 Modal.success({
                     title: "操作成功",
                     content: "成功更改资产状态",
@@ -436,7 +480,7 @@ const AssetList = (props: AssetListProps) => {
                     tableAlertOptionRender={() => {
                         return (
                             <Space size={16} >
-                                <Button type="primary" loading={loading} onClick={() => {hanleChange(mySelectedRowKeys, 0);}}>清退资产</Button>
+                                <Button type="primary" loading={loading} disabled={IsSomeRowCanNotReturn} onClick={() => {hanleChange(mySelectedRowKeys, 0);}}>清退资产</Button>
                                 <Button type="primary" loading={loading} disabled={IsSomeRowCanNotDispatch} onClick={() => { setOpen1(true); GetMemberList(1, ""); }}>调拨资产</Button>
                             </Space>
                         );
@@ -535,12 +579,13 @@ const AssetList = (props: AssetListProps) => {
                         destroyOnClose: true,
                         onCancel: () => { setOpen2(false); setOpen1(true); },
                     }}
+                    loading={Loading2}
                     submitTimeout={1000}
                     open={Open2}
                     onFinish={async (values) => {
                         if (mySelectedRowKeys.length > 0) hanleChange(mySelectedRowKeys, 2, selectedEmployee?.Name, values.class);
                         else hanleChange([selectedTransferAsset ? selectedTransferAsset.ID : 0], 2, selectedEmployee?.Name, values.class);
-                        setOpen2(false);
+                        
                         return true;
                     }}
                 >
