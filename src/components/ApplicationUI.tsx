@@ -10,6 +10,7 @@ import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { IfCodeSessionWrong, LoadSessionID } from "../utils/CookieOperation";
 import { AppData } from "../utils/types";
+import OSS from "ali-oss";
 interface ApplicationProps {
     refList: React.MutableRefObject<any>[];
     setTourOpen: (t: boolean) => void;
@@ -23,6 +24,8 @@ const ApplicationUI = (props: ApplicationProps) => {
     const [AppList, setAppList] = useState<AppData[]>(); // 储存所有已有应用的信息 
     const [Loading, setLoading] = useState(false);
     const [LockLoading, setLockLoading] = useState(false);
+    const [File, setFile] = useState<File>(); // 使用useState来管理files数组
+    const [PhotoUrl, setPhotoUrl] = useState("");
     const router = useRouter();
     const query = router.query;
     const handleAppAdd = (e: any) => {
@@ -55,30 +58,75 @@ const ApplicationUI = (props: ApplicationProps) => {
 
     };
     // 向后端发送创建新应用的请求
-    const CreateNewApp = (AppName: string, AppUrl: string, NowAuthority: number) => {
-        request(
-            `/api/User/App/${LoadSessionID()}/${NowAuthority}`,
-            "POST",
-            {
-                "AppName": AppName,
-                "AppUrl": AppUrl
-            }
-        )
-            .then((res) => {
-                setOpen(false);
-                let answer: string = `成功创建应用 ${AppName}`;
-                Modal.success({ title: "创建成功", content: answer });
-                fetchList(NowAuthority);
-            })
-            .catch((err: string) => {
-                if (IfCodeSessionWrong(err, router)) {
-                    setOpen(false);
+    const CreateNewApp = async (AppName: string, AppUrl: string, NowAuthority: number) => {
+        const client = new OSS({
+            region: "oss-cn-beijing",
+            accessKeyId: "LTAI5tNdCBrFK5BGXqTiMhwG",
+            accessKeySecret: "vZpHyptCPojSG1uNGucDtWcqzMOEeF",
+            bucket: "cs-company",
+            secure: true,
+        });
+
+        const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+        const headers = {
+            // 添加跨域请求头
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            // 其他自定义请求头
+            "x-oss-storage-class": "Standard",
+            "x-oss-object-acl": "public-read",
+            "x-oss-tagging": "Tag1=1&Tag2=2",
+            "x-oss-forbid-overwrite": "true",
+        };
+        try {
+            if (File) {
+                if (File.size > MAX_FILE_SIZE) {
                     Modal.error({
-                        title: "创建失败",
-                        content: err.toString().substring(5),
+                        title: "头像" + File.name + "无法上传",
+                        content: "图片大小过大",
                     });
+                    return;
                 }
-            });
+            }
+            //更新头像
+            const nowtime = Date.now();
+            const fileExtension = File?.name.split(".").pop();
+            const path = "/AppPhotos/" + nowtime + "." + fileExtension;
+            const result = await client.put(path, File, { headers });
+            const fileurl = "https://cs-company.oss-cn-beijing.aliyuncs.com" + path;
+            const selectedFileName = document.getElementById("selected-file-name");
+            if(selectedFileName) selectedFileName.textContent = "";
+            request(
+                `/api/User/App/${LoadSessionID()}/${NowAuthority}`,
+                "POST",
+                {
+                    "AppName": AppName,
+                    "AppUrl": AppUrl,
+                    "AppImage": fileurl
+                }
+            )
+                .then((res) => {
+                    setOpen(false);
+                    let answer: string = `成功创建应用 ${AppName}`;
+                    Modal.success({ title: "创建成功", content: answer });
+                    fetchList(NowAuthority);
+                })
+                .catch((err: string) => {
+                    if (IfCodeSessionWrong(err, router)) {
+                        setOpen(false);
+                        Modal.error({
+                            title: "创建失败",
+                            content: err.toString().substring(5),
+                        });
+                    }
+                });
+        } catch (e) {
+            console.error("上传失败", e);
+        }
+        console.log("上传的文件:", File);
+        
     };
 
     const RemoveApp = (Authority: number, AppName: string) => {
@@ -137,6 +185,22 @@ const ApplicationUI = (props: ApplicationProps) => {
     const onClose = () => {
         setOpen(false);
     };
+
+    const handleFileChange = (e: any) => {
+        const file = e.target.files[0]; // 获取所有选择的文件
+        console.log(e.target);
+        const selectedFileName = document.getElementById("selected-file-name");
+        if(selectedFileName) selectedFileName.textContent = file.name;
+        setFile(file); // 存储文件数组
+        // 在这里处理获取到的文件
+        console.log("上传的文件:", file);
+    };
+
+    const handleUpload = async () => {
+        // 创建 OSS 客户端实例
+        
+    };
+
     useEffect(() => {
         if (!router.isReady) {
             return;
@@ -198,6 +262,21 @@ const ApplicationUI = (props: ApplicationProps) => {
                     >
                         <Input onChange={handleUrlAdd} />
                     </Form.Item>
+                    <Form.Item
+                        label="应用图标"
+                        name="AppImage"
+                    >
+                        <input
+                            type="file"
+                            id="upload-input"
+                            onChange={handleFileChange}
+                            style={{ display: "none" }}
+                        />
+                        <label htmlFor="upload-input" className="custom-upload-button">
+                            (小于10MB)
+                        </label>
+                    </Form.Item>
+                    
                     <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
                         <Button type="primary" htmlType="submit" loading={Loading} onClick={() => { if (AppName && AppUrl) CreateNewApp(AppName, AppUrl, Authority); }}>
                             确认提交
