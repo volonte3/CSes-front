@@ -61,7 +61,7 @@ const App = () => {
     const steps: TourProps["steps"] = [
         {
             title: "查看资产分类树",
-            description: "资产分为条目型和数量型两类，点击有箭头的分类项可展开显示其下属子分类，用户可以在这个分类的基础上对定义进行进一步细化调整",
+            description: "资产分为条目型和数量型两类，用户可以通过资产树状图查看和调整对资产分类树的定义",
             target: () => ref1.current,
             nextButtonProps:{children:"下一步"},
             prevButtonProps:{children:"上一步"},
@@ -431,7 +431,7 @@ const App = () => {
                                 </Col>
                             </Row>
                             <Row style={{ margin: "30px" }} align="bottom">
-                                <Col span={20} ref={ref1}>
+                                <Col span={20}>
                                     <MyTreeChartComponent onDataFromChild={handleDataFromChild} data={Asset?.map(mapTitleToName) ?? []} /> 
                                 </Col>
                             </Row>      
