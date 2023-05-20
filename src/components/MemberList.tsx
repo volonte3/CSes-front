@@ -21,9 +21,9 @@ interface MemberListProps {
     Members: MemberData[] | undefined;
     department_page: boolean;
     department_path: string;
-    refList: React.MutableRefObject<any>[];
-    setTourOpen: (t: boolean) => void;
-    TourOpen: boolean;
+    refList?: React.MutableRefObject<any>[]; // Make the parameter optional
+    setTourOpen?: (t: boolean) => void;
+    TourOpen?: boolean;
 }
 interface UrlData {
     Name?:string;
@@ -45,6 +45,8 @@ const MemberList = (props: MemberListProps) => {
     const router = useRouter();
     const query = router.query;
     const tableRef = useRef<ActionType>(null);
+    const defaultRefList = [useRef(null), useRef(null), useRef(null), useRef(null)];
+    const resolvedRefList = props.refList || defaultRefList;
     const FetchMemberList = () => {
         if(props.department_page) {
             request(
@@ -261,11 +263,11 @@ const MemberList = (props: MemberListProps) => {
             width:"300px",
             render:(text, record, _, action) => (
                 <Space size="middle">
-                    <Switch ref={props.refList[0]} checkedChildren="解锁" unCheckedChildren="锁定" onChange={() => { if(!props.TourOpen){ChangeLock(record.Name);} }} checked={!record.lock} loading={LockLoading} />
-                    <Button ref={props.refList[1]} danger onClick={() => {if(!props.TourOpen) {showRemakeModal(record.Name, record.Authority);} }}>重置密码</Button>
+                    <Switch ref={resolvedRefList[0]} checkedChildren="解锁" unCheckedChildren="锁定" onChange={() => { if(!props.TourOpen){ChangeLock(record.Name);} }} checked={!record.lock} loading={LockLoading} />
+                    <Button ref={resolvedRefList[1]} danger onClick={() => {if(!props.TourOpen) {showRemakeModal(record.Name, record.Authority);} }}>重置密码</Button>
                     
-                    <Button ref={props.refList[2]} danger onClick={() => {if(!props.TourOpen){showRemoveModal(record.Name, record.Authority); }}}>删除员工</Button>
-                    <div ref={props.refList[3]}>
+                    <Button ref={resolvedRefList[2]} danger onClick={() => {if(!props.TourOpen){showRemoveModal(record.Name, record.Authority); }}}>删除员工</Button>
+                    <div ref={resolvedRefList[3]}>
                         {record.Authority == 3 && <Button type="text" onClick={() => { if(!props.TourOpen){ChangeAuthority(record.Name, record.Authority);} }} icon={<UpOutlined />}>提拔为资产管理员</Button>}
                         {record.Authority == 2 && <Button type="text" danger onClick={() => { if(!props.TourOpen){ChangeAuthority(record.Name, record.Authority);} }} icon={<DownOutlined />}>降为普通员工</Button>}
                     </div>
