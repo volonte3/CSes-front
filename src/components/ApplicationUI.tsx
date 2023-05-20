@@ -146,7 +146,7 @@ const ApplicationUI = (props: ApplicationProps) => {
     }, [router, query]);
     return (
         <Content>
-            {Authority == 3 && <Button
+            {/* {Authority == 3 && <Button
                 type="primary"
                 style={{ float: "left", margin: 30 }}
                 onClick={() => { handleUser(); }}
@@ -161,11 +161,17 @@ const ApplicationUI = (props: ApplicationProps) => {
                 ref={props.refList[0]}
             >
                 切换到普通员工应用列表
-            </Button>}
+            </Button>} */}
+            <Button style={{marginTop:"40px", marginLeft:"20px",marginBottom:"-10px"}} className={Authority==2 ? "log_title_select" : "log_title"} type="text" key="0" onClick={() => { handleUser(); }}>
+                资产管理员应用列表
+            </Button>
+            <Button style={{marginTop:"25px",marginBottom:"-10px"}} className={Authority==3 ? "log_title_select" : "log_title"} type="text" key="1" onClick={() => { handleAM(); }}>
+                员工应用列表
+            </Button>
             <Button
                 type="primary"
                 icon={<PlusSquareOutlined />}
-                style={{ float: "left", margin: 30 }}
+                style={{ marginLeft:"30px",marginBottom:"-10px" }}
                 onClick={() => setOpen(true)}
                 ref={props.refList[1]}
             >
@@ -201,14 +207,14 @@ const ApplicationUI = (props: ApplicationProps) => {
             </Drawer>
             <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
                 <Table dataSource={AppList} ref={props.refList[2]}>
-                    <Column title="应用名称" dataIndex="AppName" key="AppName" />
+                    <Column title="应用名称" dataIndex="AppName" key="AppName" width="300px" />
                     <Column
                         title="管理"
                         key="action"
                         render={(_: any, record: AppData) => (
                             <Space size="middle">
-                                <Switch ref={props.refList[3]}checkedChildren="解锁" unCheckedChildren="禁用" onChange={() => { if(!props.setTourOpen){ChangeLock(record.AppName, record.AppUrl); }}} checked={!record.IsLock} loading={LockLoading} />
-                                {!record.IsInternal && <Button type="primary" loading={Loading} onClick={() => { if(!props.setTourOpen){RemoveApp(Authority, record.AppName);} }} ref={props.refList[4]}>移除该应用</Button>}
+                                <Switch ref={props.refList[3]}checkedChildren="解锁" unCheckedChildren="禁用" onChange={() => { if(!props.TourOpen){ChangeLock(record.AppName, record.AppUrl); }}} checked={!record.IsLock} loading={LockLoading} />
+                                {!record.IsInternal && <Button type="primary" loading={Loading} onClick={() => { if(!props.TourOpen){RemoveApp(Authority, record.AppName);} }} ref={props.refList[4]}>移除该应用</Button>}
 
                             </Space>
                         )}
