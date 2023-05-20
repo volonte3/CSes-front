@@ -13,6 +13,7 @@ import { LoadSessionID, logout, IfCodeSessionWrong } from "../../../utils/Cookie
 import UserInfo from "../../../components/UserInfoUI";
 import SiderMenu from "../../../components/SiderUI";
 import { NewLark } from "@icon-park/react";
+import { ProList } from "@ant-design/pro-components";
 
 type MenuItem = Required<MenuProps>["items"][number];
 type SystemData = {
@@ -464,37 +465,40 @@ const App = () => {
                                 />
                             </Table>
 
-                            <Modal
-                                title="设置飞书同步部门"
-                                style={{ height: "400px" }}
-                                open={ShowFeishu}
-                                // onOk={() => { IsChangeDepartments ? handleChangeFeishuDepartment() : setShowFeishu(false); }}
-                                onCancel={() => { setShowFeishu(false); }}
-                                footer={
-                                    <Button
-                                        type="primary"
-                                        onClick={() => { IsChangeDepartments ? handleChangeFeishuDepartment() : setShowFeishu(false); }}
-                                        loading={FeishuChangeDepartmentsLoading}
-                                    >
-                                        确认提交
-                                    </Button>
-                                }
-                            >
-                                <List
-                                    dataSource={DepartmentsData}
-                                    renderItem={(item: { ID: string[], Name: string }) => (
-                                        <List.Item
-                                            onClick={() => { setFeishuDepartmentID(item.ID[0]); setFeishuDepartmentName(item.Name); setIsChangeDepartments(true); }}
-                                            className={`employee-item ${FeishuDepartmentID && FeishuDepartmentID === item.ID[0] ? "selected" : ""}`}
+                            <div style={{ height: "100px" }}>
+                                <Modal
+                                    title="设置飞书同步部门"
+                                    open={ShowFeishu}
+                                    // onOk={() => { IsChangeDepartments ? handleChangeFeishuDepartment() : setShowFeishu(false); }}
+                                    onCancel={() => { setShowFeishu(false); }}
+                                    footer={
+                                        <Button
+                                            type="primary"
+                                            onClick={() => { IsChangeDepartments ? handleChangeFeishuDepartment() : setShowFeishu(false); }}
+                                            loading={FeishuChangeDepartmentsLoading}
                                         >
-                                            <div className="employee-name">{item.Name}</div>
-                                        </List.Item>
-                                    )}
-                                    pagination={{
-                                        pageSize: 20
-                                    }}
-                                />
-                            </Modal>
+                                        确认提交
+                                        </Button>
+                                    }
+                                >
+                                    <ProList
+                                        dataSource={DepartmentsData}
+                                        renderItem={(item: { ID: string[], Name: string }) => (
+                                            <List.Item
+                                                onClick={() => { setFeishuDepartmentID(item.ID[0]); setFeishuDepartmentName(item.Name); setIsChangeDepartments(true); }}
+                                                className={`employee-item ${FeishuDepartmentID && FeishuDepartmentID === item.ID[0] ? "selected" : ""}`}
+                                            >
+                                                <div className="employee-name">{item.Name}</div>
+                                            </List.Item>
+                                        )}
+                                        pagination={{
+                                            pageSize: 20,
+                                            showSizeChanger: false
+                                        }}
+                                        scroll={{ x: "max-content", y: "100%" }}
+                                    />
+                                </Modal>
+                            </div>
                         </div>
                         <Tour open={TourOpen} onClose={() => setTourOpen(false)} steps={steps} />
 

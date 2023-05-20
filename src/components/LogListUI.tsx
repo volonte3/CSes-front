@@ -47,6 +47,7 @@ const LogList = () => {
         current: PageId,
         pageSize: 20,
         total: TotalNum,
+        showSizeChanger: false,
         onChange: (page: number) => {
             setPageId(page);
             getLog(activeKey, page, success);

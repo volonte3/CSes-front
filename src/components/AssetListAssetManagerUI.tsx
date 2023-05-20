@@ -434,6 +434,7 @@ const AssetList = (props: AssetListProps) => {
         current: PageID,
         pageSize: 20,
         total: TotalNum,
+        showSizeChanger: false,
         onChange: (page: number) => {
             setPageID(page);
             GetMemberList(page, searchText);
@@ -527,7 +528,7 @@ const AssetList = (props: AssetListProps) => {
                             return values;
                         },
                     }}
-                    scroll={{ x: "100%", y: "calc(100vh - 300px)" }}
+                    scroll={{ x: "max-content", y: "calc(100vh - 300px)" }}
                     pagination={{
                         showSizeChanger: false
                     }}
@@ -565,6 +566,7 @@ const AssetList = (props: AssetListProps) => {
                             </List.Item>
                         )}
                         pagination={pagination}
+                        scroll={{ x: "max-content", y: "calc(100vh - 300px)" }}
                     />
                 </Modal>
             }

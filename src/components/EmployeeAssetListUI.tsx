@@ -351,6 +351,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
         current: PageID,
         pageSize: 20,
         total: TotalNum,
+        showSizeChanger: false,
         onChange: (page: number) => {
             setPageID(page);
             GetMemberList(searchText, page);
@@ -689,6 +690,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                         </List.Item>
                     )}
                     pagination={pagination}
+                    scroll={{ x: "max-content", y: "calc(100vh - 300px)" }}
                 />
             </Modal>
             <ModalForm<{

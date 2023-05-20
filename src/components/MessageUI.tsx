@@ -120,6 +120,7 @@ const MessageUI = (props: MessageProps) => {
         current: PageID,
         pageSize: 20,
         total: TotalNum,
+        showSizeChanger: false,
         onChange: (page: number) => {
             setPageID(page);
             fetchList(newinfo?0:-1, page);
