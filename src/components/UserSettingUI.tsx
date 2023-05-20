@@ -23,7 +23,7 @@ interface UserSettingProps {
 }
 const UserSetting = (props:UserSettingProps) => {
     const [ProfileUrl, setProfileUrl] = useState("");
-    const [File, setFile] = useState<File>(); // 使用useState来管理files数组
+    const [File, setFile] = useState<File>();
     const [ProfileChangeOpen, setProfileChangeOpen] = useState<boolean>(false);  //更新头像的modal是否打开
     const [form] = Form.useForm();
     const [UserName, setUserName] = useState<string>(props.UserName);
