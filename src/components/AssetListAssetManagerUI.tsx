@@ -470,6 +470,7 @@ const AssetList = (props: AssetListProps) => {
                                 已选 {mySelectedRowKeys.length} 项
                                 <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => {
                                     handleMySelectedRowKeys([]);
+                                    handleMySelectedRows([]);
                                 }}>
                                     取消选择
                                 </a>
@@ -512,7 +513,6 @@ const AssetList = (props: AssetListProps) => {
                                     return Promise.resolve({ data: res.Asset, success: true, total: res.TotalNum });
                                 })
                         );
-
                     }
                     }
                     form={{

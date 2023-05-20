@@ -75,7 +75,17 @@ class MyEditor extends React.Component<{
         );
     }
 }
-
+interface UrlData {
+    pageSize: number;
+    current?: number;
+    Name?: string;
+    ID?: number;
+    Class?: string;
+    Status?: number;
+    Owner?: string;
+    Prop?: string;
+    PropValue?: string;
+}
 const AssetChange = () => {
     const [AssetList, setAssetList] = useState<{[key : number] : string}>({});
     const [changekey, setchangekey] = useState(Date.now());
@@ -88,10 +98,19 @@ const AssetChange = () => {
     const handleFileChange = (e: any) => {
         const files: File[] = Array.from(e.target.files); // 获取所有选择的文件
         setfiles(files); // 存储文件数组
+        const selectedFileName = document.getElementById("selected-file-name");
+        if(selectedFileName) {
+            selectedFileName.textContent="";
+            for (let i=0; i<files.length;i++){
+                if(i>0) selectedFileName.textContent= selectedFileName.textContent+"  ;  "+ files[i].name;
+                else selectedFileName.textContent = files[i].name;            
+            }
+            selectedFileName.textContent += `  共 ${files.length}个文件`;
+        }
         // 在这里处理获取到的文件
         console.log("上传的文件:", files);
     };
-
+    
     const handleUpload = async () => {
     // 创建 OSS 客户端实例
         const client = new OSS({
@@ -331,7 +350,16 @@ const AssetChange = () => {
                                 />
                             </ProForm.Group>
                             <ProForm.Group tooltip="支持一次性选中多个图片，单个图片不能超过10MB" title="资产图片">
-                                <input type="file" onChange={handleFileChange} multiple/>
+                                <label htmlFor="upload-input" style={{marginTop:"-20px"}}className="custom-upload-button-add">
+                                </label>
+                                <input
+                                    type="file"
+                                    id="upload-input"
+                                    onChange={handleFileChange}
+                                    style={{ display: "none" }}
+                                    multiple
+                                />
+                                <span id="selected-file-name"></span>
                             </ProForm.Group>
                         </ModalForm>
                     </div>);
@@ -381,40 +409,26 @@ const AssetChange = () => {
             columns={columns}
             options={false}
             rowKey="ID"
-            request={async (params = {}) =>
-                request(`/api/Asset/Info/${LoadSessionID()}`, "GET")
-                    .then(response => {    // 将request请求的对象保存到state中
-                        // 对获取到的信息进行筛选，其中创建时间设为不可筛选项，描述、物品名称和所有者设为包含搜索，状态和ID设为严格搜索
-                        // TODO ID到底是number还是string，前后端统一一下
-                        // TODO 强等于弱等于的问题，暂时没去管
-                        let filteredData = response.Asset;
-                        if (params.Description) {
-                            filteredData = filteredData.filter(
-                                (item: AssetData) => item.Description.includes(params.Description)
-                            );
-                        }
-                        if (params.Owner) {
-                            filteredData = filteredData.filter(
-                                (item: AssetData) => item.Owner.includes(params.Owner)
-                            );
-                        }
-                        if (params.ID) {
-                            filteredData = filteredData.filter(
-                                (item: AssetData) => item.ID == params.ID
-                            );
-                        }
-                        if (params.Name) {
-                            filteredData = filteredData.filter(
-                                (item: AssetData) => item.Name.includes(params.Name)
-                            );
-                        }
-                        if (params.Status) {
-                            filteredData = filteredData.filter(
-                                (item: AssetData) => item.Status == params.Status
-                            );
-                        }
-                        return Promise.resolve({ data: filteredData, success: true });
-                    })
+            request={async (params = {}) => {
+                const loadSessionID = LoadSessionID();
+                let urldata: UrlData = { pageSize: 20, current: params.current, Name: "", ID: -1, Status: -1, Class: "", Owner: "", Prop: "", PropValue: "" };
+                if (params.Name != undefined) urldata.Name = params.Name;
+                if (params.ID != undefined) urldata.ID = params.ID;
+                if (params.Status != undefined) urldata.Status = params.Status;
+                if (params.Class != undefined) urldata.Class = params.Class;
+                if (params.Owner != undefined) urldata.Owner = params.Owner;
+                let url = `/api/Asset/Info/${loadSessionID}/${urldata.current}/ID=${urldata.ID}/Name=${urldata.Name}/Class=${urldata.Class}/Status=${urldata.Status}/Owner=${urldata.Owner}/Prop=${urldata.Prop}/PropValue=${urldata.PropValue}`;
+                console.log(url);
+                return (
+                    request(
+                        url,
+                        "GET"
+                    )
+                        .then((res) => {
+                            return Promise.resolve({ data: res.Asset, success: true, total: res.TotalNum });
+                        })
+                );
+            }
             }
             form={{
                 // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
@@ -430,7 +444,7 @@ const AssetChange = () => {
             }}
             scroll={{ x: "max-content", y: "calc(100vh - 300px)" }}
             pagination={{
-                showSizeChanger: true
+                showSizeChanger: false
             }}
             search={{
                 defaultCollapsed: false,

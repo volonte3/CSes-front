@@ -51,6 +51,7 @@ const ApplyApprovalList = (props:ApplyApprovalListProps) => {
             title: "申请编号",
             dataIndex: "ApplyID",
             key: "ApplyID",
+            width:"80px"
         },
         {
             title: "资产名",
@@ -107,7 +108,8 @@ const ApplyApprovalList = (props:ApplyApprovalListProps) => {
                         <Button ref={props.refList[2]} type="link" onClick={() => { setApplyReason(record.Message); setShowApplyReason(true); }}> 查看申请理由</Button>
                     </Space>
                 );
-            }
+            },
+            width:"200px"
         }
     ];
     const router = useRouter();
@@ -150,8 +152,9 @@ const ApplyApprovalList = (props:ApplyApprovalListProps) => {
                 }}
                 // scroll={{ x: "100%", y: "calc(100vh - 300px)" }}
                 pagination={{
-                    showSizeChanger: true
+                    showSizeChanger: false
                 }}
+                scroll={{ x: "max-content", y: "calc(100vh - 300px)" }}
                 search={false}
 
 
@@ -159,7 +162,7 @@ const ApplyApprovalList = (props:ApplyApprovalListProps) => {
             // /* </div> */ 
             />
 
-            <Modal title="申请理由" open={ShowApplyReason} onOk={() => setShowApplyReason(false)}>
+            <Modal title="申请理由" open={ShowApplyReason} onOk={() => setShowApplyReason(false)} onCancel={() => setShowApplyReason(false)}>
                 <div style={{ maxHeight: "400px", minHeight: "50px", overflowY: "auto" }}>
                     {ApplyReason != ""
                         ?

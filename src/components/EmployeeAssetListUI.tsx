@@ -49,7 +49,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [SelectedRows, setSelectedRows] = useState<AssetData[]>([]); // 选择的所有行
     const [AssetList, setAssetList] = useState<AssetData[]>([]); // 最初获取的资产列表
-    const [MyAsset, setMyAsset] = useState(true);// 当前是否显示个人所有资产，值为true则显示个人,否则显示闲置
+    const [MyAsset, setMyAsset] = useState(false);// 当前是否显示个人所有资产，值为true则显示个人,否则显示闲置
     const tableRef = useRef<ActionType>();
     // 下面是资产转移Modal的部分
     const [searchText, setSearchText] = useState(""); // 搜索框中的内容
@@ -70,27 +70,27 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
     const [NowAssetID, setNowAssetID] = useState<number[]>([]);  //当前操作资产的ID
     const [ApplyMaxVolumn, setApplyMaxVolumn] = useState(0); //允许的最大领用量，即该资产的数量
     const [ApplyAssetType, setApplyAssetType] = useState(0); //获取资产的类型0就是条目型，1就是数量型
-    const fetchList = (myasset: number) => { // 传入1代表显示个人资产，传入0代表显示闲置资产
-        setMyAsset(myasset==1 ? true : false);
-        request(`/api/Asset/Info/${LoadSessionID()}`, "GET")
-            .then(response => {
-                if (myasset == 1) {
-                    const newlist = response.Asset.filter((item: AssetData) => (
-                        item.Owner == props.EmployeeName
-                    ));
-                    console.log("fetchlist 1");
-                    setAssetList(newlist);
-                }
-                if (myasset == 0) {
-                    const newlist = response.Asset.filter((item: AssetData) => (
-                        item.Owner != props.EmployeeName && item.Status == 0
-                    ));
-                    console.log("fetchlist 1");
-                    setAssetList(newlist);
-                }
-            });
-        console.log("fetchlist");
-    };
+    // const fetchList = (myasset: number) => { // 传入1代表显示个人资产，传入0代表显示闲置资产
+    //     setMyAsset(myasset==1 ? true : false);
+    //     request(`/api/Asset/Info/${LoadSessionID()}`, "GET")
+    //         .then(response => {
+    //             if (myasset == 1) {
+    //                 const newlist = response.Asset.filter((item: AssetData) => (
+    //                     item.Owner == props.EmployeeName
+    //                 ));
+    //                 console.log("fetchlist 1");
+    //                 setAssetList(newlist);
+    //             }
+    //             if (myasset == 0) {
+    //                 const newlist = response.Asset.filter((item: AssetData) => (
+    //                     item.Owner != props.EmployeeName && item.Status == 0
+    //                 ));
+    //                 console.log("fetchlist 1");
+    //                 setAssetList(newlist);
+    //             }
+    //         });
+    //     console.log("fetchlist");
+    // };
     const router = useRouter();
     const query = router.query;
     useEffect(() => {
@@ -110,6 +110,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
     const handleChange = (AssetIDList: number[], MoveTo: string = "", Type: string = "") => {
         setloading(true);
         handleMySelectedRowKeys([]);
+        handleMySelectedRows([]);
         request(`/api/Asset/Apply/${LoadSessionID()}`, "POST",
             {
                 "operation": renderApplyType2Apply(ApplyType),
@@ -137,6 +138,8 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
             .catch(
                 (err: string) => {
                     if (IfCodeSessionWrong(err, router)) {
+                        setloading(false);
+                        setOpen2(false);
                         setOpenApplyCondition(false);
                         setApplyDate("");
                         setApplyTime("");
@@ -458,11 +461,11 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                 </Breadcrumb.Item>
             </Breadcrumb>
             <div style={{ height: "15px" }}></div>
-            <Button className={MyAsset == true ? "log_title_select" : "log_title"} type="text" key="1" onClick={() => {setMyAsset(true);tableRef.current?.reload();}}>
-                个人资产
-            </Button>
             <Button className={MyAsset == false ? "log_title_select" : "log_title"} type="text" key="0" onClick={() => {setMyAsset(false);tableRef.current?.reload();}}>
                 部门闲置资产
+            </Button>
+            <Button className={MyAsset == true ? "log_title_select" : "log_title"} type="text" key="1" onClick={() => {setMyAsset(true);tableRef.current?.reload();}}>
+                个人资产
             </Button>
             <ProTable 
                 className="ant-pro-table"
@@ -482,6 +485,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                                 已选 {mySelectedRowKeys.length} 项
                             <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => {
                                 handleMySelectedRowKeys([]);
+                                handleMySelectedRows([]);
                             }}>
                                     取消选择
                             </a>
@@ -528,6 +532,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                     let url="";
                     if(MyAsset) url = `/api/Asset/Info/${loadSessionID}/${urldata.current}/ID=${urldata.ID}/Name=${urldata.Name}/Class=${urldata.Class}/Status=${urldata.Status}/Owner=${props.EmployeeName}/Prop=${urldata.Prop}/PropValue=${urldata.PropValue}`;
                     else url = `/api/Asset/Info/${loadSessionID}/${urldata.current}/ID=${urldata.ID}/Name=${urldata.Name}/Class=${urldata.Class}/Status=0/Owner=/Prop=${urldata.Prop}/PropValue=${urldata.PropValue}`;
+                    console.log(props.EmployeeName);
                     console.log(url);
                     return (
                         request(
@@ -554,7 +559,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                         return values;
                     },
                 }}
-                scroll={{ x: "100%", y: "calc(100vh - 300px)" }}
+                scroll={{ x: "max-content", y: "calc(100vh - 300px)" }}
                 pagination={{
                     showSizeChanger: false
                 }}
