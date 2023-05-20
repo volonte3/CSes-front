@@ -43,6 +43,7 @@ const MessageUI = (props: MessageProps) => {
             title: "消息编号",
             dataIndex: "ID",
             key: "ID",
+            width:"100px"
         },
         {
             title: "状态",
@@ -95,39 +96,34 @@ const MessageUI = (props: MessageProps) => {
     ];
     const router = useRouter();
     const query = router.query;
-    const fetchList = (all: number) => {
-        if (all == 0) {
-            request(`/api/User/Message/New/${LoadSessionID()}`, "GET")
-                .then((res) => {
-                    setMessageList(res.Message);
-                    setchangekey(Date.now());
-                    setnewinfo(true);
-                })
-                .catch((err) => {
-                    console.log(err.message);
+    const [PageID, setPageID] = useState(1);
+    const [TotalNum, setTotalNum] = useState(0);
+    const fetchList = (Is_Read: number, PageId: number) => {
+        request(
+            `/api/User/Message/All/${LoadSessionID()}/${PageId}/Is_Read=${Is_Read}`,
+            "GET"
+        )
+            .then((res) => {
+                setTotalNum(res.TotalNum);
+                setMessageList(res.Message);
+            })
+            .catch((err: string) => {
+                if (IfCodeSessionWrong(err, router)) {
                     Modal.error({
-                        title: "无权获取对应信息",
-                        content: "请重新登录",
-                        onOk: () => { window.location.href = "/"; }
+                        title: "获取用户信息失败",
+                        content: err.toString().substring(5),
                     });
-                });
-        }
-        else {
-            request(`/api/User/Message/All/${LoadSessionID()}`, "GET")
-                .then((res) => {
-                    setMessageList(res.Message);
-                    setchangekey(Date.now());
-                    setnewinfo(false);
-                })
-                .catch((err) => {
-                    console.log(err.message);
-                    Modal.error({
-                        title: "无权获取对应信息",
-                        content: "请重新登录",
-                        onOk: () => { window.location.href = "/"; }
-                    });
-                });
-        }
+                }
+            });
+    };
+    const pagination = {
+        current: PageID,
+        pageSize: 20,
+        total: TotalNum,
+        onChange: (page: number) => {
+            setPageID(page);
+            fetchList(newinfo?0:-1, page);
+        },
     };
     const handleChange = (ID: number) => {
         setloading(true);
@@ -142,8 +138,7 @@ const MessageUI = (props: MessageProps) => {
                     content: "成功更改消息状态",
                 });
                 setloading(false);
-                if (newinfo) fetchList(0);
-                else fetchList(1);
+                fetchList(newinfo?0:-1, PageID);
             })
             .catch(
                 (err: string) => {
@@ -161,7 +156,8 @@ const MessageUI = (props: MessageProps) => {
         if (!router.isReady) {
             return;
         }
-        fetchList(0);
+        fetchList(0, 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query]);
     const themeConfig = {
         token: {
@@ -177,17 +173,16 @@ const MessageUI = (props: MessageProps) => {
             <Breadcrumb style={{ marginLeft: "6px", marginBottom: "20px" }}>
                 <Breadcrumb.Item>消息列表</Breadcrumb.Item>
             </Breadcrumb>
-            <Button ref={props.refList[1]} className={newinfo ? "log_title_select" : "log_title"} type="text" key="1" onClick={() => { if (!props.TourOpen) { fetchList(0); } }}>
+            <Button ref={props.refList[1]} className={newinfo ? "log_title_select" : "log_title"} type="text" key="1" onClick={() => { if (!props.TourOpen) { setnewinfo(true); setPageID(1); fetchList(0, 1); } }}>
                 未读消息
             </Button>
-            <Button ref={props.refList[2]} className={!newinfo ? "log_title_select" : "log_title"} type="text" key="0" onClick={() => { if (!props.TourOpen) { fetchList(1); } }}>
+            <Button ref={props.refList[2]} className={!newinfo ? "log_title_select" : "log_title"} type="text" key="0" onClick={() => { if (!props.TourOpen) { setnewinfo(false); setPageID(1); fetchList(-1, 1); } }}>
                 全部消息
             </Button>
             <Button style={{marginLeft:"820px"}} type="primary" ref={props.refList[5]} onClick={() => { if (!props.TourOpen) { handleChange(-1); } }}>全部已读</Button>
             <div ref={props.refList[0]}>
 
                 <ProTable style={{ marginTop: "-20px", marginLeft: "-33px" }}
-                    key={changekey}
                     columns={columns}
                     actionRef={tableRef}
                     options={false}
@@ -206,9 +201,7 @@ const MessageUI = (props: MessageProps) => {
                         },
                     }}
                     scroll={{ x: "max-content", y: "calc(100vh - 300px)" }}
-                    // pagination={{
-                    //     showSizeChanger: true
-                    // }}
+                    pagination={pagination}
                     search={false}
                 />
             </div>

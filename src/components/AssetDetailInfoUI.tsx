@@ -203,7 +203,7 @@ export const AssetDetailCard = (props: AssetDetailProps) => {
                             {DetailInfo.Position}
                         </Descriptions.Item>
                         <Descriptions.Item label="价值">
-                            {DetailInfo.Volume}
+                            {DetailInfo.AssetValue}
                         </Descriptions.Item>
                         <Descriptions.Item label="折旧类型">
                             {renderLossStyle(DetailInfo.LossStyle)}
