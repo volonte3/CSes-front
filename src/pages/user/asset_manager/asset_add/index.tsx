@@ -196,7 +196,7 @@ const App = () => {
         if(selectedFileName) {
             selectedFileName.textContent="";
             for (let i=0; i<files.length;i++){
-                if(i>0) selectedFileName.textContent= selectedFileName.textContent+" / "+ files[i].name;
+                if(i>0) selectedFileName.textContent= selectedFileName.textContent+"  ;  "+ files[i].name;
                 else selectedFileName.textContent = files[i].name;            
             }
             selectedFileName.textContent += `  共 ${files.length}个文件`;

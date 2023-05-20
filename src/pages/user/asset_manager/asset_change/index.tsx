@@ -73,7 +73,7 @@ const App = () => {
                         <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true} ID={UserID}></UserInfo>
                     </Header>
                     <Content>
-                        <Breadcrumb style={{ margin: "30px" }}>
+                        <Breadcrumb style={{ marginLeft: "30px", marginTop:"20px", marginBottom:"-10px" }}>
                             <Breadcrumb.Item>资产变更</Breadcrumb.Item>
                         </Breadcrumb>
                         <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
