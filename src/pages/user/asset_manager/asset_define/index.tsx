@@ -154,6 +154,8 @@ const App = () => {
                 .then(() => {
                     success_modify();
                     setChange((e) => !e);
+                    setnowname(AssetName);
+                    setValue(value);
                 })
                 .catch((err) => {
                     Modal.error({
@@ -177,6 +179,8 @@ const App = () => {
                 success_delete();
                 setChange((e) => !e);
                 setValue("");
+                setnowname("");
+                setButtonDisable(true);
             })
             .catch((err) => {
                 console.log(err.name);
