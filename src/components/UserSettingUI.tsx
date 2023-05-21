@@ -1,6 +1,6 @@
 import React from "react";
-import { Layout, Tooltip, Button, Space, Modal, MenuProps, Descriptions, Form, Input, Collapse } from "antd";
-import { PictureOutlined, BellOutlined, DownOutlined, PoweroffOutlined, LockOutlined, PhoneOutlined } from "@ant-design/icons";
+import { Layout, Tooltip, Button, Space, Modal, MenuProps, Descriptions, Form, Input, Collapse, Row } from "antd";
+import { InfoCircleOutlined, WarningOutlined, UnorderedListOutlined, PoweroffOutlined, LockOutlined, PhoneOutlined } from "@ant-design/icons";
 import { logout, LoadSessionID, IfCodeSessionWrong, CreateCookie } from "../utils/CookieOperation";
 import { useRouter } from "next/router";
 import { request } from "../utils/network";
@@ -14,12 +14,34 @@ const { Panel } = Collapse;
 import { Image } from "antd-mobile";
 import OSS from "ali-oss";
 import CryptoJS from "crypto-js";
+import { ProColumns, ProTable } from "@ant-design/pro-components";
+import { ApplyApprovalData } from "../utils/types";
 interface UserSettingProps {
     ChangeName:(username:string)=>void;
     ChangeProfile: ()=>void;
     UserAuthority:number;
     UserName:string;
     UserId: number;
+}
+interface ToDoData {
+    Detail: string;
+}
+interface AssetWarnData {
+    Name:string;
+    ID: number;
+    AssetType: number;
+    WarnType: number;
+    WarnStrategy: string;
+    Description: string;
+    IsWarning: number;
+}
+interface UrlData {
+    Name?:string;
+    AssetType?: number;
+    WarnType?: number;
+    pageSize:number;
+    current?: number;
+    IsWarning:number;
 }
 const UserSetting = (props:UserSettingProps) => {
     const [ProfileUrl, setProfileUrl] = useState("");
@@ -153,6 +175,24 @@ const UserSetting = (props:UserSettingProps) => {
             {"部门："} {Department}
         </p>
     );
+    const UserInfoHead = (
+        <p className="userinfo-title" style={{fontSize:"20px", fontWeight:550}}>
+            <InfoCircleOutlined />
+            {"   个人信息"}
+        </p>
+    );
+    const UserInfoWarn = (
+        <p className="userinfo-title" style={{fontSize:"20px", fontWeight:550}}>
+            <WarningOutlined />
+            {"   告警资产"}
+        </p>
+    );
+    const UserInfoToDo = (
+        <p className="userinfo-title" style={{fontSize:"20px", fontWeight:550}}>
+            <UnorderedListOutlined />
+            {"   告警资产"}
+        </p>
+    );
     const getProfile = async () => {
         // 获取头像url
         const ossClient = new OSS({
@@ -265,103 +305,227 @@ const UserSetting = (props:UserSettingProps) => {
         getProfile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query]);
+    const columns: ProColumns<AssetWarnData>[] = [
+        {
+            title: "资产名称",
+            dataIndex: "Name",
+            key: "Name",
+            search:false
+        },
+        {
+            title: "告警策略",
+            dataIndex: "WarnStrategy",
+            key: "WarnStrategy",
+            search:false
+        },
+        {
+            title: "描述",
+            dataIndex: "Description",
+            key: "Description",
+            search:false
+        },
+    ];
+    const Render= (type: number) => {
+        if (type == 0) return "领用";
+        if (type == 1) return "退库";
+        if (type == 2) return "维保";
+        if (type == 3) return "转移";
+    };
+    const columns2: ProColumns<ToDoData>[] = [
+        {
+            title: "待办列表",
+            dataIndex: "Detail",
+            key: "Detail",
+            tip: "点击前往审批",
+            render: (_: any, record) => {
+                return (
+                    <div>
+                        <Tooltip title="点击前往审批">
+                            <a  className="link" onClick={() => {
+                                router.push("/user/asset_manager/apply_approval");
+                            }}>员工 {record.Detail}</a>
+                        </Tooltip>
+                    </div >);
+            },
+        },
+    ];
     return(
         <Content style={{ width: "10px" }}>
             <div style={{ display: "flex" }}>
-                <h1 className="main_page_headword">个人信息</h1>
                 <Image
                     key="111"
                     src={ProfileUrl}
                     fit="cover"
-                    style={{ marginLeft: "120px", marginTop: "15px", width: "80px", height: "80px",  borderRadius: 5 }}
+                    style={{ marginLeft: "40px", marginTop: "15px", marginBottom:"30px", width: "80px", height: "80px",  borderRadius: 5 }}
                     alt={"111"}
                     lazy
                 />
+                <h2 style={{marginTop:"40px", marginLeft:"30px"}}>{UserName}</h2>
             </div>
-            <Panel style={{marginTop: "30px", marginLeft: "18px", marginBottom: "40px" }} header={UserInfoName} key="7" />
-            <Panel style={{ marginTop: "30px", marginLeft: "18px", marginBottom: "40px" }} header={UserInfoAuthority} key="4" />
-            {(UserAuthority != 0) && <Panel style={{ marginLeft: "16px", marginBottom: "40px" }} header={UserInfoEntity} key="5" />}
-            {(UserAuthority === 2 || UserAuthority === 3) && <Panel style={{ marginLeft: "16px", marginBottom: "30px" }} header={UserInfoDepartment} key="6" />}
-            
             <Collapse
                 accordion
                 bordered={false}
-                expandIconPosition="end"
-                expandIcon={() => (
-                    <Button type="text" style={{ color: "#1890ff" }}>
-                                        更改
-                    </Button>
-                )}
+                expandIconPosition="right"
+                // expandIcon={() => (
+                //     <Button type="text" style={{ color: "#1890ff" }}>
+                //                 展开
+                //     </Button>
+                // )}
                 ghost
+                defaultActiveKey="10"
             >
-                <Panel header={UserInfoPhone} key="2">
-                    <Form
-                        form={form}
-                        onFinish={handleSubmit2}
-                        style={{ maxWidth: "400px", marginLeft: "24px" }}
+                <Panel header={UserInfoHead} key="10">
+                    <Panel style={{marginTop: "-10px", marginLeft: "18px", marginBottom: "25px" }} header={UserInfoName} key="7" />
+                    <Panel style={{ marginTop: "0px", marginLeft: "18px", marginBottom: "25px" }} header={UserInfoAuthority} key="4" />
+                    {(UserAuthority != 0) && <Panel style={{ marginLeft: "16px", marginBottom: "25px" }} header={UserInfoEntity} key="5" />}
+                    {(UserAuthority === 2 || UserAuthority === 3) && <Panel style={{ marginLeft: "16px", marginBottom: "15px" }} header={UserInfoDepartment} key="6" />}
+            
+                    <Collapse
+                        accordion
+                        bordered={false}
+                        expandIconPosition="end"
+                        expandIcon={() => (
+                            <Button type="text" style={{ color: "#1890ff" }}>
+                                        更改
+                            </Button>
+                        )}
+                        ghost
                     >
-                        <Form.Item
-                            name="phone"
-                        >
-                            <Input placeholder="请输入电话号码，绑定后可用于飞书登录" />
-                        </Form.Item>
-                        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                            <Button type="primary" htmlType="submit">
+                        <Panel header={UserInfoPhone} key="2" style={{marginBottom: "-10px" }}>
+                            <Form
+                                form={form}
+                                onFinish={handleSubmit2}
+                                style={{ maxWidth: "400px", marginLeft: "24px" }}
+                            >
+                                <Form.Item
+                                    name="phone"
+                                >
+                                    <Input placeholder="请输入电话号码，绑定后可用于飞书登录" />
+                                </Form.Item>
+                                <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                                    <Button type="primary" htmlType="submit">
                                                 确认绑定该电话
-                            </Button>
-                        </Form.Item>
-                    </Form>
-                </Panel>
-                <Panel header={UserInfoPassword} key="3">
-                    <Form
-                        form={form}
-                        onFinish={handleSubmit3}
-                        style={{ maxWidth: "400px", marginLeft: "24px" }}
-                    >
-                        <Form.Item name="old">
-                            <Input.Password placeholder="请输入原始密码" type="password"/>
-                        </Form.Item>
-                        <Form.Item name="new1">
-                            <Input.Password placeholder="请输入新密码" type="password"/>
-                        </Form.Item>
-                        <Form.Item name="new2">
-                            <Input.Password placeholder="请再次输入新密码" type="password"/>
-                        </Form.Item>
-                        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                            <Button type="primary" htmlType="submit" loading={loading}>
+                                    </Button>
+                                </Form.Item>
+                            </Form>
+                        </Panel>
+                        <Panel header={UserInfoPassword} key="3" style={{marginBottom: "-10px" }}>
+                            <Form
+                                form={form}
+                                onFinish={handleSubmit3}
+                                style={{ maxWidth: "400px", marginLeft: "24px" }}
+                            >
+                                <Form.Item name="old">
+                                    <Input.Password placeholder="请输入原始密码" type="password"/>
+                                </Form.Item>
+                                <Form.Item name="new1">
+                                    <Input.Password placeholder="请输入新密码" type="password"/>
+                                </Form.Item>
+                                <Form.Item name="new2">
+                                    <Input.Password placeholder="请再次输入新密码" type="password"/>
+                                </Form.Item>
+                                <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                                    <Button type="primary" htmlType="submit" loading={loading}>
                                                 确认更改密码
-                            </Button>
-                        </Form.Item>
-                    </Form>
-                </Panel>
+                                    </Button>
+                                </Form.Item>
+                            </Form>
+                        </Panel>
 
 
-            </Collapse>
-            <div>
-                <Button style={{ marginLeft: "24px", fontSize: "18px" }} type="link" onClick={() => {console.log("sdsds");setProfileChangeOpen(true);}}> 更改头像</Button>
-                <Modal
-                    title="更新头像"
-                    onOk={() => {
-                        handleUpload();
-                    }}
-                    open={ProfileChangeOpen}
-                    onCancel={() => {
-                        setProfileChangeOpen(false);
-                    }}
-                >
-                    <input
-                        type="file"
-                        id="upload-input"
-                        onChange={handleFileChange}
-                        style={{ display: "none" }}
-                    />
-                    <label htmlFor="upload-input" className="custom-upload-button">
+                    </Collapse>
+                    <div>
+                        <Button style={{ marginLeft: "24px", fontSize: "18px", marginBottom:"10px" }} type="link" onClick={() => {console.log("sdsds");setProfileChangeOpen(true);}}> 更改头像</Button>
+                        <Modal
+                            title="更新头像"
+                            onOk={() => {
+                                handleUpload();
+                            }}
+                            open={ProfileChangeOpen}
+                            onCancel={() => {
+                                setProfileChangeOpen(false);
+                            }}
+                        >
+                            <input
+                                type="file"
+                                id="upload-input"
+                                onChange={handleFileChange}
+                                style={{ display: "none" }}
+                            />
+                            <label htmlFor="upload-input" className="custom-upload-button">
                         (小于10MB)
-                    </label>
-                    <Space style={{width:"20px"}}> </Space>
-                    <span id="selected-file-name"></span>
-                </Modal>
-            </div>
+                            </label>
+                            <Space style={{width:"20px"}}> </Space>
+                            <span id="selected-file-name"></span>
+                        </Modal>
+                    </div>
+                </Panel>
+                {UserAuthority==2 && <Panel header={UserInfoToDo} key="30">
+                    <ProTable
+                        style={{marginTop:"-45px",marginLeft:"7px"}}
+                        columns={columns2}
+                        options={{ reload: true, setting: false }}
+                        request={async (params = {}) => {
+                            const loadSessionID = LoadSessionID();
+                            let url = `/api/Asset/Approval/${loadSessionID}`;
+                            return (
+                                request(
+                                    url,
+                                    "GET"
+                                )
+                                    .then((res) => {
+                                        let todolist: ToDoData[] = res.ApprovalList.map((item:ApplyApprovalData)=>{return{Detail:item.Applicant + " 对 " + item.Name + " 提出了 " + Render(item.Operation) + " 申请"};});
+                                        console.log(todolist);
+                                        return Promise.resolve({ data: todolist, success: true});
+                                    })
+                            );
+                        }
+                        }
+                        // dataSource={[]}
+                        scroll={{ x: "100%", y: "calc(100vh - 300px)" }}
+                        pagination={false}
+                        search={false}
+                        toolBarRender={false}
+                    />
+                </Panel>}
+                {UserAuthority==3 && <Panel header={UserInfoWarn} key="50">
+                    <ProTable
+                        style={{marginTop:"-30px",marginLeft:"5px"}}
+                        columns={columns}
+                        options={{ reload: true, setting: false }}
+                        rowKey="ID"
+                        request={async (params = {}) => {
+                            const loadSessionID = LoadSessionID();
+                            let urldata:UrlData={pageSize:20, current:params.current, Name:"", AssetType:-1, WarnType:-1, IsWarning:0};
+                            if(params.Name != undefined) urldata.Name=params.Name;
+                            if(params.AssetType != undefined) urldata.AssetType=params.AssetType;
+                            if(params.WarnType != undefined) urldata.WarnType=params.WarnType;
+                            if(params.IsWarning != undefined) urldata.IsWarning=params.IsWarning;
+                            // console.log("params参数："+params.Name+params.AssetType+params.WarnType);
+                            let url = `/api/Asset/UserWarn/${loadSessionID}/${urldata.IsWarning}/${urldata.current}/Name=${urldata.Name}/AssetType=${urldata.AssetType}/WarnType=${urldata.WarnType}`;
+                            console.log(url);
+                            return (
+                                request(
+                                    url,
+                                    "GET"
+                                )
+                                    .then((res) => {
+                                        return Promise.resolve({ data: res.AssetList, success: true , total:res.TotalNum});
+                                    })
+                            );
+                        }
+                        }
+                        // dataSource={[]}
+                        scroll={{ x: "100%", y: "calc(100vh - 300px)" }}
+                        pagination={{
+                            showSizeChanger:false,
+                        }}
+                        search={false}
+                        toolBarRender={false}
+                    />
+                </Panel>}
+            </Collapse>
+            
         </Content>
     );
 };
