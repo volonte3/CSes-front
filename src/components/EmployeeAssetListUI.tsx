@@ -633,7 +633,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                                     onChange={handleChangeDate}
                                     format="YYYY-MM-DD"
                                     placeholder="年-月-日"
-                                    defaultOpenValue={dayjs(ApplyTime.split(" ")[0], "YYYY-MM-DD")}
+                                    // defaultOpenValue={dayjs(ApplyTime.split(" ")[0], "YYYY-MM-DD")}
                                 />}
                             </Col>
                             <Col span={9}>
@@ -641,7 +641,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                                     onChange={handleChangeTime}
                                     format="HH:mm:ss"
                                     placeholder="时-分-秒"
-                                    defaultOpenValue={dayjs(ApplyTime.split(" ")[1], "HH:mm:ss")}
+                                    // defaultOpenValue={dayjs(ApplyTime.split(" ")[1], "HH:mm:ss")}
                                 />}
                             </Col>
                         </div>
