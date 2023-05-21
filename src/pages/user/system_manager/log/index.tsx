@@ -1,7 +1,9 @@
-import React from "react";
-import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, Switch, Modal, Button } from "antd";
+import React, { useRef } from "react";
+import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, Switch, Modal, Button, Tour } from "antd";
 const { Column, ColumnGroup } = Table;
 import { useRouter } from "next/router";
+import { QuestionCircleOutlined } from "@ant-design/icons";
+import type { TourProps } from "antd";
 const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
 import { request } from "../../../../utils/network";
@@ -31,6 +33,19 @@ const App = () => {
     const [TOREAD, setTOREAD] = useState(false);
     const [TODO, setTODO] = useState(false);
     const [UserID, setUserID]= useState(0);
+
+    const [TourOpen, setTourOpen] = useState(false);
+    const ref1 = useRef(null);
+    const steps: TourProps["steps"] = [
+        {
+            title: "操作日志",
+            description: "展示业务实体内所有重要操作信息，点击上侧栏可查询不同类型的操作，登录登出操作可实现对失败结果的查询",
+            target: () => ref1.current,
+            nextButtonProps: { children: "结束导览" },
+            prevButtonProps: { children: "上一步" },
+        }
+    ];
+
     const {
         token: { colorBgContainer },
     } = theme.useToken();
@@ -79,6 +94,9 @@ const App = () => {
                 <Layout className="site-layout" >
                     <Header className="ant-layout-header">
                         <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true} ID={UserID}></UserInfo>
+                        <Button style={{ margin: 30 }} className="header_button" onClick={() => { setTourOpen(true); }} icon={<QuestionCircleOutlined />}>
+                            使用帮助
+                        </Button>
                     </Header>
                     <Content>
                         <Breadcrumb style={{ margin: "16px 30px" }}>
@@ -87,6 +105,7 @@ const App = () => {
                         <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
                             <LogList/>
                         </div>
+                        <Tour open={TourOpen} onClose={() => setTourOpen(false)} steps={steps} />
                     </Content>
                 </Layout>
             </Layout>
