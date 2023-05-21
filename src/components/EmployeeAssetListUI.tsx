@@ -579,7 +579,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                     span: 8,
                     searchText: "查询",
                 }}
-                toolBarRender={() => []}
+                toolBarRender={false}
             >
             </ProTable>
             <Modal

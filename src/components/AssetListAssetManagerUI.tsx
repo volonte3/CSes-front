@@ -539,7 +539,7 @@ const AssetList = (props: AssetListProps) => {
                         span: 8,
                         searchText: "查询",
                     }}
-                    toolBarRender={() => []}
+                    toolBarRender={false}
                 />
             }
 
