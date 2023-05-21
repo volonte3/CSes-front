@@ -216,6 +216,13 @@ a {
   margin-left: 30px;
   margin-top:7px;
 }
+.img_style_main {
+  height: 90px;
+  width: 90px;
+  padding: 10px;
+  margin-left: 55px;
+  margin-top:7px;
+}
 .img_style_card {
   height: 80px;
   width: 80px;

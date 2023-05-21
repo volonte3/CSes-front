@@ -126,7 +126,7 @@ const ApplyApprovalList = (props:ApplyApprovalListProps) => {
 
             <ProTable
                 columns={columns}
-                options={{ reload: true, setting: false }}
+                options={false}
                 // dataSource={TestData}
                 actionRef={ref}
                 request={async (params = {}) =>
@@ -156,7 +156,7 @@ const ApplyApprovalList = (props:ApplyApprovalListProps) => {
                 }}
                 scroll={{ x: "max-content", y: "calc(100vh - 300px)" }}
                 search={false}
-
+                tooltip={false}
 
             // /* </ConfigProvider> */ 
             // /* </div> */ 

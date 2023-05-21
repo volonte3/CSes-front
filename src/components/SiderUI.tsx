@@ -238,7 +238,7 @@ const SiderMenu = ({ UserAuthority }: { UserAuthority: number }) => {
     return (
         <>
             <div className="blank">
-                <img src="/company.png" className="img_style" />
+                <img src="/company.png" className="img_style_main" />
             </div>
             {/* <Menu mode="inline">
                 <Menu.Item key={30} onClick={() => { router.push("/main_page"); }}>
