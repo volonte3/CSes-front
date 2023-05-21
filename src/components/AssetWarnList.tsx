@@ -1,4 +1,4 @@
-import { ActionType, ModalForm, ParamsType, ProColumns, ProForm, ProFormDigit, ProFormSelect, ProFormText, ProList, ProTable } from "@ant-design/pro-components";
+import { ActionType, ModalForm, ParamsType, ProColumns, ProForm, ProFormDatePicker, ProFormDateTimePicker, ProFormDigit, ProFormInstance, ProFormSelect, ProFormText, ProFormTextArea, ProList, ProTable, StepsForm } from "@ant-design/pro-components";
 import { Badge, Button, Modal, Space, Table, Descriptions, Tooltip, InputNumber, Select, Form } from "antd";
 import { ColumnsType } from "antd/lib/table/InternalTable";
 import { useRouter } from "next/router";
@@ -74,7 +74,7 @@ const AssetWarnList = (props:MessageProps) => {
     //         getList(activeKey, page);
     //     },
     // };
-    
+    const [visible, setVisible] = useState(false);
     const columns: ProColumns<AssetWarnData>[] = [
         {
             title: "资产名称",
@@ -152,7 +152,7 @@ const AssetWarnList = (props:MessageProps) => {
                 return (
                     <Tooltip title="设置告警策略">
                         <Button key="receive">
-                            <span onClick={() => {setModal1open(true);setChangeAsset(record);}}>
+                            <span onClick={() => {setModal1open(true);setVisible(true); setChangeAsset(record);}}>
                                 <EditOutlined />
                             </span>
                         </Button>
@@ -180,14 +180,14 @@ const AssetWarnList = (props:MessageProps) => {
         if (WarnType == 0) {setModal1open(false);setModal2open(true);}
         else if (WarnType == 1) {setModal1open(false);setModal3open(true);}
     };
-    const handleOk2 = () => {
+    const handleOk2 = (num:number) => {
         request(
             `/api/Asset/Warn/${LoadSessionID()}`,
             "POST",
             {
                 "AssetID": ChangeAsset?.ID,
                 "WarnType": WarnType,
-                "WarnStrategy": `${NumWarnStrategy}`,
+                "WarnStrategy": `${num}`,
             }
         )
             .then((res) => {
@@ -196,11 +196,15 @@ const AssetWarnList = (props:MessageProps) => {
                 let answer: string = `成功修改资产 ${ChangeAsset?.Name}的告警策略`;
                 Modal.success({ title: "修改成功", content: answer });
                 tableRef?.current?.reload();
+                setVisible(false);
+                formRef.current?.resetFields();
             })
             .catch((err: string) => {
                 if (IfCodeSessionWrong(err, router)) {
                     setModal2open(false);
                     setModal3open(false);
+                    setVisible(false);
+                    formRef.current?.resetFields();
                     Modal.error({
                         title: "修改失败",
                         content: err.toString().substring(5),
@@ -208,19 +212,21 @@ const AssetWarnList = (props:MessageProps) => {
                 }
             });
     };
-    const handleOk3 = () => {
+    const handleOk3 = (year:number, month:number, date: number) => {
         request(
             `/api/Asset/Warn/${LoadSessionID()}`,
             "POST",
             {
-                "AssetIdD": ChangeAsset?.ID,
+                "AssetID": ChangeAsset?.ID,
                 "WarnType": WarnType,
-                "WarnStrategy": `${Year}年${Month}月${Date}天`,
+                "WarnStrategy": `${year}年${month}月${date}天`,
             }
         )
             .then((res) => {
                 setModal2open(false);
                 setModal3open(false);
+                setVisible(false);
+                formRef.current?.resetFields();
                 let answer: string = `成功修改资产 ${ChangeAsset?.Name}的告警策略`;
                 Modal.success({ title: "修改成功", content: answer });
                 tableRef?.current?.reload();
@@ -229,6 +235,8 @@ const AssetWarnList = (props:MessageProps) => {
                 if (IfCodeSessionWrong(err, router)) {
                     setModal2open(false);
                     setModal3open(false);
+                    setVisible(false);
+                    formRef.current?.resetFields();
                     Modal.error({
                         title: "修改失败",
                         content: err.toString().substring(5),
@@ -236,7 +244,7 @@ const AssetWarnList = (props:MessageProps) => {
                 }
             });
     };
-    
+    const formRef = useRef<ProFormInstance>();
     useEffect(() => {
         if (!router.isReady) {
             return;
@@ -289,7 +297,7 @@ const AssetWarnList = (props:MessageProps) => {
                     span: 8,
                     searchText: "查询"
                 }}
-                toolBarRender={() => []}
+                toolBarRender={false}
             />
             {/* <ModalForm<{
                 WarnType: number;
@@ -341,7 +349,7 @@ const AssetWarnList = (props:MessageProps) => {
                     />
                 </ProForm.Group>
             </ModalForm> */}
-            <Modal
+            {/* <Modal
                 title="请选择告警类型"
                 bodyStyle={{ padding: "20px" }}
                 open={open1}
@@ -400,8 +408,134 @@ const AssetWarnList = (props:MessageProps) => {
                     <InputNumber size="small" min={1} max={31} defaultValue={1} style={{width:"40px"}}onChange={handleChangeDate} />
                     <div>日</div>
                 </Space>
-            </Modal>
-
+            </Modal> */}
+            <StepsForm
+                onFinish={async (values) => {
+                    console.log(values);
+                    if (WarnType == 0) {
+                        handleOk2(values.number);
+                    }
+                    else {
+                        handleOk3(values.year, values.month, values.date);
+                    }
+                    return true;
+                    
+                }}
+                formProps={{
+                    validateMessages: {
+                        required: "此项为必填项",
+                    },
+                }}
+                formRef={formRef}
+                stepsFormRender={(dom, submitter) => {
+                    return (
+                        <Modal
+                            width={800}
+                            style={{height:"500px", marginTop:"50px"}}
+                            onCancel={() => {setVisible(false); formRef.current?.resetFields();}}
+                            open={visible}
+                            footer={submitter}
+                        >
+                            <div style={{marginBottom:"25px", fontSize:"20px"}}>资产告警 </div>
+                            {dom}
+                        </Modal>
+                    );
+                }}
+            >
+                <StepsForm.StepForm
+                    name="base"
+                    title="设置告警类型"
+                    onFinish={async (values) => {
+                        setWarnType(values.type);
+                        console.log(values.type);
+                        return true;
+                    }}
+                    style={{height:"70px", marginTop:"30px"}}
+                >
+                    <ProFormSelect
+                        name="type"
+                        rules={[
+                            {
+                                required: true,
+                            },
+                        ]}
+                        width="md"
+                        options={[
+                            {
+                                value: 1,
+                                label: "年限告警",
+                            },
+                            {
+                                value: 0,
+                                label: "数量告警",
+                                disabled : ChangeAsset?.AssetType==0
+                            }
+                        ]}
+                        placeholder="告警类型"
+                    />
+                </StepsForm.StepForm>
+                
+                <StepsForm.StepForm name="time" title="设置具体告警策略" style={{height:"70px"}}>
+                    {WarnType == 0 && <Space style={{marginLeft:"-20px", marginBottom:"-50px"}}>
+                        <div style={{marginTop:"-25px", fontSize:"16px"}}>剩余数量小于等于</div>
+                        <ProFormDigit
+                            name="number" 
+                            min={1} 
+                            initialValue={1} 
+                            width={50}
+                            rules={[
+                                {
+                                    required: true,
+                                },
+                            ]}
+                            fieldProps={{ precision: 0 }}
+                        />
+                        <div style={{marginTop:"-25px", fontSize:"16px"}}>时告警</div>
+                    </Space>}
+                    {WarnType == 1 && <Space style={{marginLeft:"-20px", marginTop:"10px"}}>
+                        <div style={{marginTop:"-20px", fontSize:"16px"}}>剩余使用时间小于等于</div>
+                        <ProFormDigit
+                            name="year" 
+                            min={0} 
+                            initialValue={0} 
+                            width={50}
+                            rules={[
+                                {
+                                    required: true,
+                                },
+                            ]}
+                            fieldProps={{ precision: 0 }}
+                        />
+                        <div style={{marginTop:"-20px", fontSize:"16px"}}>年</div>
+                        <ProFormDigit
+                            name="month" 
+                            min={0} 
+                            initialValue={0} 
+                            width={50} 
+                            rules={[
+                                {
+                                    required: true,
+                                },
+                            ]}
+                            fieldProps={{ precision: 0 }}
+                        />
+                        <div style={{marginTop:"-20px", fontSize:"16px"}}>月</div>
+                        <ProFormDigit
+                            name="date" 
+                            min={0} 
+                            initialValue={1} 
+                            width={50}  
+                            rules={[
+                                {
+                                    required: true,
+                                },
+                            ]}
+                            fieldProps={{ precision: 0 }}
+                        />
+                        <div style={{marginTop:"-20px", fontSize:"16px"}}>日时告警</div>
+                    </Space>}
+                </StepsForm.StepForm>
+            </StepsForm>
         </>
     );
 };
