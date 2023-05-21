@@ -342,3 +342,6 @@ a {
 .link:hover {
   color: blue;
 }
+.ant-modal-mask {
+  background-color: transparent;
+}
