@@ -176,21 +176,21 @@ const UserSetting = (props:UserSettingProps) => {
         </p>
     );
     const UserInfoHead = (
-        <p className="userinfo-title" style={{fontSize:"20px", fontWeight:550}}>
+        <p className="userinfo-title" style={{fontSize:"20px", fontWeight:550, marginLeft:"-10px"}}>
             <InfoCircleOutlined />
             {"   个人信息"}
         </p>
     );
     const UserInfoWarn = (
-        <p className="userinfo-title" style={{fontSize:"20px", fontWeight:550}}>
+        <p className="userinfo-title" style={{fontSize:"20px", fontWeight:550, marginLeft:"-10px"}}>
             <WarningOutlined />
             {"   告警资产"}
         </p>
     );
     const UserInfoToDo = (
-        <p className="userinfo-title" style={{fontSize:"20px", fontWeight:550}}>
+        <p className="userinfo-title" style={{fontSize:"20px", fontWeight:550, marginLeft:"-10px"}}>
             <UnorderedListOutlined />
-            {"   告警资产"}
+            {"   待办事项"}
         </p>
     );
     const getProfile = async () => {

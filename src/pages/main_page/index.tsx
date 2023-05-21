@@ -439,7 +439,7 @@ const App = () => {
     if (state) {
         return (
             <Layout style={{ minHeight: "80vh" }}>
-                <Sider className="sidebar" width="10%">
+                <Sider className="sidebar" >
                     <SiderMenu UserAuthority={UserAuthority} />
                 </Sider>
                 <Layout className="site-layout" >

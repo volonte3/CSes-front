@@ -88,7 +88,7 @@ const App = () => {
     if (state) {
         return (
             <Layout className="site-layout">
-                <Sider className= "sidebar" width="10%">
+                <Sider className= "sidebar" width="13%">
                     <SiderMenu UserAuthority={UserAuthority} />
                 </Sider>
                 <Layout className="site-layout" >

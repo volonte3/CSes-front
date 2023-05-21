@@ -348,7 +348,7 @@ const App = () => {
         return (
             <Layout style={{ minHeight: "100vh" }}>
                 {contextHolder}
-                <Sider className="sidebar" width="10%">
+                <Sider className="sidebar" width="13%">
                     <SiderMenu UserAuthority={UserAuthority} />
                 </Sider>
                 <Layout className="site-layout" >
