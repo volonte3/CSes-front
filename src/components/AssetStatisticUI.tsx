@@ -47,7 +47,7 @@ const AssetStatistic= () => {
         )
             .then((res) => {
                 setTotalNum(res.TotalNum);
-                setProportion(res.NumProportion);
+                setProportion(res.Proportion);
                 // setValueList(res.Value);
             })
             .catch((err) => {
@@ -145,12 +145,22 @@ const AssetStatistic= () => {
             colors:"#6b91ad"
         }
     ];
+    const data2 = [
+        {
+            content: (
+                <>
+                    <div style={{fontSize:"24px", marginTop:"15px", fontWeight:"bold", marginLeft:"60px"}}>{`资产总数：${TotalNum}`}</div>
+                </>
+            ),
+            colors: "#9bd4fd"
+        },
+    ];
     const [ghost, setGhost] = useState<boolean>(false);
     const [openNumPie, setOpenNumPie] = useState(true);
     const [openNumBar, setOpenNumBar] = useState(false);
     const [openItemPie, setOpenItemPie] = useState(false);
     const [openItemBar, setOpenItemBar] = useState(false);
-    const [AllAsset, setAllAsset] = useState(false);
+    const [AllAsset, setAllAsset] = useState(true);
     return (
         <div className="Div">
             <div> 
@@ -164,7 +174,64 @@ const AssetStatistic= () => {
                     详细资产分布
                 </Button>
             </div>
-
+            {AllAsset && <div>
+                <ProList<any>
+                    ghost={ghost}
+                    itemCardProps={{
+                        ghost,
+                        className: "customCard",
+                    }}
+                    rowSelection={{}}
+                    grid={{ gutter: 16, column: 2}}
+                    onItem={(record: any) => {
+                        return {
+                            onMouseEnter: () => {
+                                console.log(record);
+                            },
+                            onClick: () => {
+                                console.log(record);
+                            },
+                        };
+                    }}
+                    metas={{
+                        content: {},
+                    }}
+                    dataSource={data2.map((item) => ({
+                        ...item,
+                        itemCardProps: {
+                            style: { backgroundColor: item.colors }, // 设置卡片的背景颜色
+                        },
+                    }))}
+                    style={{marginLeft:"380px"}}
+                />
+                <div className="Divv" style={{marginLeft:"350px", padding:"5px"}}>
+                    <Breadcrumb style={{ marginLeft: "170px", marginTop:"15px"}}>
+                        <Breadcrumb.Item>总体资产分布</Breadcrumb.Item>
+                    </Breadcrumb>
+                    
+                    {(TotalNum > 0) ? <PieChart width={400} height={400} style={{marginLeft:"45px", marginTop:"-20px"}}>
+                        <Pie
+                            dataKey="Value"
+                            isAnimationActive={false}
+                            data={Proportion}
+                            cx="50%"
+                            cy="50%"
+                            width={400}
+                            outerRadius={130}
+                            fill="#8884d8"
+                            labelLine={false}
+                            label={renderCustomizedLabel}
+                        >
+                            {data1.map((entry, index) => (
+                                <Cell key={index} fill={data1[index].color} className="pie-slice" onClick={()=>{}}/>
+                            ))}
+                        </Pie>
+                        <Tooltip/>
+                        <Legend iconSize={20} />
+                    </PieChart> : <h1></h1>}
+                    <Space style={{marginLeft:"250px"}}> </Space>
+                </div>
+            </div>}
             {!AllAsset && <div>
                 <ProList<any>
                     ghost={ghost}
