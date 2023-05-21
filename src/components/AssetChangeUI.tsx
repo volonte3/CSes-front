@@ -1,7 +1,7 @@
 import React from "react";
-import { theme, Form, Modal, Button} from "antd";
+import { theme, Form, Modal, Button, Select, Tooltip } from "antd";
 import {
-    FormOutlined,
+    FormOutlined, QuestionCircleOutlined,
 } from "@ant-design/icons";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
@@ -23,6 +23,7 @@ import { DateTransform } from "../utils/transformer";
 import OSS from "ali-oss";
 import "react-quill/dist/quill.snow.css"; // 导入默认的样式文件
 import { Rule } from "rc-field-form/lib/interface"; // 导入正确的规则类型
+const { Option } = Select;
 
 interface AssetListProps {
     Assets: AssetData[]
@@ -156,6 +157,48 @@ const AssetChange = () => {
         }
     };
     
+    const [options, setOptions] = useState([]);
+    const [loading1, setLoading1] = useState(false);
+    const [father, setfather] = useState<number>(-1);
+
+    const fetchData = async (inputValue: any) => {
+        setLoading1(true);
+
+        try {
+            // 发送请求到后端获取列表数据
+            request(
+                `/api/Asset/Info/${LoadSessionID()}/1/ID=-1/Name=${inputValue}/Class=/Status=-1/Owner=/Prop=/PropValue=`,
+                "GET",
+            )
+                .then((res) => {
+                    const newList: [] = res.Asset.filter((item: AssetData) => item.ID !== nowid);
+                    setOptions(newList);
+                })
+                .catch((err) => {
+                    Modal.error({
+                        title: "获取资产错误",
+                        content: err.message.substring(5),
+                    });
+                });
+        } catch (error) {
+            console.error("请求出错:", error);
+        }
+        setLoading1(false);
+    };
+
+    const handleSearch = (inputValue: any) => {
+        // 输入内容后触发请求
+        if (inputValue) {
+            fetchData(inputValue);
+        } else {
+            setOptions([]);
+        }
+    };
+
+    const handlefatherchange = (value: any) => {
+        setfather(value);
+    };
+
     const columns: ProColumns<AssetData>[] = [
         {
             title: "编号",
@@ -262,13 +305,13 @@ const AssetChange = () => {
                             stepsFormRender={(dom, submitter) => {
                                 return (
                                     <Modal
-                                        title="分步表单"
                                         width={800}
                                         onCancel={() => setVisible(false)}
                                         open={visible}
                                         footer={submitter}
                                         destroyOnClose
                                     >
+                                        <div style={{marginBottom:"25px", fontSize:"20px"}}>资产信息变更 </div>
                                         {dom}
                                     </Modal>
                                 );
@@ -285,15 +328,17 @@ const AssetChange = () => {
                                         Position: values.position,
                                         Describe: values.describe,
                                         Value: values.money,
-                                        Parent: values.father? values.father: null,
+                                        Parent: father == -1 ? null : father,
                                     }
                                 )   
                                     .then(() => {
                                         handleUpload();
                                         setchangekey(Date.now());
+                                        setfather(-1);
                                     })
                                     .catch((err) => {
                                         console.log(err.message);
+                                        setfather(-1);
                                         Modal.error({
                                             title: "资产变更失败",
                                             content: err.message.substring(5),
@@ -312,30 +357,31 @@ const AssetChange = () => {
                                         rules={[{ required: true, message: "这是必填项" }]} 
                                     />
                                 </ProForm.Group>
-                                <ProForm.Group>
-                                    <ProFormSelect
-                                        name="father"
-                                        label="所属主资产"
-                                        width="lg"
-                                        tooltip="即设置主从关系"
-                                        valueEnum={AssetList}
-                                        showSearch={true}
-                                        rules={[
-                                            {
-                                                validator: () => {
-                                                    return new Promise((resolve, reject) => {
-                                                        if (form.getFieldValue("father") == record.ID) {
-                                                            reject("不能将自己设置为主资产");
-                                                        } else {
-                                                            resolve("pass");
-                                                        }
-                                                    });
-                                                },
-                                            },
-                                        ]}
-                                        placeholder="请选择所属的主资产"    
-                                    />
-                                </ProForm.Group>
+                                <div>
+                                    <div style={{ marginBottom: "10px" }}>
+                                        <span style={{ marginRight: "5px" }}>选择主资产</span>
+                                        <Tooltip title="至多显示前20条搜索结果，请尽量精确搜索">
+                                            <QuestionCircleOutlined />
+                                        </Tooltip>
+                                    </div>
+                                    <Select
+                                        showSearch
+                                        placeholder="输入资产名称进行搜索"
+                                        defaultActiveFirstOption={false}
+                                        showArrow={false}
+                                        filterOption={false}
+                                        onSearch={handleSearch}
+                                        onChange={handlefatherchange}
+                                        notFoundContent={loading1 ? "加载中..." : "无匹配结果"}
+                                        style={{ width: "440px" }}
+                                    >
+                                        {options.map((option: AssetData) => (
+                                            <Option key={option.ID} value={option.ID}>
+                                                {option.Name + " (" + option.ID + ")"}
+                                            </Option>
+                                        ))}
+                                    </Select>
+                                </div>
                             </StepsForm.StepForm>
                             <StepsForm.StepForm name="more" title="更改详细信息">
                                 <ProForm.Group>
@@ -399,26 +445,6 @@ const AssetChange = () => {
         if (!router.isReady) {
             return;
         }
-        request(
-            `/api/Asset/Info/${LoadSessionID()}`,
-            "GET",
-        )
-            .then((res) => {
-                let assetlist = res.Asset;
-                for (let i = 0; i < assetlist.length; i = i + 1) {
-                    let item = assetlist[i];
-                    setAssetList((AssetList) => {
-                        AssetList[item.ID] = item.Name + " (" + item.ID + ")";
-                        return AssetList;
-                    });
-                }
-            })
-            .catch((err) => {
-                Modal.error({
-                    title: "错误",
-                    content: err.message.substring(5),
-                });
-            });
     }, [router, query]);
     const themeConfig = {
         token: {

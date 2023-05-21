@@ -17,7 +17,7 @@ import {
     ProList,
     ProFormDateTimePicker,
 } from "@ant-design/pro-components";
-import { Layout, Select, theme, Modal, Button, Breadcrumb, Row, Col, Form, message, Tour } from "antd";
+import { Layout, Select, theme, Modal, Button, Breadcrumb, Row, Col, Form, message, Tour, Tooltip } from "antd";
 import type {TourProps} from "antd";
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
@@ -589,19 +589,23 @@ const App = () => {
                                                 }}
                                             />
                                         </ProForm.Group>
-                                        <div >
-                                            <div style={{marginBottom:"10px"}}>
-                                                    选择主资产
+                                        <div>
+                                            <div style={{ marginBottom: "10px" }}>
+                                                <span style={{ marginRight: "5px" }}>选择主资产</span>
+                                                <Tooltip title="至多显示前20条搜索结果，请尽量精确搜索">
+                                                    <QuestionCircleOutlined />
+                                                </Tooltip>
                                             </div>
                                             <Select
                                                 showSearch
-                                                placeholder="输入内容进行搜索"
+                                                placeholder="输入资产名称进行搜索"
                                                 defaultActiveFirstOption={false}
                                                 showArrow={false}
                                                 filterOption={false}
                                                 onSearch={handleSearch}
                                                 onChange={handlefatherchange}
                                                 notFoundContent={loading1 ? "加载中..." : "无匹配结果"}
+                                                style={{ width: "440px" }}
                                             >
                                                 {options.map((option: AssetData) => (
                                                     <Option key={option.ID} value={option.ID}>
@@ -610,8 +614,6 @@ const App = () => {
                                                 ))}
                                             </Select>
                                         </div>
-                                            
-                                            
                                     </StepsForm.StepForm>
                                     <StepsForm.StepForm name="more" title="资产详细信息">
                                         <ProForm.Group>
