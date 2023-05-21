@@ -103,7 +103,27 @@ a {
 .Div {
   background-color: #fff;
   border-radius: 20px;
+
+}
+.Divv {
+  background-color: #fff;
+  border-radius: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  margin-left:30px;
+  /* height:530px; */
+  width: 500px;
   
+}
+.Divv2 {
+  background-color: #fff;
+  border-radius: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  margin-left:30px;
+  /* height:530px; */
+  width: 1100px;
+  margin-left: 45px;
+  padding-top: 10px;
+  margin-top:50px;
 }
 .ant-pro-table {
   /* display: flex; */
@@ -351,4 +371,16 @@ a {
 }
 .ant-modal-mask {
   background-color: transparent;
+}
+.customCard {
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+.customCard1 {
+  background: rgb(10, 153, 248);
+}
+.customCard2 {
+  background: #82b3d5;
+}
+.customCard3 {
+  background: #6b91ad;
 }
