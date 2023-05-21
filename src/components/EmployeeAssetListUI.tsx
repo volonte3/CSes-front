@@ -13,6 +13,9 @@ import dayjs from "dayjs";
 
 interface EmployeeAssetListProps {
     EmployeeName: string;
+    refList: React.MutableRefObject<any>[]; // Make the parameter optional
+    setTourOpen: (t: boolean) => void;
+    TourOpen: boolean;
 }
 interface UrlData {
     pageSize: number;
@@ -208,50 +211,53 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
             render: (text, record, _, action) => {
                 const { IsReceive, IsReturn, IsMaintenance, IsTransfers } = record;
                 return (
-                    <Space>
-                        {MyAsset == false &&
-                            <Button loading={loading} key="receive" title="领用" disabled={!IsReceive}
-                                onClick={() => {
-                                    setOpenApplyCondition(true);
-                                    setApplyType(0);
-                                    setApplyVolumn(1);
-                                    setApplyMaxVolumn(record.Number);
-                                    setApplyAssetType(record.Type);
-                                    setNowAssetID([record.ID]);
-                                }}>
-                                领用
-                            </Button>}
-                        {MyAsset == true &&
-                            <Button loading={loading} key="receive" title="退库" disabled={!IsReturn}
-                                onClick={() => {
-                                    setNowAssetID([record.ID]);
-                                    setOpenApplyCondition(true);
-                                    setApplyType(1);
-                                }}>
-                                退库
-                            </Button>}
-                        {MyAsset == true &&
-                            <Button loading={loading} key="receive" title="维保" disabled={!IsMaintenance}
-                                onClick={() => {
-                                    setNowAssetID([record.ID]);
-                                    setOpenApplyCondition(true);
-                                    setApplyTime(record.Time);
-                                    setApplyType(2);
-                                }}>
-                                维保
-                            </Button>}
-                        {MyAsset == true &&
-                            <Button loading={loading} key="receive" title="转移" disabled={!IsTransfers}
-                                onClick={() => {
-                                    setNowAssetID([record.ID]);
-                                    setOpenApplyCondition(true);
-                                    setTransferAsset(record);
-                                    setApplyType(3);
-                                    GetMemberList("", 1);
-                                }}>
-                                转移
-                            </Button>}
-                    </Space>
+                    <div ref={props.refList[1]}>
+
+                        <Space >
+                            {MyAsset == false &&
+                                <Button loading={loading} key="receive" title="领用" disabled={!IsReceive}
+                                    onClick={() => {if(!props.TourOpen){
+                                        setOpenApplyCondition(true);
+                                        setApplyType(0);
+                                        setApplyVolumn(1);
+                                        setApplyMaxVolumn(record.Number);
+                                        setApplyAssetType(record.Type);
+                                        setNowAssetID([record.ID]);
+                                    }}}>
+                                    领用
+                                </Button>}
+                            {MyAsset == true &&
+                                <Button loading={loading} key="receive" title="退库" disabled={!IsReturn}
+                                    onClick={() => {if(!props.TourOpen){
+                                        setNowAssetID([record.ID]);
+                                        setOpenApplyCondition(true);
+                                        setApplyType(1);}
+                                    }}>
+                                    退库
+                                </Button>}
+                            {MyAsset == true &&
+                                <Button loading={loading} key="receive" title="维保" disabled={!IsMaintenance}
+                                    onClick={() => {if(!props.TourOpen){
+                                        setNowAssetID([record.ID]);
+                                        setOpenApplyCondition(true);
+                                        setApplyTime(record.Time);
+                                        setApplyType(2);}
+                                    }}>
+                                    维保
+                                </Button>}
+                            {MyAsset == true &&
+                                <Button loading={loading} key="receive" title="转移" disabled={!IsTransfers}
+                                    onClick={() => {if(!props.TourOpen){
+                                        setNowAssetID([record.ID]);
+                                        setOpenApplyCondition(true);
+                                        setTransferAsset(record);
+                                        setApplyType(3);
+                                        GetMemberList("", 1);}
+                                    }}>
+                                    转移
+                                </Button>}
+                        </Space>
+                    </div>
                 );
             },
         }
@@ -461,13 +467,15 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                     资产列表
                 </Breadcrumb.Item>
             </Breadcrumb>
-            <div style={{ height: "15px" }}></div>
-            <Button className={MyAsset == false ? "log_title_select" : "log_title"} type="text" key="0" onClick={() => {setMyAsset(false);tableRef.current?.reload();}}>
-                部门闲置资产
-            </Button>
-            <Button className={MyAsset == true ? "log_title_select" : "log_title"} type="text" key="1" onClick={() => {setMyAsset(true);tableRef.current?.reload();}}>
-                个人资产
-            </Button>
+            <div  style={{ height: "15px" }}></div>
+            <div ref={props.refList[0]}> 
+                <Button className={MyAsset == false ? "log_title_select" : "log_title"} type="text" key="0" onClick={() => {if(!props.TourOpen){setMyAsset(false);tableRef.current?.reload();}}}>
+                    部门闲置资产
+                </Button>
+                <Button className={MyAsset == true ? "log_title_select" : "log_title"} type="text" key="1" onClick={() => {if(!props.TourOpen){setMyAsset(true);tableRef.current?.reload();}}}>
+                    个人资产
+                </Button>
+            </div>
             <ProTable 
                 className="ant-pro-table"
                 columns={columns}
