@@ -6,7 +6,7 @@ import {
     QuestionCircleOutlined
 } from "@ant-design/icons";
 import {
-    ModalForm,
+    StepsForm,
     ProForm,
     ProFormDigit,
     ProFormTextArea,
@@ -153,6 +153,8 @@ const App = () => {
     const [onefiles, setoneFiles] = useState<File[]>([]);
 
     const [TourOpen, setTourOpen] = useState(false);
+
+    const [visible, setVisible] = useState(false);
 
     const ref1 = useRef(null);
     const ref2 = useRef(null);
@@ -456,7 +458,11 @@ const App = () => {
                         </Breadcrumb>
                         <Row gutter={[8, 6]} style={{ margin: "25px" }}>
                             <Col>
-                                <ModalForm<{
+                                <Button type="primary" onClick={() => setVisible(true)}>
+                                    <PlusOutlined />
+                                资产录入
+                                </Button>
+                                <StepsForm<{
                                 name: string;
                                 class: string;
                                 father: number;
@@ -466,24 +472,30 @@ const App = () => {
                                 position: string;
                                 describe: string;
                             }>
-                                    title="新建资产"
-                                    trigger={
-                                        <Button type="primary" ref={ref1} disabled={TourOpen}>
-                                            <PlusOutlined />
-                                        新建资产
-                                        </Button>
-                                    }
                                     
-                                    form={form}
-                                    autoFocusFirstInput
-                                    modalProps={{
-                                        destroyOnClose: true,
-                                        onCancel: () => console.log("run"),
+                                    formProps={{
+                                        validateMessages: {
+                                            required: "此项为必填项",
+                                        },
                                     }}
-                                    submitTimeout={1000}
+                                    stepsFormRender={(dom, submitter) => {
+                                        return (
+                                            <Modal
+                                                title="分步表单"
+                                                width={800}
+                                                onCancel={() => setVisible(false)}
+                                                open={visible}
+                                                footer={submitter}
+                                                destroyOnClose
+                                            >
+                                                {dom}
+                                            </Modal>
+                                        );
+                                    }}
                                     onFinish={async (values) => {
                                         await waitTime(1000);
                                         console.log(values.describe);
+                                        setVisible(false);
                                         handleonefiles();
                                         AddList.push(
                                             {
@@ -520,109 +532,113 @@ const App = () => {
                                         return true;
                                     }}
                                 >
-                                    <ProForm.Group>
-                                        <ProFormText 
-                                            width="lg" 
-                                            name="name" 
-                                            label="资产名称" 
-                                            placeholder="请输入名称"
-                                            rules={[{ required: true, message: "这是必填项" }]} 
-                                        />
-                                    </ProForm.Group>
-                                    <ProForm.Group>
-                                        <ProFormTreeSelect
-                                            label="资产分类"
-                                            name="class"
-                                            width="lg"
-                                            rules={[{ required: true, message: "这是必填项" }]} 
-                                            fieldProps={{
-                                                fieldNames: {
-                                                    label: "title",
-                                                },
-                                                treeData,
-                                                // treeCheckable: true,
-                                                // showCheckedStrategy: TreeSelect.SHOW_PARENT,
-                                                placeholder: "请选择资产分类",
-                                                onChange: (value) => {
-                                                    changeProperList(value);
-                                                },
-                                            }}
-                                        />
-                                    </ProForm.Group>
-                                    <ProForm.Group>
-                                        <ProFormSelect
-                                            name="father"
-                                            label="所属主资产"
-                                            width="lg"
-                                            tooltip="如果该资产有所属的主资产，请在这里添加"
-                                            valueEnum={AssetList}
-                                            showSearch={true}
-                                            placeholder="请选择所属的主资产"
-                                        
-                                        />
-                                    </ProForm.Group>
-                                    <ProForm.Group>
-                                        <ProFormDigit 
-                                            name="count" 
-                                            label="资产数量" 
-                                            width="lg"
-                                            placeholder="请输入数量"
-                                            rules={[{ required: true, message: "这是必填项" }]} 
-                                        />
-                                    </ProForm.Group>
-                                    <ProForm.Group>
-                                        <ProFormMoney
-                                            label="资产价值"
-                                            name="money"
-                                            locale="zh-CN"
-                                            initialValue={1.00}
-                                            min={0.01}
-                                            rules={[{ required: true, message: "这是必填项" }]} 
-                                        />
-                                    </ProForm.Group>
-                                    <ProForm.Group>
-                                        <ProFormDateTimePicker
-                                            name="datetime"
-                                            label="资产过期时间"
-                                            width="lg"
-                                            rules={[{ required: true, message: "这是必填项" }]}
-                                            fieldProps={{
-                                                format: (value) => value.format("YYYY-MM-DD HH:mm:ss"),
-                                            }}
-                                        />
-                                    </ProForm.Group>
-                                    <ProForm.Group>
-                                        <ProFormTextArea
-                                            name="position"
-                                            label="资产位置"
-                                            width="lg"
-                                            placeholder="请输入位置"
-                                            rules={[{ required: true, message: "这是必填项" }]} 
-                                        />
-                                    </ProForm.Group>
-                                    <ProForm.Group>
-                                        <MyEditor
-                                            name="describe"
-                                            label="资产描述"
-                                            width="lg"
-                                            placeholder="请输入描述"
-                                            rules={[{ required: true, message: "这是必填项" }]}
-                                        />
-                                    </ProForm.Group>
-                                    <ProForm.Group tooltip="支持一次性选中多个图片，单个图片不能超过10MB" title="资产图片">
-                                        <label htmlFor="upload-input" style={{marginTop:"-20px"}}className="custom-upload-button-add">
-                                        </label>
-                                        <input
-                                            type="file"
-                                            id="upload-input"
-                                            onChange={handleFileChange}
-                                            style={{ display: "none" }}
-                                            multiple
-                                        />
-                                        <span id="selected-file-name"></span>
-                                    </ProForm.Group>
-                                    <MyForm inputCount={ProperList.length} />
-                                </ModalForm>
+                                    <StepsForm.StepForm name="base" title="资产基本信息">
+                                        <ProForm.Group>
+                                            <ProFormText 
+                                                width="lg" 
+                                                name="name" 
+                                                label="资产名称" 
+                                                placeholder="请输入名称"
+                                                rules={[{ required: true, message: "这是必填项" }]} 
+                                            />
+                                        </ProForm.Group>
+                                        <ProForm.Group>
+                                            <ProFormTreeSelect
+                                                label="资产分类"
+                                                name="class"
+                                                width="lg"
+                                                rules={[{ required: true, message: "这是必填项" }]} 
+                                                fieldProps={{
+                                                    fieldNames: {
+                                                        label: "title",
+                                                    },
+                                                    treeData,
+                                                    // treeCheckable: true,
+                                                    // showCheckedStrategy: TreeSelect.SHOW_PARENT,
+                                                    placeholder: "请选择资产分类",
+                                                    onChange: (value) => {
+                                                        changeProperList(value);
+                                                    },
+                                                }}
+                                            />
+                                        </ProForm.Group>
+                                        <ProForm.Group>
+                                            <ProFormSelect
+                                                name="father"
+                                                label="所属主资产"
+                                                width="lg"
+                                                tooltip="如果该资产有所属的主资产，请在这里添加"
+                                                valueEnum={AssetList}
+                                                showSearch={true}
+                                                placeholder="请选择所属的主资产"
+                                            
+                                            />
+                                        </ProForm.Group>
+                                    </StepsForm.StepForm>
+                                    <StepsForm.StepForm name="more" title="资产详细信息">
+                                        <ProForm.Group>
+                                            <ProFormDigit 
+                                                name="count" 
+                                                label="资产数量" 
+                                                width="lg"
+                                                placeholder="请输入数量"
+                                                rules={[{ required: true, message: "这是必填项" }]} 
+                                            />
+                                        </ProForm.Group>
+                                        <ProForm.Group>
+                                            <ProFormMoney
+                                                label="资产价值"
+                                                name="money"
+                                                locale="zh-CN"
+                                                initialValue={1.00}
+                                                min={0.01}
+                                                rules={[{ required: true, message: "这是必填项" }]} 
+                                            />
+                                        </ProForm.Group>
+                                        <ProForm.Group>
+                                            <ProFormDateTimePicker
+                                                name="datetime"
+                                                label="资产过期时间"
+                                                width="lg"
+                                                rules={[{ required: true, message: "这是必填项" }]}
+                                                fieldProps={{
+                                                    format: (value) => value.format("YYYY-MM-DD HH:mm:ss"),
+                                                }}
+                                            />
+                                        </ProForm.Group>
+                                        <ProForm.Group>
+                                            <ProFormTextArea
+                                                name="position"
+                                                label="资产位置"
+                                                width="lg"
+                                                placeholder="请输入位置"
+                                                rules={[{ required: true, message: "这是必填项" }]} 
+                                            />
+                                        </ProForm.Group>
+                                        <ProForm.Group>
+                                            <MyEditor
+                                                name="describe"
+                                                label="资产描述"
+                                                width="lg"
+                                                placeholder="请输入描述"
+                                                rules={[{ required: true, message: "这是必填项" }]}
+                                            />
+                                        </ProForm.Group>
+                                        <ProForm.Group tooltip="支持一次性选中多个图片，单个图片不能超过10MB" title="资产图片">
+                                            <label htmlFor="upload-input" style={{marginTop:"-20px"}}className="custom-upload-button-add">
+                                            </label>
+                                            <input
+                                                type="file"
+                                                id="upload-input"
+                                                onChange={handleFileChange}
+                                                style={{ display: "none" }}
+                                                multiple
+                                            />
+                                            <span id="selected-file-name"></span>
+                                        </ProForm.Group>
+                                        <MyForm inputCount={ProperList.length} />
+                                    </StepsForm.StepForm>
+                                </StepsForm>
                             </Col>
                             <Col offset={17}>
                                 <Button ref={ref4} loading={loading} type="primary" icon={<CheckOutlined />} onClick={()=>{if(!TourOpen){add();}}}>
