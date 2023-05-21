@@ -17,7 +17,7 @@ import {
     ProList,
     ProFormDateTimePicker,
 } from "@ant-design/pro-components";
-import { Layout, Menu, theme, Modal, Button, Breadcrumb, Row, Col, Form, message, Tour } from "antd";
+import { Layout, Select, theme, Modal, Button, Breadcrumb, Row, Col, Form, message, Tour } from "antd";
 import type {TourProps} from "antd";
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
@@ -30,6 +30,8 @@ import AssetAddFromExcelUI from "../../../../components/AssetAddFromExcelUI";
 import OSS from "ali-oss";
 import "react-quill/dist/quill.snow.css"; // 导入默认的样式文件
 import { Rule } from "rc-field-form/lib/interface"; // 导入正确的规则类型
+const { Option } = Select;
+import { AssetData } from "../../../../utils/types";
 
 interface MyEditorState {
     content: string;
@@ -155,6 +157,51 @@ const App = () => {
     const [TourOpen, setTourOpen] = useState(false);
 
     const [visible, setVisible] = useState(false);
+
+    const [options, setOptions] = useState([]);
+    const [loading1, setLoading1] = useState(false);
+    const [father, setfather] = useState<number>(-1);
+
+    const fetchData = async (inputValue: any) => {
+        setLoading1(true);
+
+        try {
+            // 发送请求到后端获取列表数据
+            request(
+                `/api/Asset/Info/${LoadSessionID()}/1/ID=-1/Name=${inputValue}/Class=/Status=-1/Owner=/Prop=/PropValue=`,
+                "GET",
+            )
+                .then((res) => {
+                    setOptions(res.Asset);
+
+                })
+                .catch((err) => {
+                    Modal.error({
+                        title: "获取资产错误",
+                        content: err.message.substring(5),
+                    });
+                });
+        } catch (error) {
+            console.error("请求出错:", error);
+        }
+
+        setLoading1(false);
+
+    
+    };
+
+    const handleSearch = (inputValue: any) => {
+        // 输入内容后触发请求
+        if (inputValue) {
+            fetchData(inputValue);
+        } else {
+            setOptions([]);
+        }
+    };
+
+    const handlefatherchange = (value: any) => {
+        setfather(value);
+    };
 
     const ref1 = useRef(null);
     const ref2 = useRef(null);
@@ -315,7 +362,7 @@ const App = () => {
                     Position: item.position,
                     Describe: item.describe,
                     Value: item.money,
-                    Parent: item.father? item.father: null,
+                    Parent: item.father == -1 ? null : item.father,
                     Time: item.datetime,
                     Property: {...body},
                 }
@@ -418,28 +465,6 @@ const App = () => {
                     });
                 });
         }
-        if (!AssetList[0]) {
-            request(
-                `/api/Asset/Info/${LoadSessionID()}`,
-                "GET",
-            )
-                .then((res) => {
-                    let assetlist = res.Asset;
-                    for (let i = 0; i < assetlist.length; i = i + 1) {
-                        let item = assetlist[i];
-                        setAssetList((AssetList) => {
-                            AssetList[item.ID] = item.Name + " (" + item.Description + ")";
-                            return AssetList;
-                        });
-                    }
-                })
-                .catch((err) => {
-                    Modal.error({
-                        title: "错误",
-                        content: err.message.substring(5),
-                    });
-                });
-        }
         return (
             <Layout style={{ minHeight: "100vh" }}>
                 <Sider className= "sidebar" width="10%">
@@ -481,13 +506,14 @@ const App = () => {
                                     stepsFormRender={(dom, submitter) => {
                                         return (
                                             <Modal
-                                                title="分步表单"
+                                                
                                                 width={800}
                                                 onCancel={() => setVisible(false)}
                                                 open={visible}
                                                 footer={submitter}
                                                 destroyOnClose
                                             >
+                                                <div style={{marginBottom:"25px", fontSize:"20px"}}>资产录入 </div>
                                                 {dom}
                                             </Modal>
                                         );
@@ -502,7 +528,7 @@ const App = () => {
                                                 id: AssetID.toString(),
                                                 name: values.name,
                                                 class: values.class,
-                                                father: values.father,
+                                                father: father,
                                                 count: values.count,
                                                 money: values.money,
                                                 datetime: values.datetime,
@@ -518,6 +544,7 @@ const App = () => {
                                         setAssetID((e) => (e+1));
                                         setChange((e) => !e);
                                         setListKey((e) => (e+1));
+                                        setfather(-1);
                                         // console.log(AddList);
                                         // console.log("--------------------");
                                         // console.log(values.datetime);
@@ -562,18 +589,29 @@ const App = () => {
                                                 }}
                                             />
                                         </ProForm.Group>
-                                        <ProForm.Group>
-                                            <ProFormSelect
-                                                name="father"
-                                                label="所属主资产"
-                                                width="lg"
-                                                tooltip="如果该资产有所属的主资产，请在这里添加"
-                                                valueEnum={AssetList}
-                                                showSearch={true}
-                                                placeholder="请选择所属的主资产"
+                                        <div >
+                                            <div style={{marginBottom:"10px"}}>
+                                                    选择主资产
+                                            </div>
+                                            <Select
+                                                showSearch
+                                                placeholder="输入内容进行搜索"
+                                                defaultActiveFirstOption={false}
+                                                showArrow={false}
+                                                filterOption={false}
+                                                onSearch={handleSearch}
+                                                onChange={handlefatherchange}
+                                                notFoundContent={loading1 ? "加载中..." : "无匹配结果"}
+                                            >
+                                                {options.map((option: AssetData) => (
+                                                    <Option key={option.ID} value={option.ID}>
+                                                        {option.Name + " (" + option.ID + ")"}
+                                                    </Option>
+                                                ))}
+                                            </Select>
+                                        </div>
                                             
-                                            />
-                                        </ProForm.Group>
+                                            
                                     </StepsForm.StepForm>
                                     <StepsForm.StepForm name="more" title="资产详细信息">
                                         <ProForm.Group>

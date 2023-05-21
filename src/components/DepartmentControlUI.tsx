@@ -1,6 +1,6 @@
 import React from "react";
 import {
-    FileOutlined, PlusSquareOutlined, BackwardOutlined
+    PartitionOutlined, PlusSquareOutlined, BackwardOutlined
 } from "@ant-design/icons";
 import { Layout, Menu, theme, Space, Table, Modal, Button, Input, Form, Drawer, Breadcrumb } from "antd";
 const { Column } = Table;
@@ -11,6 +11,7 @@ import { request } from "../utils/network";
 import { IfCodeSessionWrong, LoadSessionID } from "../utils/CookieOperation";
 import MemberList from "../components/MemberList";
 import { DepartmentData, DepartmentPathData, MemberData } from "../utils/types";
+import DepartmentTree from "./DepartmentTreeUI";
 interface DepartmentUIProps {
     refList: React.MutableRefObject<any>[]; // Make the parameter optional
     setTourOpen: (t: boolean) => void;
@@ -27,6 +28,7 @@ const DepartmentUI = (props:DepartmentUIProps) => {
     const [DepartmentPath, setDepartmentPath] = useState("000000000"); //储存当前的部门路径
     const [DepartmentPathList, setDepartmentPathList] = useState<DepartmentPathData[]>(); // 储存页面历史路径
     const [Loading, setLoading] = useState(false);
+    const [Tree, setTree] = useState<[]>();
     const router = useRouter();
     const query = router.query;
     const handleDepartmentAdd = (e: any) => {
@@ -77,6 +79,20 @@ const DepartmentUI = (props:DepartmentUIProps) => {
                     title: "无法获取对应部门信息",
                     content: "请重新登录",
                     onOk: () => { window.location.href = "/"; }
+                });
+            });
+        request(
+            `/api/User/tree/${LoadSessionID()}`,
+            "GET"
+        )
+            .then((res) => {
+                setTree(res.treeData);
+            })
+            .catch((err) => {
+                console.log(err.message);
+                Modal.error({
+                    title: "错误",
+                    content: "无法获取对应部门信息",
                 });
             });
 
@@ -180,6 +196,36 @@ const DepartmentUI = (props:DepartmentUIProps) => {
             });
         
     };
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const showModal = () => {
+        setIsModalOpen(true);
+    };
+  
+    const handleOk = () => {
+        setIsModalOpen(false);
+    };
+  
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
+
+    interface Item {
+        title: string;
+        children?: Item[];
+    }
+      
+    function mapTitleToName(item: Item): any {
+        const { title, ...rest } = item;
+        const newItem: any = { ...rest, name: title };
+        if (newItem.children) {
+            newItem.children = newItem.children.map(mapTitleToName);
+        }
+        return newItem;
+    }
+  
+
     const onFinishFailed = (errorInfo: any) => {
         console.log("Failed:", errorInfo);
     };
@@ -201,6 +247,19 @@ const DepartmentUI = (props:DepartmentUIProps) => {
                     ))}
                 </Breadcrumb>
             </div>
+            <Modal style={{ height: "1500px" }} width={1600} title="部门树" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                <div style={{ height: "1500px" }}>
+                    <DepartmentTree data={Tree?.map(mapTitleToName) ?? []} />
+                </div>        
+            </Modal>
+            {DepartmentPath == "000000000" && <Button
+                type="primary"
+                icon={<PartitionOutlined />}
+                style={{ float: "left", marginLeft:"30px", marginBottom:"15px"}}
+                onClick={() => {showModal();}}
+            >
+                查看部门树
+            </Button>}
             {DepartmentPath != "000000000" && <Button
                 type="primary"
                 icon={<BackwardOutlined />}
