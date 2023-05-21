@@ -278,10 +278,11 @@ const UserSetting = (props:UserSettingProps) => {
                     lazy
                 />
             </div>
+            <Panel style={{marginTop: "30px", marginLeft: "18px", marginBottom: "40px" }} header={UserInfoName} key="7" />
             <Panel style={{ marginTop: "30px", marginLeft: "18px", marginBottom: "40px" }} header={UserInfoAuthority} key="4" />
             {(UserAuthority != 0) && <Panel style={{ marginLeft: "16px", marginBottom: "40px" }} header={UserInfoEntity} key="5" />}
-            {(UserAuthority === 2 || UserAuthority === 3) && <Panel style={{ marginLeft: "16px", marginBottom: "40px" }} header={UserInfoDepartment} key="6" />}
-            <Panel style={{marginLeft: "16px", marginBottom: "30px" }} header={UserInfoName} key="7" />
+            {(UserAuthority === 2 || UserAuthority === 3) && <Panel style={{ marginLeft: "16px", marginBottom: "30px" }} header={UserInfoDepartment} key="6" />}
+            
             <Collapse
                 accordion
                 bordered={false}

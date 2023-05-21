@@ -48,6 +48,13 @@ export interface AppData {
     AppName: string;
     AppUrl: string;
 }
+export interface NewAppData {
+    IsInternal: boolean;
+    IsLock: boolean;
+    AppName: string;
+    AppUrl: string;
+    AppImage:string;
+}
 export interface CardUIProps {
     state: number;
     appname: string;

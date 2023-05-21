@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 import { request } from "../../utils/network";
 import { useState, useEffect } from "react";
 import CardUI from "../../components/CardUI";
-import { AppData } from "../../utils/types";
+import { AppData, NewAppData } from "../../utils/types";
 import { renderAuthority } from "../../utils/transformer";
 import SiderMenu from "../../components/SiderUI";
 import UserInfo from "../../components/UserInfoUI";
@@ -21,6 +21,7 @@ import {
 import { Image } from "antd-mobile";
 import OSS from "ali-oss";
 import UserSetting from "../../components/UserSettingUI";
+import { ItemChildrenWrap } from "antd-mobile/es/components/dropdown/item";
 
 const App = () => {
     const logoutSendMessage = () => {
@@ -35,6 +36,7 @@ const App = () => {
     const router = useRouter();
     const query = router.query;
     const [AppList, setAppList] = useState<AppData[]>(); // 储存所有已有应用的信息 
+    const [NewAppList, setNewAppList] = useState<NewAppData[]>();
     const [state, setState] = useState(false); // 用户是否处在登录状态
     const [UserAuthority, setUserAuthority] = useState(0); // 用户的角色权限，0超级，1系统，2资产，3员工
     const [UserName, setUserName] = useState<string>(""); // 用户名
@@ -58,6 +60,21 @@ const App = () => {
         )
             .then((res) => {
                 setAppList(res.AppList);
+            })
+            .catch((err) => {
+                if (IfCodeSessionWrong(err, router)) {
+                    Modal.error({
+                        title: "获取应用信息失败",
+                        content: err.toString().substring(5),
+                    });
+                }
+            });
+        request(
+            `/api/User/NewApp/${LoadSessionID()}/${Authority}`,
+            "GET"
+        )
+            .then((res) => {
+                setNewAppList(res.AppList);
             })
             .catch((err) => {
                 if (IfCodeSessionWrong(err, router)) {
@@ -191,6 +208,33 @@ const App = () => {
                 {!item.IsInternal &&
                     // eslint-disable-next-line @next/next/no-img-element
                     <img className="img_style_card" alt="" src="/跳转.jpg" />}
+                <div>
+                    <h1 className="card__title">{item.AppName}</h1>
+                    {!item.IsLock && <h1 className="card__description">点击前往</h1>}
+                    {item.IsLock && <h1 className="card__description_ban">已禁用</h1>}
+                </div>
+            </div>
+        ),
+    })) : [];
+    const newdata = NewAppList ? NewAppList.map((item) => ({
+        content: (
+            <div style={{ display: "flex", marginBottom: "-20px" }} onClick={() => {
+                if (item.IsLock) setModal(true);
+                else if (item.IsInternal) router.push(item.AppUrl);
+                else { window.location.href = item.AppUrl; }
+                console.log(item);
+            }}>
+
+                {!item.IsInternal && 
+                    <Image
+                        key={item.AppName}
+                        src={item.AppImage ? item.AppImage : "/跳转.jpg"}
+                        fit="scale-down"
+                        className="img_style_card"
+                        style={{width:"100px", height:"80px"}}
+                        alt={item.AppImage}
+                        lazy
+                    />}
                 <div>
                     <h1 className="card__title">{item.AppName}</h1>
                     {!item.IsLock && <h1 className="card__description">点击前往</h1>}
@@ -403,7 +447,7 @@ const App = () => {
                         <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={Profileprop} ID={UserID}></UserInfo>
                     </Header>
                     <div style={{ display: "flex" }}>
-                        <Content style={{ width: "450px", minHeight: "120vh" }}>
+                        <Content style={{ width: "450px", minHeight: "80vh" }}>
                             <h1 className="main_page_headword">应用导航</h1>
                             <ProList<any>
                                 ghost={ghost}
@@ -427,7 +471,31 @@ const App = () => {
                                 }}
                                 dataSource={data}
                             />
-                            <h1 className="main_page_headword">外部应用</h1>
+                            {newdata.length>0 && <>
+                                <h1 className="main_page_headword">外部应用</h1>
+                                <ProList<any>
+                                    ghost={ghost}
+                                    itemCardProps={{
+                                        ghost,
+                                    }}
+                                    rowSelection={{}}
+                                    grid={{ gutter: 16, column: UserAuthority == 0 ? 2 : 3 }}
+                                    onItem={(record: AppData) => {
+                                        return {
+                                            onMouseEnter: () => {
+                                                console.log(record);
+                                            },
+                                            onClick: () => {
+                                                console.log(record);
+                                            },
+                                        };
+                                    }}
+                                    metas={{
+                                        content: {},
+                                    }}
+                                    dataSource={newdata}
+                                />
+                            </>}
                         </Content>
                         {/* <Content style={{ width: "10px" }}>
                             <div style={{ display: "flex" }}>

@@ -9,7 +9,7 @@ const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { IfCodeSessionWrong, LoadSessionID } from "../utils/CookieOperation";
-import { AppData } from "../utils/types";
+import { AppData, NewAppData } from "../utils/types";
 import OSS from "ali-oss";
 interface ApplicationProps {
     refList: React.MutableRefObject<any>[];
@@ -21,7 +21,7 @@ const ApplicationUI = (props: ApplicationProps) => {
     const [Authority, setAuthority] = useState(3); // 根据Authority判断当前应该显示的应用列表
     const [AppName, setAppName] = useState(""); //储存新建应用的名称
     const [AppUrl, setAppUrl] = useState(""); //储存新建应用的路径
-    const [AppList, setAppList] = useState<AppData[]>(); // 储存所有已有应用的信息 
+    const [AppList, setAppList] = useState<NewAppData[]>(); // 储存所有已有应用的信息 
     const [Loading, setLoading] = useState(false);
     const [LockLoading, setLockLoading] = useState(false);
     const [File, setFile] = useState<File>(); // 使用useState来管理files数组
@@ -40,7 +40,7 @@ const ApplicationUI = (props: ApplicationProps) => {
 
     const fetchList = (Authority: number) => {
         request(
-            `/api/User/App/${LoadSessionID()}/${Authority}`,
+            `/api/User/NewApp/${LoadSessionID()}/${Authority}`,
             "GET"
         )
             .then((res) => {

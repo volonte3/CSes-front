@@ -5,6 +5,8 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { request } from "../utils/network";
 import { LoadSessionID } from "../utils/CookieOperation";
+import { ProList } from "@ant-design/pro-components";
+import {AreaChartOutlined} from "@ant-design/icons";
 
 interface  AssetStatisticData {
     Type: string;
@@ -29,6 +31,7 @@ const AssetStatistic= () => {
     const query = router.query;
     const [NumTotalNum, setNumTotalNum] = useState(0);
     const [ItemTotalNum, setItemTotalNum] = useState(0);
+    const [NumKindNum, setNumKindNum] = useState(0);
     const [NumProportion, setNumProportion] = useState<AssetStatisticData[]>([]);
     const [ItemProportion, setItemProportion] = useState<AssetStatisticData[]>([]);
     const [ValueList, setValueList] = useState<ValueData[]>([]);
@@ -37,14 +40,30 @@ const AssetStatistic= () => {
             return;
         }
         request(
-            `/api/Asset/Statistics/${LoadSessionID()}`,
+            `/api/Asset/StatisticsFast/${LoadSessionID()}`,
             "GET"
         )
             .then((res) => {
                 setNumTotalNum(res.NumTotalNum);
+                setNumKindNum(res.NumKindNum);
                 setItemTotalNum(res.ItemTotalNum);
                 setNumProportion(res.NumProportion);
                 setItemProportion(res.ItemProportion);
+                // setValueList(res.Value);
+            })
+            .catch((err) => {
+                console.log(err.message);
+                Modal.error({
+                    title: "获取信息失败",
+                    content: "请重新登录",
+                    onOk: () => { window.location.href = "/"; }
+                });
+            });
+        request(
+            `/api/Asset/StatisticsSlow/${LoadSessionID()}`,
+            "GET"
+        )
+            .then((res) => {
                 setValueList(res.Value);
             })
             .catch((err) => {
@@ -81,12 +100,60 @@ const AssetStatistic= () => {
             </text>
         );
     };
-    
+    const data = [
+        {
+            content: (
+                <>
+                    <div>{`数量型资产总数：${NumTotalNum}`}</div>
+                </>
+            ),
+
+        },
+        {
+            content: (
+                <>
+                    <div>{`数量型资产类型数：${NumKindNum}`}</div>
+                </>
+            ),
+
+        },
+        {
+            content: (
+                <>
+                    <div>{`条目型资产总数：${ItemTotalNum}`}</div>
+                </>
+            ),
+
+        }
+    ];
+    const [ghost, setGhost] = useState<boolean>(false);
     return (
         <div className="Div">
             <Breadcrumb style={{ marginLeft: "6px", marginBottom:"20px", fontSize:"26px"}}>
                 <Breadcrumb.Item>资产统计</Breadcrumb.Item>
             </Breadcrumb>
+            <ProList<any>
+                ghost={ghost}
+                itemCardProps={{
+                    ghost,
+                }}
+                rowSelection={{}}
+                grid={{ gutter: 16, column: 2}}
+                onItem={(record: any) => {
+                    return {
+                        onMouseEnter: () => {
+                            console.log(record);
+                        },
+                        onClick: () => {
+                            console.log(record);
+                        },
+                    };
+                }}
+                metas={{
+                    content: {},
+                }}
+                dataSource={data}
+            />
             <div style={{display:"flex"}}>
                 <Breadcrumb style={{ marginLeft: "130px"}}>
                     <Breadcrumb.Item>数量型资产分布</Breadcrumb.Item>
