@@ -9,7 +9,8 @@ function getVisibleKeys(obj: LabelVisible): (keyof LabelVisible)[] {
 };
 const LabelDef = (props: { DetailInfo: AssetDetailInfo | undefined, LabelVisible: LabelVisible }) => {
     // const visibleKeys = Object.keys(props.LabelVisible).filter(key => props.LabelVisible[key]) as (keyof LabelVisible)[];
-    const qrcodeData = `https://cs-company-frontend-debug-cses.app.secoder.net/assets?id=${props.DetailInfo?.ID}`; // 二维码的链接地址
+    // const qrcodeData = `https://cs-company-frontend-debug-cses.app.secoder.net/assets?id=${props.DetailInfo?.ID}`; // 二维码的链接地址
+    const qrcodeData = `https://cs-company-frontend-cses.app.secoder.net/assets?id=${props.DetailInfo?.ID}`; // 二维码的链接地址
     const visableKeys = getVisibleKeys(props.LabelVisible);
     const rows = [];
     for (let i = 0; i < visableKeys.length; i += 2) {
