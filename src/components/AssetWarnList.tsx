@@ -180,7 +180,9 @@ const AssetWarnList = (props:MessageProps) => {
         if (WarnType == 0) {setModal1open(false);setModal2open(true);}
         else if (WarnType == 1) {setModal1open(false);setModal3open(true);}
     };
+    const [Loading, setLoading] = useState(false);
     const handleOk2 = (num:number) => {
+        setLoading(true);
         request(
             `/api/Asset/Warn/${LoadSessionID()}`,
             "POST",
@@ -193,10 +195,11 @@ const AssetWarnList = (props:MessageProps) => {
             .then((res) => {
                 setModal2open(false);
                 setModal3open(false);
+                setVisible(false);
+                setLoading(false);
                 let answer: string = `成功修改资产 ${ChangeAsset?.Name}的告警策略`;
                 Modal.success({ title: "修改成功", content: answer });
                 tableRef?.current?.reload();
-                setVisible(false);
                 formRef.current?.resetFields();
             })
             .catch((err: string) => {
@@ -204,6 +207,7 @@ const AssetWarnList = (props:MessageProps) => {
                     setModal2open(false);
                     setModal3open(false);
                     setVisible(false);
+                    setLoading(false);
                     formRef.current?.resetFields();
                     Modal.error({
                         title: "修改失败",
@@ -213,6 +217,7 @@ const AssetWarnList = (props:MessageProps) => {
             });
     };
     const handleOk3 = (year:number, month:number, date: number) => {
+        setLoading(true);
         request(
             `/api/Asset/Warn/${LoadSessionID()}`,
             "POST",
@@ -226,6 +231,7 @@ const AssetWarnList = (props:MessageProps) => {
                 setModal2open(false);
                 setModal3open(false);
                 setVisible(false);
+                setLoading(false);
                 formRef.current?.resetFields();
                 let answer: string = `成功修改资产 ${ChangeAsset?.Name}的告警策略`;
                 Modal.success({ title: "修改成功", content: answer });
@@ -236,6 +242,7 @@ const AssetWarnList = (props:MessageProps) => {
                     setModal2open(false);
                     setModal3open(false);
                     setVisible(false);
+                    setLoading(false);
                     formRef.current?.resetFields();
                     Modal.error({
                         title: "修改失败",
