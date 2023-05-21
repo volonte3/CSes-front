@@ -9,9 +9,9 @@ import { request } from "../utils/network";
 import { LoadSessionID, logout, IfCodeSessionWrong } from "../utils/CookieOperation";
 import type { MenuProps } from "antd";
 import { renderAuthority } from "../utils/transformer";
-import { Header } from "antd/es/layout/layout";
+import { Image } from "antd-mobile";
 type MenuItem = Required<MenuProps>["items"][number];
-
+import OSS from "ali-oss";
 interface UserinfoProps {
     Name: string;
     Authority: number;
@@ -19,10 +19,13 @@ interface UserinfoProps {
     Entity: string;
     TODO: boolean;
     TOREAD: boolean;
+    Profile:boolean;
+    ID:number;
 }
 const UserInfo = (props:UserinfoProps) => {
     const router = useRouter();
     const query = router.query;
+    const [ProfileUrl, setProfileUrl] = useState("");
     const [state, setState] = useState(false);  //路径保护变量
     const [LogoutLoadings, setLogoutLoadings] = useState<boolean>(true); //登出按钮是否允许点击
     const [Logouting, setLogouting] = useState<boolean>(false); //登出是否正在进行中
@@ -112,13 +115,34 @@ const UserInfo = (props:UserinfoProps) => {
             setLogoutLoadings(false);
         }, 1000);
     };
+    const getProfile = async () => {
+        // 获取头像url
+        const ossClient = new OSS({
+            accessKeyId: "LTAI5tMmQshPLDwoQEMm8Xd7",
+            accessKeySecret: "YG0kjDviIqxkz9GtTZGTLhhlVsPqID",
+            region: "oss-cn-beijing",
+            bucket: "cs-company",
+            secure: true // true for https
+        });
+        ossClient.get(`/Profile/${props.ID}.png`)
+            .then(response => {
+                const blob = new Blob([response.content], response.res.headers);
+                setProfileUrl(URL.createObjectURL(blob));
+            })
+            .catch(error => {
+                setProfileUrl("https://cs-company.oss-cn-beijing.aliyuncs.com/icon/default_icon.png");
+                console.log(error);
+            });
+    };
     useEffect(() => {
         if (!router.isReady) {
             return;
         }
         // FetchUserinfo();
+        getProfile();
         enterLoading();
-    }, [router, query]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [router, query, props]);
     const DropdownMenu = (
         <Menu>
             {props.Authority==2 && props.TODO && 
@@ -137,7 +161,7 @@ const UserInfo = (props:UserinfoProps) => {
                 </Menu.Item>
             }
             {!props.TOREAD && 
-                <Menu.Item key="4" onClick={() => {if(props.Authority == 3) router.push("/user/employee/message");else router.push("/user/asset_manager/message");}}>
+                <Menu.Item key="4" onClick={() => {}}>
                     暂无新消息
                 </Menu.Item>
             }
@@ -148,9 +172,17 @@ const UserInfo = (props:UserinfoProps) => {
             <div className="logo" color="#fff" >CSCompany 资产管理系统</div>
             <div className="right-menu">
                 <Dropdown  menu={{ items }}>
-                    <Button type = "text" className="header_button" icon={<UserOutlined /> }>{props.Name}</Button>
+                    <Button type = "text" icon={<Image
+                        key="111"
+                        src={ProfileUrl}
+                        fit="cover"
+                        style={{marginTop:"-10px", width: "40px", height: "40px",  borderRadius: 100 }}
+                        alt={"111"}
+                        lazy
+                    /> }></Button>
                 </Dropdown>
-                {(props.Authority==2 || props.Authority==3) && (!props.TODO && !props.TOREAD) && <Dropdown overlay={DropdownMenu}>
+                <Space>{""}</Space>
+                {(!props.TODO && !props.TOREAD) && <Dropdown overlay={DropdownMenu}>
                     <Button type = "text" className="header_button" icon={<BellOutlined />}>消息列表<DownOutlined /></Button>
                 </Dropdown>}
                 {(props.Authority==2 || props.Authority==3) && (props.TODO || props.TOREAD) && <Dropdown overlay={DropdownMenu}>

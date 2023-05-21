@@ -1,80 +1,58 @@
-import React, {useRef} from "react";
-import {
-    FileOutlined, PlusSquareOutlined, QuestionCircleOutlined
-} from "@ant-design/icons";
-import type { MenuProps, TourProps } from "antd";
-import { Layout, Menu, theme, Space, Table, Modal, Button, Input, Form, Drawer,Tour } from "antd";
-const { Column } = Table;
+import React,{useRef} from "react";
+import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, Switch, Modal, Button, Tour } from "antd";
+import {QuestionCircleOutlined} from "@ant-design/icons";
+const { Column, ColumnGroup } = Table;
+import type {TourProps} from "antd";
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
 import { request } from "../../../../utils/network";
-import { LoadSessionID } from "../../../../utils/CookieOperation";
-import MenuItem from "antd/es/menu/MenuItem";
+import { logout, LoadSessionID } from "../../../../utils/CookieOperation";
 import MemberList from "../../../../components/MemberList";
-import DepartmentUI from "../../../../components/DepartmentControlUI";
-import  UserInfo  from "../../../../components/UserInfoUI";
-import ApplicationUI from "../../../../components/ApplicationUI";
+import UserInfo from "../../../../components/UserInfoUI";
+import {IfCodeSessionWrong} from "../../../../utils/CookieOperation";
 import SiderMenu from "../../../../components/SiderUI";
-
-
-
+import LogList from "../../../../components/LogListUI";
+import AssetWarnList from "../../../../components/AssetWarnList";
+interface MemberData {
+    Name: string;
+    Department: string;
+    Authority: number;
+    lock: boolean;
+}
 const App = () => {
-    const [collapsed, setCollapsed] = useState(false);  //左侧边栏是否可以收起
-    const [state, setState] = useState(false);  //路径保护变量
-    const [DepartmentPath, setDepartmentPath] = useState("000000000");
+    const [state, setState] = useState(true); // 用户是否处在登录状态
+    const [collapsed, setCollapsed] = useState(false);
     const [UserName, setUserName] = useState<string>(""); // 用户名
-    const [UserAuthority, setUserAuthority] = useState(1); // 用户的角色权限，0超级，1系统，2资产，3员工
+    const [UserAuthority, setUserAuthority] = useState(2); // 用户的角色权限，0超级，1系统，2资产，3员工
     const [UserApp, setUserApp] = useState<string>(""); // 用户显示的卡片，01串
+    const [Member, setMember] = useState<MemberData[]>(); // 存储加载该系统管理员管理的资产管理员和员工的信息
+    const router = useRouter();
+    const query = router.query;
     const [Entity, setEntity] = useState<string>(""); // 实体名称
     const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
-    const [UserID, setUserID]= useState(0);
     const [TOREAD, setTOREAD] = useState(false);
     const [TODO, setTODO] = useState(false);
+    const [UserID, setUserID]= useState(0);
+    const [TourOpen, setTourOpen] = useState(false);
     const ref1 = useRef(null);
     const ref2 = useRef(null);
-    const ref3 = useRef(null);
-    const ref4 = useRef(null);
-    const ref5 = useRef(null);
-    const [TourOpen, setTourOpen] = useState(false);
     const steps: TourProps["steps"] = [
         {
-            title: "添加业务实体",
-            description: "点击按钮添加业务实体及系统管理员",
+            title: "资产告警",
+            description: "资产基于自身告警策略会显示告警信息",
+            nextButtonProps:{children:"下一步"},
+            prevButtonProps:{children:"上一步"},
             target: () => ref1.current,
-            nextButtonProps:{children:"下一步"},
-            prevButtonProps:{children:"上一步"},
         },
         {
-            title: "飞书同步",
-            description: "点击按钮以同步所有飞书用户至指定部门",
-            target: () => ref2.current,
-            nextButtonProps:{children:"下一步"},
-            prevButtonProps:{children:"上一步"},
-        },
-        {
-            title: "业务实体列表",
-            description: "查看所有业务实体及对应的系统管理员,点击移除按钮可以删除对应实体及管理员,点击设置同步部门可以修改飞书同步的部门",
-            target: () => ref3.current,
-            nextButtonProps:{children:"下一步"},
-            prevButtonProps:{children:"上一步"},
-        },
-        {
-            title: "移除业务实体",
-            description: "删除业务实体及对应管理员",
-            target: () => ref4.current,
-            nextButtonProps:{children:"下一步"},
-            prevButtonProps:{children:"上一步"},
-        },
-        {
-            title: "业务实体列表",
-            description: "设置飞书同步部门,用于飞书同步",
-            target: () => ref5.current,
+            title: "调整策略",
+            description: "点击可调整告警策略",
             nextButtonProps:{children:"结束导览"},
             prevButtonProps:{children:"上一步"},
-        },
+            target: () => ref2.current,
+        }
     ];
-    const router = useRouter();
     const {
         token: { colorBgContainer },
     } = theme.useToken();
@@ -91,7 +69,7 @@ const App = () => {
                 setUserName(res.UserName);
                 setUserApp(res.UserApp);
                 setUserAuthority(res.Authority);
-                if(res.Authority != 1 ){
+                if(res.Authority != 2 ){
                     Modal.error({
                         title: "无权访问",
                         content: "请重新登录",
@@ -113,11 +91,10 @@ const App = () => {
                     onOk: () => { window.location.href = "/"; }
                 });
             });
-    }, [state, router]);
-   
+    }, [router, query]);
     if (state) {
         return (
-            <Layout style={{ minHeight: "100vh" }}>
+            <Layout className="site-layout">
                 <Sider className= "sidebar" width="13%">
                     <SiderMenu UserAuthority={UserAuthority} />
                 </Sider>
@@ -125,15 +102,22 @@ const App = () => {
                     <Header className="ant-layout-header">
                         <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true} ID={UserID}></UserInfo>
                         <Button style={{  margin: 30}} className="header_button" onClick={() => { setTourOpen(true); }} icon={<QuestionCircleOutlined />}>
-                            使用帮助
+                                使用帮助
                         </Button>
                     </Header>
-                    <ApplicationUI refList={[ref1,ref2,ref3,ref4,ref5]} setTourOpen={setTourOpen} TourOpen={TourOpen}/>
-                    <Tour open={TourOpen} onClose={() => setTourOpen(false)} steps={steps} />
+                    <Content>
+                        <Breadcrumb style={{ margin: "16px 30px" }}>
+                            <Breadcrumb.Item>资产告警</Breadcrumb.Item>
+                        </Breadcrumb>
+                        <div  style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
+                            <AssetWarnList refList={[ref2]} setTourOpen={setTourOpen} TourOpen={TourOpen}/>
+                        </div>
+                        <Tour open={TourOpen} onClose={() => setTourOpen(false)} steps={steps} />
+                    </Content>
                 </Layout>
-            </Layout >
+            </Layout>
         );
-    };
+    }
 };
 
 export default App;

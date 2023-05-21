@@ -17,6 +17,7 @@ const App = () => {
     const [UserAuthority, setUserAuthority] = useState(2); // 用户的角色权限，0超级，1系统，2资产，3员工
     const [TOREAD, setTOREAD] = useState(false);
     const [TODO, setTODO] = useState(false);
+    const [UserID, setUserID]= useState(0);
     const router = useRouter();
     const query = router.query;
     const [Entity, setEntity] = useState<string>(""); // 实体名称
@@ -48,6 +49,7 @@ const App = () => {
                 setDepartment(res.Department);
                 setTODO(res.TODO);
                 setTOREAD(res.TOREAD);
+                setUserID(res.ID);
             })
             .catch((err) => {
                 console.log(err.message);
@@ -63,23 +65,21 @@ const App = () => {
         
         return (
             <Layout style={{ minHeight: "100vh" }}>
-                <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-                    <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }} />
+                <Sider className= "sidebar" width="13%">
                     <SiderMenu UserAuthority={UserAuthority} />
                 </Sider>
                 <Layout className="site-layout" >
                     <Header className="ant-layout-header">
-                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
+                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true} ID={UserID}></UserInfo>
                     </Header>
-                    <Content style={{ margin: "0 16px" }}>
-                        <Breadcrumb style={{ margin: "16px 0" }}>
+                    <Content>
+                        <Breadcrumb style={{ marginLeft: "30px", marginTop:"20px", marginBottom:"-10px" }}>
                             <Breadcrumb.Item>资产变更</Breadcrumb.Item>
                         </Breadcrumb>
                         <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
                             <AssetChange />
                         </div>
                     </Content>
-                    <Footer style={{ textAlign: "center" }}>EAMS ©2023 Designed by CSes</Footer>
                 </Layout>
             </Layout>
         );

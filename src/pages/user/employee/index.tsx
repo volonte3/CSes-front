@@ -1,6 +1,8 @@
-import React from "react";
-import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, Switch, Modal, Button } from "antd";
+import React,{useRef} from "react";
+import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, Switch, Modal, Button, Tour } from "antd";
 const { Column, ColumnGroup } = Table;
+import { QuestionCircleOutlined } from "@ant-design/icons";
+import type { TourProps } from "antd";
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
@@ -24,6 +26,36 @@ const App = () => {
     const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
     const [TOREAD, setTOREAD] = useState(false);
     const [TODO, setTODO] = useState(false);
+    const [UserID, setUserID]= useState(0);
+    const [TourOpen, setTourOpen] = useState(false);
+    const ref1 = useRef(null);
+    const ref2 = useRef(null);
+    const ref3 = useRef(null);
+    const ref4 = useRef(null);
+    const ref5 = useRef(null);
+    const steps: TourProps["steps"] = [
+        {
+            title: "资产列表",
+            description: "展示员工所属部门下所有资产，员工可以根据资产的状态向资产管理员提出对资产的领用、退库、维保、清退请求",
+            target: () => ref1.current,
+            nextButtonProps: { children: "下一步" },
+            prevButtonProps: { children: "上一步" },
+        },
+        {
+            title: "查看资产",
+            description: "员工可查看部门内闲置资产或个人资产",
+            target: () => ref2.current,
+            nextButtonProps: { children: "下一步" },
+            prevButtonProps: { children: "上一步" },
+        },
+        {
+            title: "资产操作",
+            description: "包括领用、退库、维保、清退操作，其中第一种操作只能对闲置资产执行，后三种只能对个人资产执行，在执行对应操作后，部门内资产管理员会收到申请信息，并对申请进行批复，员工可通过查看消息列表了解批复结果",
+            target: () => ref3.current,
+            nextButtonProps: { children: "结束导览" },
+            prevButtonProps: { children: "上一步" },
+        }
+    ];
     const {
         token: { colorBgContainer },
     } = theme.useToken();
@@ -51,6 +83,7 @@ const App = () => {
                 setDepartment(res.Department);
                 setTODO(res.TODO);
                 setTOREAD(res.TOREAD);
+                setUserID(res.ID);
             })
             .catch((err) => {
                 console.log(err.message);
@@ -66,21 +99,22 @@ const App = () => {
 
         return (
             <Layout style={{ minHeight: "100vh" }}>
-                <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-                    <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }} />
+                <Sider className= "sidebar" width="13%">
                     <SiderMenu UserAuthority={UserAuthority} />
                 </Sider>
                 <Layout className="site-layout" >
                     <Header className="ant-layout-header">
-                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
+                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true} ID={UserID}></UserInfo>
+                        <Button style={{ margin: 30 }} className="header_button" onClick={() => { setTourOpen(true); }} icon={<QuestionCircleOutlined />}>
+                            使用帮助
+                        </Button>
                     </Header>
-                    <Content style={{ margin: "0 16px" }}>
-
+                    <Content>
                         <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
-                            <EmployeeAssetList EmployeeName={UserName}  />
+                            <EmployeeAssetList EmployeeName={UserName}  refList={[ref2,ref3]} TourOpen={TourOpen} setTourOpen={setTourOpen}/>
                         </div>
+                        <Tour open={TourOpen} onClose={() => setTourOpen(false)} steps={steps} />
                     </Content>
-                    <Footer style={{ textAlign: "center" }}>EAMS ©2023 Designed by CSes</Footer>
                 </Layout>
             </Layout>
         );

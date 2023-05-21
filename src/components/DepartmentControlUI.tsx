@@ -1,6 +1,6 @@
 import React from "react";
 import {
-    FileOutlined, PlusSquareOutlined
+    PartitionOutlined, PlusSquareOutlined, BackwardOutlined
 } from "@ant-design/icons";
 import { Layout, Menu, theme, Space, Table, Modal, Button, Input, Form, Drawer, Breadcrumb } from "antd";
 const { Column } = Table;
@@ -11,8 +11,13 @@ import { request } from "../utils/network";
 import { IfCodeSessionWrong, LoadSessionID } from "../utils/CookieOperation";
 import MemberList from "../components/MemberList";
 import { DepartmentData, DepartmentPathData, MemberData } from "../utils/types";
-
-const DepartmentUI = () => {
+import DepartmentTree from "./DepartmentTreeUI";
+interface DepartmentUIProps {
+    refList: React.MutableRefObject<any>[]; // Make the parameter optional
+    setTourOpen: (t: boolean) => void;
+    TourOpen: boolean;
+}
+const DepartmentUI = (props:DepartmentUIProps) => {
     const [open1, setOpen1] = useState(false);    //添加部门侧边栏的显示
     const [open2, setOpen2] = useState(false);    //创建员工侧边栏的显示
     const [DepartmentName, setDepartmentName] = useState(""); //注册新部门名
@@ -23,6 +28,7 @@ const DepartmentUI = () => {
     const [DepartmentPath, setDepartmentPath] = useState("000000000"); //储存当前的部门路径
     const [DepartmentPathList, setDepartmentPathList] = useState<DepartmentPathData[]>(); // 储存页面历史路径
     const [Loading, setLoading] = useState(false);
+    const [Tree, setTree] = useState<[]>();
     const router = useRouter();
     const query = router.query;
     const handleDepartmentAdd = (e: any) => {
@@ -53,7 +59,7 @@ const DepartmentUI = () => {
     };
     const fetchList = (Path: string) => {
         request(
-            `/api/User/department/${LoadSessionID()}/${Path}`,
+            `/api/User/department/${LoadSessionID()}/${Path}/1/Name=/Authority=-1`,
             "GET"
         )
             .then((res) => {
@@ -73,6 +79,20 @@ const DepartmentUI = () => {
                     title: "无法获取对应部门信息",
                     content: "请重新登录",
                     onOk: () => { window.location.href = "/"; }
+                });
+            });
+        request(
+            `/api/User/tree/${LoadSessionID()}`,
+            "GET"
+        )
+            .then((res) => {
+                setTree(res.treeData);
+            })
+            .catch((err) => {
+                console.log(err.message);
+                Modal.error({
+                    title: "错误",
+                    content: "无法获取对应部门信息",
                 });
             });
 
@@ -176,6 +196,36 @@ const DepartmentUI = () => {
             });
         
     };
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const showModal = () => {
+        setIsModalOpen(true);
+    };
+  
+    const handleOk = () => {
+        setIsModalOpen(false);
+    };
+  
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
+
+    interface Item {
+        title: string;
+        children?: Item[];
+    }
+      
+    function mapTitleToName(item: Item): any {
+        const { title, ...rest } = item;
+        const newItem: any = { ...rest, name: title };
+        if (newItem.children) {
+            newItem.children = newItem.children.map(mapTitleToName);
+        }
+        return newItem;
+    }
+  
+
     const onFinishFailed = (errorInfo: any) => {
         console.log("Failed:", errorInfo);
     };
@@ -187,18 +237,33 @@ const DepartmentUI = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router, query]);
     return(
-        <Content style={{ margin: "0 16px" }}>
-            <Breadcrumb className="ant-breadcrumb">
-                {DepartmentPathList && DepartmentPathList.map((path, index) => (
-                    <Breadcrumb.Item key={index} onClick={() => { setDepartmentPath(path.Path);fetchList(path.Path);}}>
-                        {path.Name}
-                    </Breadcrumb.Item>
-                ))}
-            </Breadcrumb>
+        <Content>
+            <div ref={props.refList[0]}>
+                <Breadcrumb className="ant-breadcrumb" style={{margin: 30 }}>
+                    {DepartmentPathList && DepartmentPathList.map((path, index) => (
+                        <Breadcrumb.Item key={index} onClick={() => { if(!props.TourOpen){setDepartmentPath(path.Path);fetchList(path.Path);}}} className="ant-breadcrumb-item">
+                            {path.Name}
+                        </Breadcrumb.Item>
+                    ))}
+                </Breadcrumb>
+            </div>
+            <Modal style={{ height: "1500px" }} width={1600} title="部门树" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                <div style={{ height: "1500px" }}>
+                    <DepartmentTree data={Tree?.map(mapTitleToName) ?? []} />
+                </div>        
+            </Modal>
+            {DepartmentPath == "000000000" && <Button
+                type="primary"
+                icon={<PartitionOutlined />}
+                style={{ float: "left", marginLeft:"30px", marginBottom:"15px"}}
+                onClick={() => {showModal();}}
+            >
+                查看部门树
+            </Button>}
             {DepartmentPath != "000000000" && <Button
                 type="primary"
-                icon={<PlusSquareOutlined />}
-                style={{ float: "left", margin: 10 }}
+                icon={<BackwardOutlined />}
+                style={{ float: "left", marginLeft:"30px", marginBottom:"15px"}}
                 onClick={() => {GoUp(DepartmentPath);}}
             >
                 回到上一级目录
@@ -206,19 +271,20 @@ const DepartmentUI = () => {
             <Button
                 type="primary"
                 icon={<PlusSquareOutlined />}
-                style={{ float: "left", margin: 10 }}
-                onClick={showDrawer1}
+                style={{ float: "left", marginLeft:"30px", marginBottom:"15px" }}
+                onClick={()=>{if(!props.TourOpen){showDrawer1();}}}
+                ref={props.refList[2]}
             >
                 添加部门
             </Button>
-            {IsLeafDepartment && <Button
+            {/* {IsLeafDepartment && <Button
                 type="primary"
                 icon={<PlusSquareOutlined />}
-                style={{ float: "left", margin: 10 }}
+                style={{ float: "left", margin: 30 }}
                 onClick={showDrawer2}
             >
                 新增员工
-            </Button>}
+            </Button>} */}
             <Drawer title="添加部门" placement="right" onClose={onClose1} open={open1}>
                 <Form
                     name="basic"
@@ -242,7 +308,7 @@ const DepartmentUI = () => {
                     </Form.Item>
                 </Form>
             </Drawer>
-            {IsLeafDepartment && <Drawer title="创建新员工" placement="right" onClose={onClose2} open={open2}>
+            {/* {IsLeafDepartment && <Drawer title="创建新员工" placement="right" onClose={onClose2} open={open2}>
                 <Form
                     name="basic"
                     labelCol={{ span: 8 }}
@@ -264,7 +330,7 @@ const DepartmentUI = () => {
                         </Button>
                     </Form.Item>
                 </Form>
-            </Drawer>}
+            </Drawer>} */}
             <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
                 {IsLeafDepartment && <MemberList
                     Members={DepartmentMemberList}
@@ -277,7 +343,7 @@ const DepartmentUI = () => {
                         key="action"
                         render={(_: any, record: DepartmentData) => (
                             <>
-                                <a type="primary" onClick={() => { setDepartmentPath(record.DepartmentPath);fetchList(record.DepartmentPath);}}>{record.DepartmentName}</a>
+                                <a ref={props.refList[1]} type="primary" onClick={() => { if(!props.TourOpen){setDepartmentPath(record.DepartmentPath);fetchList(record.DepartmentPath);}}}>{record.DepartmentName}</a>
                             </>
                         )}
                     />
@@ -287,7 +353,7 @@ const DepartmentUI = () => {
                         key="action"
                         render={(_: any, record: DepartmentData) => (
                             <Space size="middle">
-                                <Button type="primary" loading = {Loading} onClick={() => { RemoveDepartment(record.DepartmentPath, record.DepartmentName);}}>移除该部门</Button>
+                                <Button ref={props.refList[3]} type="primary" loading = {Loading} onClick={() => { if(!props.TourOpen){RemoveDepartment(record.DepartmentPath, record.DepartmentName);}}}>移除该部门</Button>
                             </Space>
                         )}
                     />

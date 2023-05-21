@@ -1,5 +1,7 @@
-import React from "react";
-import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, Switch, Modal, Button } from "antd";
+import React,{useRef} from "react";
+import { Breadcrumb, Layout, Menu, theme, Space, Table, Tag, Switch, Modal, Button, Tour } from "antd";
+import {QuestionCircleOutlined} from "@ant-design/icons";
+import type {TourProps} from "antd";
 const { Column, ColumnGroup } = Table;
 import { useRouter } from "next/router";
 const { Header, Content, Footer, Sider } = Layout;
@@ -29,6 +31,51 @@ const App = () => {
     const [Department, setDepartment] = useState<string>("");  //用户所属部门，没有则为null
     const [TOREAD, setTOREAD] = useState(false);
     const [TODO, setTODO] = useState(false);
+    const [UserID, setUserID]= useState(0);
+    const [TourOpen, setTourOpen] = useState(false);
+
+    const ref1 = useRef(null);
+    const ref2 = useRef(null);
+    const ref3 = useRef(null);
+    const ref4 = useRef(null);
+    const ref5 = useRef(null);
+    const steps: TourProps["steps"] = [
+        {
+            title: "用户管理面板",
+            description: "展示业务实体内所有员工及其所属部门，您可以通过姓名、所属部门、身份条件检索对应的员工",
+            target: () => ref1.current,
+            nextButtonProps:{children:"下一步"},
+            prevButtonProps:{children:"上一步"},
+        },
+        {
+            title: "解锁/锁定按钮",
+            description: "点击可切换员工状态，控制其是否允许登录",
+            target: () => ref2.current,
+            nextButtonProps:{children:"下一步"},
+            prevButtonProps:{children:"上一步"},
+        },
+        {
+            title: "重置密码",
+            description: "如员工忘记密码，系统管理员可帮助重置",
+            target: () => ref3.current,
+            nextButtonProps:{children:"下一步"},
+            prevButtonProps:{children:"上一步"},
+        },
+        {
+            title: "删除员工",
+            description: "可以删除员工或系统管理员",
+            target: () => ref4.current,
+            nextButtonProps:{children:"下一步"},
+            prevButtonProps:{children:"上一步"},
+        },
+        {
+            title: "身份变更",
+            description: "资产管理员可以通过此按钮改变员工身份，注意规定一个部门内至多只能有一个资产管理员，如果提升多个同部门员工为资产管理员，系统会拒绝该请求",
+            target: () => ref5.current,
+            nextButtonProps:{children:"结束导览"},
+            prevButtonProps:{children:"上一步"},
+        }
+    ];
     const {
         token: { colorBgContainer },
     } = theme.useToken();
@@ -56,6 +103,7 @@ const App = () => {
                 setDepartment(res.Department);
                 setTODO(res.TODO);
                 setTOREAD(res.TOREAD);
+                setUserID(res.ID);
             })
             .catch((err) => {
                 console.log(err.message);
@@ -67,52 +115,56 @@ const App = () => {
                 });
             });
         // setState(true);
-        if (state) {
-            request(`/api/User/member/${LoadSessionID()}`, "GET")
-                .then((res) => {
-                    // const Member = JSON.parse(res.jsonString) as MemberData;
-                    setMember(res.member);
-                })
-                .catch((err) => {
-                    console.log(err.message);
-                    if (IfCodeSessionWrong(err, router)) {
+        // if (state) {
+        //     request(`/api/User/member/${LoadSessionID()}`, "GET")
+        //         .then((res) => {
+        //             // const Member = JSON.parse(res.jsonString) as MemberData;
+        //             setMember(res.member);
+        //         })
+        //         .catch((err) => {
+        //             console.log(err.message);
+        //             if (IfCodeSessionWrong(err, router)) {
 
-                        setState(false);
-                        Modal.error({
-                            title: "无权获取用户列表",
-                            content: "请重新登录",
-                            onOk: () => { window.location.href = "/"; }
-                        });
-                    }
-                });
-        }
+        //                 setState(false);
+        //                 Modal.error({
+        //                     title: "无权获取用户列表",
+        //                     content: "请重新登录",
+        //                     onOk: () => { window.location.href = "/"; }
+        //                 });
+        //             }
+        //         });
+        // }
     }, [router, query, state]);
     if (state) {
 
         return (
             <Layout className="site-layout">
-                <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-                    <div style={{ height: 32, margin: 16, background: "rgba(255, 255, 255, 0.2)" }} />
+                <Sider className= "sidebar" width="13%">
                     <SiderMenu UserAuthority={UserAuthority} />
                 </Sider>
                 <Layout className="site-layout" >
                     <Header className="ant-layout-header">
-                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD}></UserInfo>
+                        <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={true} ID={UserID}></UserInfo>
+                        <Button style={{  margin: 30}} className="header_button" onClick={() => {setTourOpen(true); }} icon={<QuestionCircleOutlined />}>
+                                使用帮助
+                        </Button>
                     </Header>
-                    <Content style={{ margin: "0 16px" }}>
-                        <Breadcrumb style={{ margin: "16px 0" }}>
+                    <Content>
+                        <Breadcrumb style={{ margin: "16px 30px" }}>
                             <Breadcrumb.Item>用户管理</Breadcrumb.Item>
                         </Breadcrumb>
                         <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
-
                             <MemberList
                                 Members={Member}
                                 department_page={false}
                                 department_path={"000000000"}
+                                refList={[ref2,ref3,ref4,ref5]} 
+                                setTourOpen={setTourOpen} 
+                                TourOpen={TourOpen}
                             />
                         </div>
+                        <Tour open={TourOpen} onClose={() => setTourOpen(false)} steps={steps} />
                     </Content>
-                    <Footer style={{ textAlign: "center" }}>EAMS ©2023 Designed by CSes</Footer>
                 </Layout>
             </Layout>
         );

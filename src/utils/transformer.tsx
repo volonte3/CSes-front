@@ -1,3 +1,5 @@
+import {LabelVisible,AssetDetailInfo} from "./types";
+import ReactHtmlParser from "react-html-parser";
 const renderAuthority = (identity: number): string => {
     let label = "";
     switch (identity) {
@@ -126,10 +128,53 @@ const DateTransform=(text:string|undefined)=>{
     return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
 
 };
+const renderValue = (key: keyof LabelVisible, detailInfo?: AssetDetailInfo) => {
+    switch (key) {
+    case "Name": return detailInfo?.Name;
+    case "Class": return detailInfo?.Class;
+    case "Status": return renderStatus(detailInfo?.Status);
+    case "Owner": return detailInfo?.Owner;
+    case "Description": return detailInfo?.Description? ReactHtmlParser(detailInfo?.Description):"";
+    case "CreateTime": return DateTransform(detailInfo?.CreateTime);
+    case "Class": return detailInfo?.Class;
+    
+    default: return detailInfo?.[key];
+    }
+};
+const renderKey = (key: keyof LabelVisible) => {
+    switch (key) {
+    case "Name": return "资产名称";
+    case "Class": return "资产类别";
+    case "Status": return "状态";
+    case "Owner": return "当前所有者";
+    case "Description": return "资产描述";
+    case "CreateTime": return "创建时间";
+    case "Class": return "资产类别";
+    default: return "";
+    }
+};
+const renderAssetType = (type:number|undefined)=>{   //数量型 or 条目型
+    switch(type){
+    case 0: return "条目型";
+    case 1: return "数量型";
+    default: return "";
+    }
+};
+const renderLossStyle = (type:number|undefined)=>{   //指数折旧 or 线性折旧
+    switch(type){
+    case 0: return "指数折旧";
+    case 1: return "线性折旧";
+    default: return "";
+    }
+};
 export {
     renderAuthority,
     renderStatus,
     DateTransform,
     renderStatusBadge,
-    renderStatusChanges
+    renderStatusChanges,
+    renderValue,
+    renderKey,
+    renderLossStyle,
+    renderAssetType,
 };

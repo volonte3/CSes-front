@@ -1,51 +1,35 @@
 import React, { useRef } from "react";
-import { theme, Space, Table, Button, Modal, Menu, Tooltip, Badge, Form, Select, Input, List, Divider } from "antd";
+import { Skeleton, theme, Space, Table, Button, Modal, Menu, Tooltip, Badge, Form, Select, Input, List, Divider, Checkbox, Col, Row, Breadcrumb } from "antd";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
-import { AssetData, AssetDetailInfo, AssetHistory, MemberData } from "../utils/types"; //对列表中数据的定义在 utils/types 中
-import { ProTable, ProColumns, TableDropdown, ProCard, ProList, ProForm, ModalForm, ProFormTreeSelect, ActionType } from "@ant-design/pro-components";
-import { DateTransform, renderStatus,renderStatusChanges, renderStatusBadge } from "../utils/transformer";
-
+import { AssetData, AssetDetailInfo, AssetHistory, MemberData, LabelVisible, TestDetailInfo } from "../utils/types"; //对列表中数据的定义在 utils/types 中
+import { ProTable, ProColumns, TableDropdown, ProCard, ProForm, ModalForm, ProFormTreeSelect, ActionType, ProList } from "@ant-design/pro-components";
+import { DateTransform, renderStatus, renderStatusChanges, renderStatusBadge, renderKey } from "../utils/transformer";
+import OSS from "ali-oss";
+import { AssetDetailCard } from "./AssetDetailInfoUI";
+import { table } from "console";
 interface AssetListProps {
     ManagerName: string;
+    setVisibleDetail: (visible: boolean) => void;
+    setAssetName: (name: string) => void;
+    VisibleDetail: boolean;
+    refList: React.MutableRefObject<any>[];
+    setTourOpen: (t: boolean) => void;
+    TourOpen: boolean;
 }
-const TestDetailInfo: AssetDetailInfo = {
-    Name: "测试资产",
-    ID: 1,
-    Status: 1,
-    Owner: "张三",
-    Description: "这是一个测试资产",
-    CreateTime: "2022-04-23",
-    History: [
-        {
-            Review_Time: "2022-04-23",
-            ID: 1,
-            Type: 1,
-            Initiator: "李四",
-            Participant: "王五",
-            Asset_Admin: "赵六",
-        },
-        {
-            Review_Time: "2022-04-22",
-            ID: 2,
-            Type: 2,
-            Initiator: "王五",
-            Participant: "赵六",
-            Asset_Admin: "李四",
-        },
-        {
-            Review_Time: "2022-04-21",
-            ID: 3,
-            Type: 3,
-            Initiator: "赵六",
-            Participant: "李四",
-            Asset_Admin: "王五",
-        },
-    ],
-};
-const TestPropList: string[] = ["a", "b", "c", "d"];
+interface UrlData {
+    pageSize: number;
+    current?: number;
+    Name?: string;
+    ID?: number;
+    Class?: string;
+    Status?: number;
+    Owner?: string;
+    Prop?: string;
+    PropValue?: string;
+}
 const { Option } = Select;
 
 const layout = {
@@ -64,11 +48,13 @@ const layout = {
 const tailLayout = {
     wrapperCol: { offset: 16, span: 8 },
 };
+
 const AssetList = (props: AssetListProps) => {
-    const [IsSomeRowCanNotDispatch, setIsSomeRowCanNotDispatch] = useState<boolean>(false);  //退还维保
+    const [IsSomeRowCanNotDispatch, setIsSomeRowCanNotDispatch] = useState<boolean>(false);  //是否可以调拨
+    const [IsSomeRowCanNotReturn, setIsSomeRowCanNotReturn] = useState<boolean>(false);  //是否可以清退
     const [SelectedRows, setSelectedRows] = useState<AssetData[]>([]);
     const [Detail, setDetail] = useState<boolean>(false);
-    const [DetailInfo, setDetailInfo] = useState<AssetDetailInfo>();
+    const [DetailInfo, setDetailInfo] = useState<AssetDetailInfo>(TestDetailInfo);
     const [PropList, setPropList] = useState<string[]>([]);
     const tableRef = useRef<ActionType>(null);
     // 资产调拨的内容
@@ -81,81 +67,8 @@ const AssetList = (props: AssetListProps) => {
     const [Open2, setOpen2] = useState(false); // 判断是否需要打开资产转移的第二步Modal
     const [form] = Form.useForm<{ class: string; }>(); // 第二个Modal的格式
     const [loading, setLoading] = useState(false);
-    const Historycolumns: ProColumns<AssetHistory>[] = [
-
-        {
-            title: "审批号",
-            dataIndex: "ID",
-            search: false
-        },
-        {
-            title: "申请类型",
-            dataIndex: "Type",
-            key: "Type",
-            valueType: "select",
-            valueEnum: {
-                0: {
-                    text: "领用",
-                    status: "Success",
-                },
-                1: {
-                    text: "退库",
-                    status: "Error",
-                },
-                2: {
-                    text: "维保",
-                    status: "Warning",
-                },
-                3: {
-                    text: "转移",
-                    status: "Processing",
-                },
-                4: {
-                    text: "清退",
-                    status: "Default",
-                },
-                5: {
-                    text: "退维",
-                    status: "Success",
-                },
-                6: {
-                    text: "调拨",
-                    status: "Processing",
-                },
-                7:{
-                    text: "录入",
-                    status: "Success",
-                },
-                8:{
-                    text: "变更",
-                    status: "Warning",
-                }
-            },
-        },
-        {
-            title: "发起者",
-            dataIndex: "Initiator",
-        },
-        {
-            title: "参与者",
-            dataIndex: "Participant",
-            search: false,
-        },
-        {
-            title: "审批人",
-            dataIndex: "Asset_Admin",
-        },
-        {
-            title: "审批时间",
-            dataIndex: "Review_Time",
-            search: false,
-            render: (text: any, record) => {
-                console.log(text);
-                // TODO 不是很理解如果返回值为 undefined，前端默认会解析为 -
-                return (text != "-") ? DateTransform(text) : "-";
-            },
-        },
-    ];
+    const [showSkeleton, setShowSkeleton] = useState(false); //从资产列表跳到资产详细页面时的占位骨架
+    const [Loading2, setLoading2] = useState(false);
     const columns: ProColumns<AssetData>[] = [
         {
             title: "资产编号",
@@ -169,107 +82,28 @@ const AssetList = (props: AssetListProps) => {
             tip: "点击资产可查看详情信息",
             render: (_: any, record) => {
                 return (
-                    <div>
+                    <div ref={props.refList[2]}>
                         <Tooltip title="点击查看详情">
-                            <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => { FetchDetail(record.ID); }}>{record.Name}</a>
+                            <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => {
+                                if (!props.TourOpen) {
+                                    props.setTourOpen(false);
+                                    FetchDetail(record.ID);
+                                    props.setVisibleDetail(true);
+                                    props.setAssetName(record.Name);
+                                    setShowSkeleton(true);
+                                    setTimeout(() => {
+                                        setShowSkeleton(false);
+                                    }, 3000);
+                                }
+                            }}>{record.Name}</a>
                         </Tooltip>
-                        <Modal title="资产详细信息"
-                            centered
-                            open={Detail}
-                            onCancel={() => { setDetail(false); }}
-                            footer={[
-                                <Button key="ok" type="primary" onClick={() => { setDetail(false); }}>
-                                    确定
-                                </Button>,
-                            ]}
-                            mask={false}
-                            destroyOnClose={true}
-                        >
-                            <ProCard
-                                tabs={{
-                                    type: "card",
-                                }}
-                            >
-                                <ProCard.TabPane key="Info" tab="资产信息">
-                                    <ProCard split="horizontal">
-                                        <ProCard split="vertical">
-                                            <ProCard title="资产名称">{DetailInfo?.Name}</ProCard>
-                                            <ProCard title="ID">{DetailInfo?.ID}</ProCard>
-                                            <ProCard title="创建时间">{DateTransform(DetailInfo?.CreateTime)}</ProCard>
-                                        </ProCard>
-                                        <ProCard split="vertical">
-                                            <ProCard title="当前所有者">{DetailInfo?.Owner}</ProCard>
-                                            <ProCard title="状态">
-                                                <Badge status={renderStatusBadge(DetailInfo?.Status)} text={renderStatus(DetailInfo?.Status)} />
-                                            </ProCard>
-                                        </ProCard>
-                                        <ProCard split="vertical">
-                                            <ProCard title="资产描述">{DetailInfo?.Description}</ProCard>
-                                        </ProCard>
-                                    </ProCard>
-                                </ProCard.TabPane>
-                                <ProCard.TabPane key="History" tab="历史记录">
-                                    <ProTable
-                                        columns={Historycolumns}
-                                        options={false}
-                                        rowKey="ID"
-                                        request={async (params = {}) =>
-                                            request(`/api/User/Asset_Detail/${LoadSessionID()}/${DetailInfo?.ID}`, "GET")
-                                                .then(response => {
-                                                    let filteredData = response.Asset_Detail.History;
-                                                    if (params.Type) {
-                                                        filteredData = filteredData.filter(
-                                                            (item: AssetHistory) => item.Type == params.Type
-                                                        );
-                                                    }
-                                                    if (params.Initiator) {
-                                                        filteredData = filteredData.filter(
-                                                            (item: AssetHistory) => item.Initiator == params.Initiator
-                                                        );
-                                                    }
-                                                    if (params.Asset_Admin) {
-                                                        filteredData = filteredData.filter(
-                                                            (item: AssetHistory) => item.Asset_Admin == params.Asset_Admin
-                                                        );
-                                                    }
-                                                    return Promise.resolve({ data: filteredData, success: true });
-                                                })
-                                                .catch((err) => {
-
-                                                    let filteredData = TestDetailInfo.History;
-                                                    if (params.Type) {
-                                                        filteredData = filteredData.filter(
-                                                            (item: AssetHistory) => item.Type == params.Type
-                                                        );
-                                                    }
-                                                    if (params.Initiator) {
-                                                        filteredData = filteredData.filter(
-                                                            (item: AssetHistory) => item.Initiator == params.Initiator
-                                                        );
-                                                    }
-                                                    if (params.Asset_Admin) {
-                                                        filteredData = filteredData.filter(
-                                                            (item: AssetHistory) => item.Asset_Admin == params.Asset_Admin
-                                                        );
-                                                    }
-                                                    return Promise.resolve({ data: filteredData, success: false });
-                                                })
-                                        }
-                                    // dataSource={DetailInfo?.History}
-                                    // search={{
-                                    //     defaultCollapsed: false,
-                                    //     defaultColsNumber: 1,
-                                    //     split: true,
-                                    //     span: 8,
-                                    //     searchText: "查询"
-                                    // }}
-                                    />
-                                </ProCard.TabPane>
-                            </ProCard>
-
-                        </Modal>
-                    </div>);
+                    </div >);
             },
+        },
+        {
+            title: "类别",
+            dataIndex: "Class",
+            key: "Class",
         },
         {
             title: "状态",
@@ -306,11 +140,6 @@ const AssetList = (props: AssetListProps) => {
             key: "Owner",
         },
         {
-            title: "描述",
-            dataIndex: "Description",
-            key: "Description",
-        },
-        {
             title: "创建时间",
             dataIndex: "CreateTime",
             key: "CreateTime",
@@ -325,9 +154,9 @@ const AssetList = (props: AssetListProps) => {
             key: "option",
             render: (text, record, _, action) => {
                 const options = [
-                    { key: "receive", name: "清退", onClick: () => hanleChange([record.ID], 0) },
-                    { key: "return", name: "退维", disabled: record.Status != 2, onClick: () => hanleChange([record.ID], 1) },
-                    { key: "maintenance", name: "调拨", disabled: record.Status != 0, onClick: () => { setOpen1(true); setTransferAsset(record); GetMemberList(); } },
+                    { key: "receive", name: "清退", disabled: record.Status == 3, onClick: () => {if(!props.TourOpen){hanleChange([record.ID], 0);}} },
+                    { key: "return", name: "退维", disabled: record.Status != 2, onClick: () => {if(!props.TourOpen){hanleChange([record.ID], 1);}} },
+                    { key: "maintenance", name: "调拨", disabled: record.Status != 0, onClick: () => { if(!props.TourOpen){setOpen1(true); setTransferAsset(record); GetMemberList(1, "");} } },
                 ];
                 const menuItems = options.map(option => (
                     <Menu.Item key={option.key} disabled={option.disabled} onClick={option.onClick}>
@@ -335,15 +164,91 @@ const AssetList = (props: AssetListProps) => {
                     </Menu.Item>
                 ));
                 return (
-                    <TableDropdown
-                        key="actionGroup"
-                        onSelect={() => action?.reload()}
-                        menus={options}
-                    />
+                    <div ref={props.refList[3]}>
+                        <TableDropdown
+                            key="actionGroup"
+                            onSelect={() => {action?.reload();}}
+                            menus={options}
+                        />
+                    </div>
                 );
             },
         }
     ];
+    // 分页多选相关
+    const [mySelectedRowKeys, handleMySelectedRowKeys] = useState<number[]>([]);  // 选中的项目
+    const [mySelectedRows, handleMySelectedRows] = useState<AssetData[]>([]);
+    // 由于cancleRowKeys不影响dom，所以不使用useState定义
+    let cancleRowKeys: number[] = []; // 取消选择的项目
+    const onSelect = (record: AssetData, selected: any) => {
+        if (!selected) {
+            cancleRowKeys = [record.ID];
+        }
+    };
+
+    const onMulSelect = (selected: any, selectedRows: any, changeRows: any) => {
+        if (!selected) {
+            cancleRowKeys = changeRows.map((item: AssetData) => item.ID);
+        }
+    };
+
+    const onChange = (selectedRowKeys: any, selectedRows: any) => {
+        if (cancleRowKeys.length) {
+            const keys = mySelectedRowKeys.filter((item) => !cancleRowKeys.includes(item));
+            const Rows = mySelectedRows.filter((item:AssetData) => !cancleRowKeys.includes(item.ID));
+            handleMySelectedRowKeys(keys);
+            handleMySelectedRows(Rows);
+            console.log(Rows);
+            cancleRowKeys = [];
+            let cannotd=0;
+            let cannotr=0;
+            for (const newrow of Rows) {
+                if (newrow.Status!=0) {
+                    setIsSomeRowCanNotDispatch(true);
+                    cannotd=1;
+                }
+                if (newrow.Status==3) {
+                    setIsSomeRowCanNotReturn(true);
+                    cannotr=1;
+                }
+            }
+            if(cannotd==0) setIsSomeRowCanNotDispatch(false);
+            if(cannotr==0) setIsSomeRowCanNotReturn(false);
+        } else {
+            const mergedRowKeys = mySelectedRowKeys.concat(selectedRowKeys);
+            const mergedRows = mySelectedRows.concat(selectedRows);
+            const uniqueRowKeys: number[] = [];
+            const uniqueRows: AssetData[] = [];
+            for (const key of mergedRowKeys) {
+                if (!uniqueRowKeys.includes(key)) {
+                    uniqueRowKeys.push(key);
+                }
+            }
+            for (const row of mergedRows) {
+                if (!uniqueRows.includes(row)) {
+                    uniqueRows.push(row);
+                }
+            }
+            handleMySelectedRowKeys(uniqueRowKeys);
+            handleMySelectedRows(uniqueRows);
+            console.log(uniqueRows);
+            let cannotd=0;
+            let cannotr=0;
+            for (const newrow of uniqueRows) {
+                if (newrow.Status!=0) {
+                    setIsSomeRowCanNotDispatch(true);
+                    cannotd=1;
+                }
+                if (newrow.Status==3) {
+                    setIsSomeRowCanNotReturn(true);
+                    cannotr=1;
+                }
+            }
+            if(cannotd==0) setIsSomeRowCanNotDispatch(false);
+            if(cannotr==0) setIsSomeRowCanNotReturn(false);
+        }
+    };
+
     const router = useRouter();
     const query = router.query;
     const [PropForm] = Form.useForm();
@@ -352,6 +257,8 @@ const AssetList = (props: AssetListProps) => {
             .then(
                 (res) => {
                     setDetailInfo(res.Asset_Detail);
+                    console.log(res.Asset_Detail);
+                    console.log(DetailInfo);
                     setDetail(true);
 
                 }
@@ -376,6 +283,9 @@ const AssetList = (props: AssetListProps) => {
     }, [router, query, DetailInfo]);
     const hanleChange = (AssetIDList: number[], operation: number, MoveTo: string = "", Type = "") => {
         setLoading(true);
+        setLoading2(true);
+        handleMySelectedRowKeys([]);
+        handleMySelectedRows([]);
         request(`/api/Asset/Manage/${LoadSessionID()}`, "POST",
             {
                 "operation": operation,
@@ -386,6 +296,7 @@ const AssetList = (props: AssetListProps) => {
         )
             .then(() => {
                 setLoading(false);
+                setOpen2(false);
                 Modal.success({
                     title: "操作成功",
                     content: "成功更改资产状态",
@@ -428,7 +339,6 @@ const AssetList = (props: AssetListProps) => {
     };
     const PropSearch = () => {
         return (
-            
             <Form
                 {...layout}
                 form={PropForm}
@@ -438,8 +348,8 @@ const AssetList = (props: AssetListProps) => {
 
             >
                 <ProForm.Group>
-                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                        <Form.Item name="Prop" label="自定义属性" 
+                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center", marginLeft: "28px" }}>
+                        <Form.Item name="Prop" label="自定义属性"
                         // rules={[{ required: true, message: "属性不能为空" }]}
                         >
                             <Select
@@ -455,7 +365,7 @@ const AssetList = (props: AssetListProps) => {
                                 ))}
                             </Select>
                         </Form.Item>
-                        <Form.Item name="PropValue" label="属性值" 
+                        <Form.Item name="PropValue" label="属性值"
                         // rules={[{ required: true, message: "属性值不能为空" }]}
                         >
                             <Input placeholder="属性值" />
@@ -471,12 +381,13 @@ const AssetList = (props: AssetListProps) => {
         );
     };
     // 资产转移第一步modal的相关函数
-    const GetMemberList = () => {
-        request(`/api/User/member/${LoadSessionID()}`, "GET")
+    const [PageID, setPageID] = useState(1);
+    const [TotalNum, setTotalNum] = useState(0);
+    const GetMemberList = (PageID:number, Name: string) => {
+        request(`/api/User/member/${LoadSessionID()}/${PageID}/Name=${Name}/Department=/Authority=2`, "GET")
             .then((res) => {
-                const members = res.member.filter((item: MemberData) => (item.Name != props.ManagerName && item.Authority == 2));
-                console.log(members);
-                setEmployee(members);
+                setTotalNum(res.TotalNum);
+                setEmployee(res.member);
             })
             .catch((err) => {
                 if (IfCodeSessionWrong(err, router)) {
@@ -490,15 +401,13 @@ const AssetList = (props: AssetListProps) => {
     };
     const handleSearch = (e: any) => {
         setSearchText(e.target.value);
+        setPageID(1);
+        GetMemberList(1, e.target.value);
     };
     const handleSelectEmployee = (employee: MemberData) => {
         setSelectedEmployee(employee);
     };
-    const filteredData = Employee ? Employee.filter(
-        item =>
-            (item.Name.includes(searchText) ||
-            item.Department.includes(searchText))
-    ) : [];
+    const filteredData = Employee ? Employee : [];
     const handleOk1 = () => { // 资产转移第一步的ok键，获取部门的资产分类树，同时打开第二步的modal
         request(
             "/api/Asset/DepartmentTree",
@@ -521,177 +430,185 @@ const AssetList = (props: AssetListProps) => {
         setOpen1(false);
         setOpen2(true);
     };
+    const pagination = {
+        current: PageID,
+        pageSize: 20,
+        total: TotalNum,
+        showSizeChanger: false,
+        onChange: (page: number) => {
+            setPageID(page);
+            GetMemberList(page, searchText);
+        },
+    };
     return (
         <>
-            <Divider orientation="center" >自定义属性</Divider>
-            <PropSearch />
-            <Divider orientation="center" >基本属性</Divider>
-            <ProTable
-                columns={columns}
-                options={{ reload: true, setting: false }}
-                rowKey="ID"
-                rowSelection={{
-                    // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
-                    // 注释该行则默认不显示下拉选项
-                    selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
-                    defaultSelectedRowKeys: [],
-                }}
-                tableAlertRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => {
-                    setIsSomeRowCanNotDispatch(selectedRows.some(row => row.Status != 0));
-                    setSelectedRows(selectedRows);
-                    console.log(selectedRowKeys, selectedRows);
-                    return (
-                        <Space size={4}>
-                            已选 {selectedRowKeys.length} 项
-                            <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={onCleanSelected} >
-                                取消选择
-                            </a>
-                        </Space>
-                    );
-                }}
-                tableAlertOptionRender={() => {
-                    return (
-                        <Space size={16} >
-                            <Button type="primary" loading = {loading} onClick={() => {hanleChange(SelectedRows.map((row: any) => row.ID), 0);if(tableRef.current?.clearSelected) tableRef.current?.clearSelected();}}>清退资产</Button>
-                            <Button type="primary" loading = {loading} disabled={IsSomeRowCanNotDispatch} onClick={() => { setOpen1(true); GetMemberList(); }}>调拨资产</Button>
-                        </Space>
-                    );
-                }}
-                actionRef={tableRef}
-                request={async (params = {}) => {
-                    const loadSessionID = LoadSessionID();
-                    let url = `/api/Asset/Info/${loadSessionID}`;
-                    if (PropForm.getFieldValue("Prop") && PropForm.getFieldValue("PropValue")) {
-                        url = `/api/Asset/InfoProp/${loadSessionID}/${PropForm.getFieldValue("Prop")}/${PropForm.getFieldValue("PropValue")}`;
-                    }
-                    return (request(url, "GET")
-                        .then(response => {    // 将request请求的对象保存到state中
-                            // 对获取到的信息进行筛选，其中创建时间设为不可筛选项，描述、物品名称和所有者设为包含搜索，状态和ID设为严格搜索
-                            // TODO ID到底是number还是string，前后端统一一下
-                            // TODO 强等于弱等于的问题，暂时没去管
-                            setPropList(response.DepartmentProp);
-                            // setPropList(TestPropList);
-                            let filteredData = response.Asset;
-                            console.log(filteredData);
-                            if (params.Description) {
-                                filteredData = filteredData.filter(
-                                    (item: AssetData) => item.Description.includes(params.Description)
-                                );
-                            }
-                            if (params.Owner) {
-                                filteredData = filteredData.filter(
-                                    (item: AssetData) => item.Owner.includes(params.Owner)
-                                );
-                            }
-                            if (params.ID) {
-                                filteredData = filteredData.filter(
-                                    (item: AssetData) => item.ID == params.ID
-                                );
-                            }
-                            if (params.Name) {
-                                filteredData = filteredData.filter(
-                                    (item: AssetData) => item.Name.includes(params.Name)
-                                );
-                            }
-                            if (params.Status) {
-                                filteredData = filteredData.filter(
-                                    (item: AssetData) => item.Status == params.Status
-                                );
-                            }
-                            return Promise.resolve({ data: filteredData, success: true });
-                        }));
-                }
+            {showSkeleton && <Skeleton active />}
+            <div ref={props.refList[0]}>
 
+                {!props.VisibleDetail && <Divider orientation="center" >自定义属性</Divider>}
+                {!props.VisibleDetail && <PropSearch />}
+            </div>
+            <div ref={props.refList[1]}>
+                {!props.VisibleDetail && <Divider orientation="center" >基本属性</Divider>}
+            </div>
+            {props.VisibleDetail && !showSkeleton && <AssetDetailCard setVisibleDetail={props.setVisibleDetail} DetailInfo={DetailInfo} />}
 
-                }
-                form={{
-                    // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
-                    syncToUrl: (values, type) => {
-                        if (type === "get") {
-                            return {
-                                ...values,
-                                created_at: [values.startTime, values.endTime],
-                            };
-                        }
-                        return values;
-                    },
-                }}
-                scroll={{ x: "100%", y: "calc(100vh - 300px)" }}
-                pagination={{
-                    showSizeChanger: true
-                }}
-                search={{
-                    defaultCollapsed: false,
-                    defaultColsNumber: 1,
-                    split: true,
-                    span: 8,
-                    searchText: "查询"
-                }}
-                toolBarRender={() => []}
-            />
-            <Modal
-                title="请选择要转移到的管理员"
-                bodyStyle={{ padding: "20px" }}
-                visible={Open1}
-                onCancel={() => setOpen1(false)}
-                onOk={handleOk1}
-                okButtonProps={{ disabled: !selectedEmployee }}
-                okText="下一步"
-            >
-                <Input placeholder="搜索员工或部门名称" value={searchText} onChange={handleSearch} />
-                <List
-                    dataSource={filteredData}
-                    renderItem={item => (
-                        <List.Item
-                            onClick={() => handleSelectEmployee(item)}
-                            className={`employee-item ${selectedEmployee && selectedEmployee.Name === item.Name ? "selected" : ""}`}
-                        >
-                            <div className="employee-name">{item.Name}</div>
-                            <div className="department">{item.Department}</div>
-                        </List.Item>
-                    )}
-                    pagination={{
-                        pageSize: 20
+            {
+                !props.VisibleDetail && <ProTable className="ant-pro-table"
+                    columns={columns}
+                    options={{ reload: true, setting: false }}
+                    rowKey="ID"
+                    rowSelection={{
+                        selectedRowKeys: mySelectedRowKeys,
+                        onSelect,
+                        onSelectMultiple: onMulSelect,
+                        onSelectAll: onMulSelect,
+                        onChange,
                     }}
-                />
-            </Modal>
-            <ModalForm<{
-                class: string;
-            }>
-                title="请选择资产分类"
-                form={form}
-                autoFocusFirstInput
-                modalProps={{
-                    destroyOnClose: true,
-                    onCancel: () => { setOpen2(false); setOpen1(true); },
-                }}
-                submitTimeout={1000}
-                open={Open2}
-                onFinish={async (values) => {
-                    if (SelectedRows.length > 0) hanleChange(SelectedRows.map((row: any) => row.ID), 2, selectedEmployee?.Name, values.class);
-                    else hanleChange([selectedTransferAsset ? selectedTransferAsset.ID : 0], 2, selectedEmployee?.Name, values.class);
-                    setOpen2(false);
-                    if (tableRef.current?.clearSelected) tableRef.current?.clearSelected();
-                    return true;
-                }}
-            >
-                <ProForm.Group>
-                    <ProFormTreeSelect
-                        label="资产分类"
-                        name="class"
-                        width="lg"
-                        rules={[{ required: true, message: "这是必选项" }]}
-                        fieldProps={{
-                            fieldNames: {
-                                label: "title",
-                            },
-                            treeData,
-                            placeholder: "请选择资产分类",
-                        }}
-                    />
-                </ProForm.Group>
+                    tableAlertRender={() => {
+                        return (
+                            <Space size={4}>
+                                已选 {mySelectedRowKeys.length} 项
+                                <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => {
+                                    handleMySelectedRowKeys([]);
+                                    handleMySelectedRows([]);
+                                }}>
+                                    取消选择
+                                </a>
 
-            </ModalForm>
+                            </Space>
+                        );
+                    }}
+                    tableAlertOptionRender={() => {
+                        return (
+                            <Space size={16} >
+                                <Button type="primary" loading={loading} disabled={IsSomeRowCanNotReturn} onClick={() => {hanleChange(mySelectedRowKeys, 0);}}>清退资产</Button>
+                                <Button type="primary" loading={loading} disabled={IsSomeRowCanNotDispatch} onClick={() => { setOpen1(true); GetMemberList(1, ""); }}>调拨资产</Button>
+                            </Space>
+                        );
+                    }}
+                    actionRef={tableRef}
+                    request={async (params = {}) => {
+                        const loadSessionID = LoadSessionID();
+                        let urldata: UrlData = { pageSize: 20, current: params.current, Name: "", ID: -1, Status: -1, Class: "", Owner: "", Prop: "", PropValue: "" };
+                        if (params.Name != undefined) urldata.Name = params.Name;
+                        if (params.ID != undefined) urldata.ID = params.ID;
+                        if (params.Status != undefined) urldata.Status = params.Status;
+                        if (params.Class != undefined) urldata.Class = params.Class;
+                        if (params.Owner != undefined) urldata.Owner = params.Owner;
+                        if (PropForm.getFieldValue("Prop")) {
+                            urldata.Prop = PropForm.getFieldValue("Prop");
+                            if (PropForm.getFieldValue("PropValue")) {
+                                urldata.PropValue = PropForm.getFieldValue("PropValue");
+                            }
+                        }
+                        let url = `/api/Asset/Info/${loadSessionID}/${urldata.current}/ID=${urldata.ID}/Name=${urldata.Name}/Class=${urldata.Class}/Status=${urldata.Status}/Owner=${urldata.Owner}/Prop=${urldata.Prop}/PropValue=${urldata.PropValue}`;
+                        console.log(url);
+                        return (
+                            request(
+                                url,
+                                "GET"
+                            )
+                                .then((res) => {
+                                    setPropList(res.DepartmentProp);
+                                    return Promise.resolve({ data: res.Asset, success: true, total: res.TotalNum });
+                                })
+                        );
+                    }
+                    }
+                    form={{
+                        // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
+                        syncToUrl: (values, type) => {
+                            if (type === "get") {
+                                return {
+                                    ...values,
+                                    created_at: [values.startTime, values.endTime],
+                                };
+                            }
+                            return values;
+                        },
+                    }}
+                    scroll={{ x: "max-content", y: "calc(100vh - 300px)" }}
+                    pagination={{
+                        showSizeChanger: false
+                    }}
+                    search={{
+                        defaultCollapsed: false,
+                        defaultColsNumber: 1,
+                        split: true,
+                        span: 8,
+                        searchText: "查询",
+                    }}
+                    toolBarRender={false}
+                />
+            }
+
+            {
+                !props.VisibleDetail && <Modal
+                    title="请选择要调拨到的管理员"
+                    bodyStyle={{ padding: "20px" }}
+                    visible={Open1}
+                    onCancel={() => setOpen1(false)}
+                    onOk={handleOk1}
+                    okButtonProps={{ disabled: !selectedEmployee }}
+                    okText="下一步"
+                >
+                    <Input placeholder="搜索管理员名称" value={searchText} onChange={handleSearch} />
+                    <ProList
+                        dataSource={Employee ? Employee : []}
+                        renderItem={item => (
+                            <List.Item
+                                onClick={() => handleSelectEmployee(item)}
+                                className={`employee-item ${selectedEmployee && selectedEmployee.Name === item.Name ? "selected" : ""}`}
+                            >
+                                <div className="employee-name">{item.Name}</div>
+                                <div className="department">{item.Department}</div>
+                            </List.Item>
+                        )}
+                        pagination={pagination}
+                        scroll={{ x: "max-content", y: "calc(100vh - 300px)" }}
+                    />
+                </Modal>
+            }
+            {
+                !props.VisibleDetail && <ModalForm<{
+                    class: string;
+                }>
+                    title="请选择资产分类"
+                    form={form}
+                    autoFocusFirstInput
+                    modalProps={{
+                        destroyOnClose: true,
+                        onCancel: () => { setOpen2(false); setOpen1(true); },
+                    }}
+                    loading={Loading2}
+                    submitTimeout={1000}
+                    open={Open2}
+                    onFinish={async (values) => {
+                        if (mySelectedRowKeys.length > 0) hanleChange(mySelectedRowKeys, 2, selectedEmployee?.Name, values.class);
+                        else hanleChange([selectedTransferAsset ? selectedTransferAsset.ID : 0], 2, selectedEmployee?.Name, values.class);
+                        
+                        return true;
+                    }}
+                >
+                    <ProForm.Group>
+                        <ProFormTreeSelect
+                            label="资产分类"
+                            name="class"
+                            width="lg"
+                            rules={[{ required: true, message: "这是必选项" }]}
+                            fieldProps={{
+                                fieldNames: {
+                                    label: "title",
+                                },
+                                treeData,
+                                placeholder: "请选择资产分类",
+                            }}
+                        />
+                    </ProForm.Group>
+
+                </ModalForm>
+            }
         </>
     );
 };
