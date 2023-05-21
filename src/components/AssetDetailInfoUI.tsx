@@ -16,6 +16,7 @@ import { Image } from "antd-mobile";
 interface AssetDetailProps {
     setVisibleDetail: (visible: boolean) => void;
     DetailInfo: AssetDetailInfo
+    ShowFullDetail?: boolean;
 }
 
 export const AssetDetailCard = (props: AssetDetailProps) => {
@@ -101,6 +102,7 @@ export const AssetDetailCard = (props: AssetDetailProps) => {
             },
         },
     ];
+    const showFullDetail = props.ShowFullDetail===false?false:true;
     const downloadLabel = async () => { //标签下载
         request(`/api/Asset/Label/${LoadSessionID()}/${DetailInfo?.ID}`, "GET")
             .then(
@@ -185,9 +187,15 @@ export const AssetDetailCard = (props: AssetDetailProps) => {
                         <Descriptions.Item label="类别" >
                             {DetailInfo.Class}
                         </Descriptions.Item>
-                        <Descriptions.Item label="资产类型" span={2}>
+                        {DetailInfo.Type == 0 && <Descriptions.Item label="资产类型" span={2}>
                             {renderAssetType(DetailInfo.Type)}
-                        </Descriptions.Item>
+                        </Descriptions.Item>}
+                        {DetailInfo.Type == 1 && <Descriptions.Item label="资产类型" span={1}>
+                            {renderAssetType(DetailInfo.Type)}
+                        </Descriptions.Item>}
+                        {DetailInfo.Type == 1 && <Descriptions.Item label="资产数量" span={1}>
+                            {DetailInfo.Volume}
+                        </Descriptions.Item>}
                         <Descriptions.Item label="资产自定义属性" span={3}>
                             {DetailInfo.PropetyName?.map((name, index) => (
                                 <div key={index}>
@@ -216,13 +224,13 @@ export const AssetDetailCard = (props: AssetDetailProps) => {
                         </Descriptions.Item>
                     </Descriptions>
                     <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
-                        <Button key="back" type="primary" onClick={() => { UpdateLabel(DetailInfo, false); setLabelChangeVisible(false); props.setVisibleDetail(false); }} style={{ marginRight: "10px" }}>
+                        {showFullDetail && <Button key="back" type="primary" onClick={() => { UpdateLabel(DetailInfo, false); setLabelChangeVisible(false); props.setVisibleDetail(false); }} style={{ marginRight: "10px" }}>
                             返回
-                        </Button>
+                        </Button>}
                     </div>
                 </div>
             </ProCard.TabPane>
-            <ProCard.TabPane key="History" tab="历史记录" >
+            {showFullDetail && <ProCard.TabPane key="History" tab="历史记录" >
                 <ProTable
                     columns={Historycolumns}
                     options={false}
@@ -276,8 +284,8 @@ export const AssetDetailCard = (props: AssetDetailProps) => {
                         返回
                     </Button>
                 </div>
-            </ProCard.TabPane>
-            <ProCard.TabPane key="LabelDef" tab="标签定义" >
+            </ProCard.TabPane>}
+            {showFullDetail && <ProCard.TabPane key="LabelDef" tab="标签定义" >
                 <LabelDef DetailInfo={DetailInfo} LabelVisible={DetailInfo.LabelVisible} />
                 <br></br>
                 <br></br>
@@ -314,7 +322,7 @@ export const AssetDetailCard = (props: AssetDetailProps) => {
                         返回
                     </Button>
                 </div>
-            </ProCard.TabPane>
+            </ProCard.TabPane>}
             <ProCard.TabPane key="photos" tab="资产图片">
                 {DetailInfo.ImageUrl.length != 0 ?
                     <div style={{ height: "400px", overflowY: "auto", overflowX: "hidden", display: "flex", flexWrap: "wrap" }}>
@@ -347,9 +355,9 @@ export const AssetDetailCard = (props: AssetDetailProps) => {
                         />
                     </div>}
                 <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
-                    <Button key="back" type="primary" onClick={() => { UpdateLabel(DetailInfo, false); setLabelChangeVisible(false); props.setVisibleDetail(false); }} style={{ marginRight: "10px" }}>
+                    {showFullDetail && <Button key="back" type="primary" onClick={() => { UpdateLabel(DetailInfo, false); setLabelChangeVisible(false); props.setVisibleDetail(false); }} style={{ marginRight: "10px" }}>
                         返回
-                    </Button>
+                    </Button>}
                 </div>
             </ProCard.TabPane>
         </ProCard >
