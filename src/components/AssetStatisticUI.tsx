@@ -1,4 +1,4 @@
-import { Breadcrumb, Modal, Space } from "antd";
+import { Breadcrumb, Button, Modal, Space } from "antd";
 import React, { PureComponent, useEffect, useState } from "react";
 import { PieChart, Pie, Legend, Tooltip, ResponsiveContainer, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line} from "recharts";
 import dynamic from "next/dynamic";
@@ -14,9 +14,9 @@ interface  AssetStatisticData {
 }
 interface ValueData {
     Date: string;
-    数量型价值: number;
-    条目型价值: number;
-    总价值: number;
+    NumValue: number;
+    ItemValue: number;
+    TotalValue: number;
 }
 const data1 = [
     { name: "维保中", Value: 400, color: "#E91E63" },
@@ -29,16 +29,35 @@ const AssetStatistic= () => {
     const RADIAN = Math.PI / 180;
     const router = useRouter();
     const query = router.query;
+    const [TotalNum, setTotalNum] = useState(0);
     const [NumTotalNum, setNumTotalNum] = useState(0);
     const [ItemTotalNum, setItemTotalNum] = useState(0);
     const [NumKindNum, setNumKindNum] = useState(0);
     const [NumProportion, setNumProportion] = useState<AssetStatisticData[]>([]);
     const [ItemProportion, setItemProportion] = useState<AssetStatisticData[]>([]);
+    const [Proportion, setProportion] = useState<AssetStatisticData[]>([]);
     const [ValueList, setValueList] = useState<ValueData[]>([]);
     useEffect(() => {
         if (!router.isReady) {
             return;
         }
+        request(
+            `/api/Asset/StatisticsRealFast/${LoadSessionID()}`,
+            "GET"
+        )
+            .then((res) => {
+                setTotalNum(res.TotalNum);
+                setProportion(res.NumProportion);
+                // setValueList(res.Value);
+            })
+            .catch((err) => {
+                console.log(err.message);
+                Modal.error({
+                    title: "获取信息失败",
+                    content: "请重新登录",
+                    onOk: () => { window.location.href = "/"; }
+                });
+            });
         request(
             `/api/Asset/StatisticsFast/${LoadSessionID()}`,
             "GET"
@@ -104,138 +123,38 @@ const AssetStatistic= () => {
         {
             content: (
                 <>
-                    <div>{`数量型资产总数：${NumTotalNum}`}</div>
+                    <div style={{fontSize:"24px", marginTop:"15px", fontWeight:"bold", marginLeft:"30px"}}>{`数量型资产总数：${NumTotalNum}`}</div>
                 </>
             ),
-
+            colors: "#9bd4fd"
         },
         {
             content: (
                 <>
-                    <div>{`数量型资产类型数：${NumKindNum}`}</div>
+                    <div style={{fontSize:"24px", marginTop:"15px",  fontWeight:"bold", marginLeft:"30px"}}>{`数量型资产类型数：${NumKindNum}`}</div>
                 </>
             ),
-
+            colors: "#82b3d5;"
         },
         {
             content: (
                 <>
-                    <div>{`条目型资产总数：${ItemTotalNum}`}</div>
+                    <div style={{fontSize:"24px", marginTop:"15px", fontWeight:"bold", marginLeft:"30px"}}>{`条目型资产总数：${ItemTotalNum}`}</div>
                 </>
             ),
-
+            colors:"#6b91ad"
         }
     ];
     const [ghost, setGhost] = useState<boolean>(false);
+    const [openNumPie, setOpenNumPie] = useState(true);
+    const [openNumBar, setOpenNumBar] = useState(false);
+    const [openItemPie, setOpenItemPie] = useState(false);
+    const [openItemBar, setOpenItemBar] = useState(false);
+    const [AllAsset, setAllAsset] = useState(false);
     return (
         <div className="Div">
-            <Breadcrumb style={{ marginLeft: "6px", marginBottom:"20px", fontSize:"26px"}}>
-                <Breadcrumb.Item>资产统计</Breadcrumb.Item>
-            </Breadcrumb>
-            <ProList<any>
-                ghost={ghost}
-                itemCardProps={{
-                    ghost,
-                }}
-                rowSelection={{}}
-                grid={{ gutter: 16, column: 2}}
-                onItem={(record: any) => {
-                    return {
-                        onMouseEnter: () => {
-                            console.log(record);
-                        },
-                        onClick: () => {
-                            console.log(record);
-                        },
-                    };
-                }}
-                metas={{
-                    content: {},
-                }}
-                dataSource={data}
-            />
-            <div style={{display:"flex"}}>
-                <Breadcrumb style={{ marginLeft: "130px"}}>
-                    <Breadcrumb.Item>数量型资产分布</Breadcrumb.Item>
-                </Breadcrumb>
-                <Breadcrumb style={{ marginLeft: "500px"}}>
-                    <Breadcrumb.Item>条目型资产分布</Breadcrumb.Item>
-                </Breadcrumb>
-            </div>
-            <div style={{display:"flex", marginTop:"-20px"}}>
-                <Space style={{marginLeft:"10px"}}> </Space>
-                {NumTotalNum > 0 ? <PieChart width={400} height={400}>
-                    <Pie
-                        dataKey="Value"
-                        isAnimationActive={false}
-                        data={NumProportion}
-                        cx="50%"
-                        cy="50%"
-                        width={800}
-                        outerRadius={130}
-                        fill="#8884d8"
-                        labelLine={false}
-                        label={renderCustomizedLabel}
-                    >
-                        {data1.map((entry, index) => (
-                            <Cell key={index} fill={data1[index].color} className="pie-slice" onClick={()=>{}}/>
-                        ))}
-                    </Pie>
-                    <Tooltip/>
-                    <Legend iconSize={20} />
-                </PieChart> : <h1 style={{marginTop:"100px", marginLeft:"140px"}}>暂无数量型资产</h1>}
-                <Space style={{marginLeft:"250px"}}> </Space>
-                {ItemTotalNum > 0 ? <PieChart width={400} height={400}>
-                    <Pie
-                        dataKey="Value"
-                        isAnimationActive={false}
-                        data={ItemProportion}
-                        cx="50%"
-                        cy="50%"
-                        width={800}
-                        outerRadius={130}
-                        fill="#8884d8"
-                        labelLine={false}
-                        label={renderCustomizedLabel}
-                    >
-                        {data1.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={data1[index].color} className="pie-slice"/>
-                        ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend iconSize={20} />
-                </PieChart> : <h1 style={{marginTop:"100px", marginLeft:"140px"}}>暂无条目型资产</h1>}
-            </div>
-            <Breadcrumb style={{ marginLeft: "130px", marginTop:"40px", marginBottom:"20px"}}>
-                <Breadcrumb.Item>单月资产净值变化</Breadcrumb.Item>
-            </Breadcrumb>
-            <LineChart
-                width={500}
-                height={300}
-                data={ValueList}
-                margin={{
-                    top: 5,
-                    right: 30,
-                    left: 20,
-                    bottom: 5,
-                }}
-            >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="Date" />
-                <YAxis />
-                <Tooltip
-                />
-                <Legend
-                    payload={[
-                        { value: "条目型价值", type: "line", color: "#8884d8" },
-                        { value: "数量型价值", type: "line", color: "#82ca9d" },
-                        { value: "总价值", type: "line", color: "#1890ff" },
-                    ]}
-                />
-                <Line type="monotone" dataKey="ItemValue" name="条目型价值" stroke="#8884d8" />
-                <Line type="monotone" dataKey="NumValue" name="数量型价值" stroke="#82ca9d" />
-                <Line type="monotone" dataKey="TotalValue" name="总价值" stroke="#1890ff" />
-            </LineChart>
+            
+
         </div>
     );
 
