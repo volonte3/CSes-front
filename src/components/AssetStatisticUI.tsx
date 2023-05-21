@@ -153,7 +153,142 @@ const AssetStatistic= () => {
     const [AllAsset, setAllAsset] = useState(false);
     return (
         <div className="Div">
-            
+            <div> 
+                <Breadcrumb style={{ marginLeft: "6px", marginBottom:"20px", fontSize:"26px"}}>
+                    <Breadcrumb.Item>资产统计</Breadcrumb.Item>
+                </Breadcrumb>
+                <Button className={AllAsset == true ? "log_title_select" : "log_title"} type="text" key="0" onClick={() => {setAllAsset(true);}}>
+                    总体资产分布
+                </Button>
+                <Button className={AllAsset == false ? "log_title_select" : "log_title"} type="text" key="1" onClick={() => {setAllAsset(false); console.log(AllAsset);}}>
+                    详细资产分布
+                </Button>
+            </div>
+
+            {!AllAsset && <div>
+                <ProList<any>
+                    ghost={ghost}
+                    itemCardProps={{
+                        ghost,
+                        className: "customCard",
+                    }}
+                    rowSelection={{}}
+                    grid={{ gutter: 16, column: 3}}
+                    onItem={(record: any) => {
+                        return {
+                            onMouseEnter: () => {
+                                console.log(record);
+                            },
+                            onClick: () => {
+                                console.log(record);
+                            },
+                        };
+                    }}
+                    metas={{
+                        content: {},
+                    }}
+                    dataSource={data.map((item) => ({
+                        ...item,
+                        itemCardProps: {
+                            style: { backgroundColor: item.colors }, // 设置卡片的背景颜色
+                        },
+                    }))}
+                />
+                <div style={{display:"flex"}}>
+                    <div className="Divv" style={{marginLeft:"50px"}}>
+                        <Breadcrumb style={{ marginLeft: "170px", marginTop:"15px"}}>
+                            <Breadcrumb.Item>数量型资产分布</Breadcrumb.Item>
+                        </Breadcrumb>
+                    
+                        {(NumTotalNum > 0) ? <PieChart width={400} height={400} style={{marginLeft:"45px", marginTop:"-20px"}}>
+                            <Pie
+                                dataKey="Value"
+                                isAnimationActive={false}
+                                data={NumProportion}
+                                cx="50%"
+                                cy="50%"
+                                width={400}
+                                outerRadius={130}
+                                fill="#8884d8"
+                                labelLine={false}
+                                label={renderCustomizedLabel}
+                            >
+                                {data1.map((entry, index) => (
+                                    <Cell key={index} fill={data1[index].color} className="pie-slice" onClick={()=>{}}/>
+                                ))}
+                            </Pie>
+                            <Tooltip/>
+                            <Legend iconSize={20} />
+                        </PieChart> : <h1></h1>}
+                        <Space style={{marginLeft:"250px"}}> </Space>
+                    </div>
+                    <div className="Divv" style={{marginLeft:"90px"}}>
+                        <Breadcrumb style={{ marginLeft: "170px", marginTop:"15px"}}>
+                            <Breadcrumb.Item>条目型资产分布</Breadcrumb.Item>
+                        </Breadcrumb>
+                        <div style={{display:"flex"}}>
+                        </div>
+                        {(ItemTotalNum > 0)  ? <PieChart width={400} height={400} style={{marginLeft:"45px", marginTop:"-20px"}}>
+                            <Pie
+                                dataKey="Value"
+                                isAnimationActive={false}
+                                data={ItemProportion}
+                                cx="50%"
+                                cy="50%"
+                                width={850}
+                                outerRadius={130}
+                                fill="#8884d8"
+                                labelLine={false}
+                                label={renderCustomizedLabel}
+                            >
+                                {data1.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={data1[index].color} className="pie-slice"/>
+                                ))}
+                            </Pie>
+                            <Tooltip />
+                            <Legend iconSize={20} />
+                        </PieChart> : <h1></h1>}
+                    </div>
+                
+                </div>
+                <div style={{display:"flex", marginTop:"-20px"}}>
+                    <Space style={{marginLeft:"10px"}}> </Space>
+                
+                
+                </div>
+                <div className="Divv2">
+                    <Breadcrumb style={{ marginLeft: "130px", marginTop:"10px", marginBottom:"40px"}}>
+                        <Breadcrumb.Item >单月资产净值变化</Breadcrumb.Item>
+                    </Breadcrumb>
+                    <LineChart
+                        width={1100}
+                        height={300}
+                        data={ValueList}
+                        margin={{
+                            top: 5,
+                            right: 30,
+                            left: 20,
+                            bottom: 5,
+                        }}
+                    >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="Date" />
+                        <YAxis />
+                        <Tooltip
+                        />
+                        <Legend
+                            payload={[
+                                { value: "条目型价值", type: "line", color: "#8884d8" },
+                                { value: "数量型价值", type: "line", color: "#82ca9d" },
+                                { value: "总价值", type: "line", color: "#1890ff" },
+                            ]}
+                        />
+                        <Line type="monotone" dataKey="ItemValue" name="条目型价值" stroke="#8884d8" />
+                        <Line type="monotone" dataKey="NumValue" name="数量型价值" stroke="#82ca9d" />
+                        <Line type="monotone" dataKey="TotalValue" name="总价值" stroke="#1890ff" />
+                    </LineChart>
+                </div>
+            </div>}
 
         </div>
     );
