@@ -281,159 +281,6 @@ const AssetChange = () => {
                             <FormOutlined />
                             信息变更
                         </Button>
-                        <StepsForm<{
-                                name: string;
-                                father: number;
-                                count: number;
-                                money: number;
-                                position: string;
-                                describe: string;
-                            }>
-                            formProps={{
-                                validateMessages: {
-                                    required: "此项为必填项",
-                                },
-                                form: form,
-                                initialValues: {
-                                    name: record.Name,
-                                    describe: record.Description,
-                                    count: record.Number,
-                                    position: record.Position,
-                                    money: record.AssetValue,
-                                },                             
-                            }}
-                            stepsFormRender={(dom, submitter) => {
-                                return (
-                                    <Modal
-                                        width={800}
-                                        onCancel={() => setVisible(false)}
-                                        open={visible}
-                                        footer={submitter}
-                                        destroyOnClose
-                                    >
-                                        <div style={{marginBottom:"25px", fontSize:"20px"}}>资产信息变更 </div>
-                                        {dom}
-                                    </Modal>
-                                );
-                            }}
-                            onFinish={async (values) => { 
-                                setVisible(false); 
-                                request(
-                                    `/api/Asset/Change/${LoadSessionID()}`,
-                                    "POST",
-                                    {
-                                        ID: nowid,
-                                        Name: values.name,
-                                        Number: values.count,
-                                        Position: values.position,
-                                        Describe: values.describe,
-                                        Value: values.money,
-                                        Parent: father == -1 ? null : father,
-                                    }
-                                )   
-                                    .then(() => {
-                                        handleUpload();
-                                        setchangekey(Date.now());
-                                        setfather(-1);
-                                    })
-                                    .catch((err) => {
-                                        console.log(err.message);
-                                        setfather(-1);
-                                        Modal.error({
-                                            title: "资产变更失败",
-                                            content: err.message.substring(5),
-                                        });
-                                    });
-                                return true;
-                            }}
-                        >
-                            <StepsForm.StepForm name="base" title="更改基本信息">
-                                <ProForm.Group>
-                                    <ProFormText 
-                                        width="lg" 
-                                        name="name" 
-                                        label="资产名称" 
-                                        placeholder="请输入名称"
-                                        rules={[{ required: true, message: "这是必填项" }]} 
-                                    />
-                                </ProForm.Group>
-                                <div>
-                                    <div style={{ marginBottom: "10px" }}>
-                                        <span style={{ marginRight: "5px" }}>选择主资产</span>
-                                        <Tooltip title="至多显示前20条搜索结果，请尽量精确搜索">
-                                            <QuestionCircleOutlined />
-                                        </Tooltip>
-                                    </div>
-                                    <Select
-                                        showSearch
-                                        placeholder="输入资产名称进行搜索"
-                                        defaultActiveFirstOption={false}
-                                        showArrow={false}
-                                        filterOption={false}
-                                        onSearch={handleSearch}
-                                        onChange={handlefatherchange}
-                                        notFoundContent={loading1 ? "加载中..." : "无匹配结果"}
-                                        style={{ width: "440px" }}
-                                    >
-                                        {options.map((option: AssetData) => (
-                                            <Option key={option.ID} value={option.ID}>
-                                                {option.Name + " (" + option.ID + ")"}
-                                            </Option>
-                                        ))}
-                                    </Select>
-                                </div>
-                            </StepsForm.StepForm>
-                            <StepsForm.StepForm name="more" title="更改详细信息">
-                                <ProForm.Group>
-                                    <ProFormDigit 
-                                        name="count" 
-                                        label="资产数量" 
-                                        width="lg"
-                                        placeholder="请输入数量"
-                                        rules={[{ required: true, message: "这是必填项" }]} 
-                                    />
-                                </ProForm.Group>
-                                <ProForm.Group>
-                                    <ProFormMoney
-                                        label="资产价值"
-                                        name="money"
-                                        locale="zh-CN"
-                                        min={0.01}
-                                        rules={[{ required: true, message: "这是必填项" }]} 
-                                    />
-                                </ProForm.Group>
-                                <ProForm.Group>
-                                    <ProFormTextArea
-                                        name="position"
-                                        label="资产位置"
-                                        width="lg"
-                                        placeholder="请输入位置"
-                                        rules={[{ required: true, message: "这是必填项" }]} 
-                                    />
-                                </ProForm.Group>
-                                <ProForm.Group>
-                                    <MyEditor
-                                        name="describe"
-                                        label="资产描述"
-                                        width="lg"
-                                        placeholder="请输入描述"
-                                        rules={[{ required: true, message: "这是必填项" }]}
-                                    />
-                                </ProForm.Group>
-                                <ProForm.Group tooltip="支持一次性选中多个图片，单个图片不能超过10MB" title="资产图片">
-                                    <label htmlFor="upload-input" style={{marginTop:"-20px"}}className="custom-upload-button-add">
-                                    </label>
-                                    <input
-                                        type="file"
-                                        id="upload-input"
-                                        onChange={handleFileChange}
-                                        style={{ display: "none" }}
-                                        multiple
-                                    />
-                                    <span id="selected-file-name"></span>
-                                </ProForm.Group>
-                            </StepsForm.StepForm>
-                        </StepsForm>
                     </div>);
             },
             search:false
@@ -456,57 +303,213 @@ const AssetChange = () => {
         algorithm: [theme.darkAlgorithm, theme.compactAlgorithm],
     };
     return (
-        <ProTable
-            key={changekey}
-            columns={columns}
-            options={false}
-            rowKey="ID"
-            request={async (params = {}) => {
-                const loadSessionID = LoadSessionID();
-                let urldata: UrlData = { pageSize: 20, current: params.current, Name: "", ID: -1, Status: -1, Class: "", Owner: "", Prop: "", PropValue: "" };
-                if (params.Name != undefined) urldata.Name = params.Name;
-                if (params.ID != undefined) urldata.ID = params.ID;
-                if (params.Status != undefined) urldata.Status = params.Status;
-                if (params.Class != undefined) urldata.Class = params.Class;
-                if (params.Owner != undefined) urldata.Owner = params.Owner;
-                let url = `/api/Asset/Info/${loadSessionID}/${urldata.current}/ID=${urldata.ID}/Name=${urldata.Name}/Class=${urldata.Class}/Status=${urldata.Status}/Owner=${urldata.Owner}/Prop=${urldata.Prop}/PropValue=${urldata.PropValue}`;
-                console.log(url);
-                return (
+        
+        <>
+            <StepsForm<{
+                                name: string;
+                                father: number;
+                                count: number;
+                                money: number;
+                                position: string;
+                                describe: string;
+                            }>
+                formProps={{
+                    validateMessages: {
+                        required: "此项为必填项",
+                    },
+                    form: form,
+                    // initialValues: {
+                    //     name: record.Name,
+                    //     describe: record.Description,
+                    //     count: record.Number,
+                    //     position: record.Position,
+                    //     money: record.AssetValue,
+                    // },                             
+                }}
+                stepsFormRender={(dom, submitter) => {
+                    return (
+                        <Modal
+                            width={800}
+                            onCancel={() => setVisible(false)}
+                            open={visible}
+                            footer={submitter}
+                            style={{background:"transparent"}}
+                            destroyOnClose
+                        >
+                            <div style={{marginBottom:"25px", fontSize:"20px"}}>资产信息变更 </div>
+                            {dom}
+                        </Modal>
+                    );
+                }}
+                onFinish={async (values) => { 
+                    setVisible(false); 
                     request(
-                        url,
-                        "GET"
-                    )
-                        .then((res) => {
-                            return Promise.resolve({ data: res.Asset, success: true, total: res.TotalNum });
+                        `/api/Asset/Change/${LoadSessionID()}`,
+                        "POST",
+                        {
+                            ID: nowid,
+                            Name: values.name,
+                            Number: values.count,
+                            Position: values.position,
+                            Describe: values.describe,
+                            Value: values.money,
+                            Parent: father == -1 ? null : father,
+                        }
+                    )   
+                        .then(() => {
+                            handleUpload();
+                            setchangekey(Date.now());
+                            setfather(-1);
                         })
-                );
-            }
-            }
-            form={{
+                        .catch((err) => {
+                            console.log(err.message);
+                            setfather(-1);
+                            Modal.error({
+                                title: "资产变更失败",
+                                content: err.message.substring(5),
+                            });
+                        });
+                    return true;
+                }}
+            >
+                <StepsForm.StepForm name="base" title="更改基本信息">
+                    <ProForm.Group>
+                        <ProFormText 
+                            width="lg" 
+                            name="name" 
+                            label="资产名称" 
+                            placeholder="请输入名称"
+                            rules={[{ required: true, message: "这是必填项" }]} 
+                        />
+                    </ProForm.Group>
+                    <div>
+                        <div style={{ marginBottom: "10px" }}>
+                            <span style={{ marginRight: "5px" }}>选择主资产</span>
+                            <Tooltip title="至多显示前20条搜索结果，请尽量精确搜索">
+                                <QuestionCircleOutlined />
+                            </Tooltip>
+                        </div>
+                        <Select
+                            showSearch
+                            placeholder="输入资产名称进行搜索"
+                            defaultActiveFirstOption={false}
+                            showArrow={false}
+                            filterOption={false}
+                            onSearch={handleSearch}
+                            onChange={handlefatherchange}
+                            notFoundContent={loading1 ? "加载中..." : "无匹配结果"}
+                            style={{ width: "440px" }}
+                        >
+                            {options.map((option: AssetData) => (
+                                <Option key={option.ID} value={option.ID}>
+                                    {option.Name + " (" + option.ID + ")"}
+                                </Option>
+                            ))}
+                        </Select>
+                    </div>
+                </StepsForm.StepForm>
+                <StepsForm.StepForm name="more" title="更改详细信息">
+                    <ProForm.Group>
+                        <ProFormDigit 
+                            name="count" 
+                            label="资产数量" 
+                            width="lg"
+                            placeholder="请输入数量"
+                            rules={[{ required: true, message: "这是必填项" }]} 
+                        />
+                    </ProForm.Group>
+                    <ProForm.Group>
+                        <ProFormMoney
+                            label="资产价值"
+                            name="money"
+                            locale="zh-CN"
+                            min={0.01}
+                            rules={[{ required: true, message: "这是必填项" }]} 
+                        />
+                    </ProForm.Group>
+                    <ProForm.Group>
+                        <ProFormTextArea
+                            name="position"
+                            label="资产位置"
+                            width="lg"
+                            placeholder="请输入位置"
+                            rules={[{ required: true, message: "这是必填项" }]} 
+                        />
+                    </ProForm.Group>
+                    <ProForm.Group>
+                        <MyEditor
+                            name="describe"
+                            label="资产描述"
+                            width="lg"
+                            placeholder="请输入描述"
+                            rules={[{ required: true, message: "这是必填项" }]}
+                        />
+                    </ProForm.Group>
+                    <ProForm.Group tooltip="支持一次性选中多个图片，单个图片不能超过10MB" title="资产图片">
+                        <label htmlFor="upload-input" style={{marginTop:"-20px"}}className="custom-upload-button-add">
+                        </label>
+                        <input
+                            type="file"
+                            id="upload-input"
+                            onChange={handleFileChange}
+                            style={{ display: "none" }}
+                            multiple
+                        />
+                        <span id="selected-file-name"></span>
+                    </ProForm.Group>
+                </StepsForm.StepForm>
+            </StepsForm>
+            <ProTable
+                key={changekey}
+                columns={columns}
+                options={false}
+                rowKey="ID"
+                request={async (params = {}) => {
+                    const loadSessionID = LoadSessionID();
+                    let urldata: UrlData = { pageSize: 20, current: params.current, Name: "", ID: -1, Status: -1, Class: "", Owner: "", Prop: "", PropValue: "" };
+                    if (params.Name != undefined) urldata.Name = params.Name;
+                    if (params.ID != undefined) urldata.ID = params.ID;
+                    if (params.Status != undefined) urldata.Status = params.Status;
+                    if (params.Class != undefined) urldata.Class = params.Class;
+                    if (params.Owner != undefined) urldata.Owner = params.Owner;
+                    let url = `/api/Asset/Info/${loadSessionID}/${urldata.current}/ID=${urldata.ID}/Name=${urldata.Name}/Class=${urldata.Class}/Status=${urldata.Status}/Owner=${urldata.Owner}/Prop=${urldata.Prop}/PropValue=${urldata.PropValue}`;
+                    console.log(url);
+                    return (
+                        request(
+                            url,
+                            "GET"
+                        )
+                            .then((res) => {
+                                return Promise.resolve({ data: res.Asset, success: true, total: res.TotalNum });
+                            })
+                    );
+                }
+                }
+                form={{
                 // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
-                syncToUrl: (values, type) => {
-                    if (type === "get") {
-                        return {
-                            ...values,
-                            created_at: [values.startTime, values.endTime],
-                        };
-                    }
-                    return values;
-                },
-            }}
-            scroll={{ x: "max-content", y: "calc(100vh - 300px)" }}
-            pagination={{
-                showSizeChanger: false
-            }}
-            search={{
-                defaultCollapsed: false,
-                defaultColsNumber: 1,
-                split: true,
-                span: 8,
-                searchText: "查询"
-            }}
-        />
-
+                    syncToUrl: (values, type) => {
+                        if (type === "get") {
+                            return {
+                                ...values,
+                                created_at: [values.startTime, values.endTime],
+                            };
+                        }
+                        return values;
+                    },
+                }}
+                scroll={{ x: "max-content", y: "calc(100vh - 300px)" }}
+                pagination={{
+                    showSizeChanger: false
+                }}
+                search={{
+                    defaultCollapsed: false,
+                    defaultColsNumber: 1,
+                    split: true,
+                    span: 8,
+                    searchText: "查询"
+                }}
+            />
+        </>
     );
 };
 export default AssetChange;
