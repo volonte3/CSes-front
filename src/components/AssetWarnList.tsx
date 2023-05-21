@@ -151,8 +151,8 @@ const AssetWarnList = (props:MessageProps) => {
             render: (text, record, _, action) => {
                 return (
                     <Tooltip title="设置告警策略">
-                        <Button key="receive">
-                            <span onClick={() => {setModal1open(true);setVisible(true); setChangeAsset(record);}}>
+                        <Button key="receive" onClick={() => {if(!props.TourOpen){setModal1open(true);setVisible(true); setChangeAsset(record);}}}>
+                            <span ref={props.refList[0]} >
                                 <EditOutlined />
                             </span>
                         </Button>

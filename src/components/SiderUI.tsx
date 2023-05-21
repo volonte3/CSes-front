@@ -96,6 +96,7 @@ const SiderMenu = ({ UserAuthority }: { UserAuthority: number }) => {
         getItem("首页", "1", <HomeOutlined />),
         getItem("消息列表", "2", <BellOutlined />),
         getItem("资产管理", "3", <GoldOutlined />),
+        getItem("外部应用", "4", <AppstoreOutlined />, OuterAppList?.map((item,id)=>( getItem(item.AppName, item.AppUrl)))),
     ];
     const GetOuterApp = (Authority:number) =>{
         request(
@@ -118,7 +119,7 @@ const SiderMenu = ({ UserAuthority }: { UserAuthority: number }) => {
         if (!router.isReady) {
             return;
         }
-        if(UserAuthority===2){
+        if(UserAuthority===2||UserAuthority===3){
             GetOuterApp(UserAuthority);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -160,7 +161,7 @@ const SiderMenu = ({ UserAuthority }: { UserAuthority: number }) => {
         case "1": router.push("/main_page"); return;
         case "2": router.push("/user/employee/message"); return;
         case "3": router.push("/user/employee"); return;
-        default: router.push("/main_page"); return;
+        default: window.location.href = e.key; return;
         }
     };
     const employee_now = () => {

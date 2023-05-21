@@ -37,54 +37,20 @@ const App = () => {
     const [TourOpen, setTourOpen] = useState(false);
     const ref1 = useRef(null);
     const ref2 = useRef(null);
-    const ref3 = useRef(null);
-    const ref4 = useRef(null);
-    const ref5 = useRef(null);
-    const ref6 = useRef(null);
     const steps: TourProps["steps"] = [
         {
-            title: "消息列表",
-            description: "展示资产管理员所属部门内所有操作信息，包括资产的申请审批，跨部门转移及对应的时间等信息",
-            placement:"center",
-            type:"primary",
+            title: "资产告警",
+            description: "资产基于自身告警策略会显示告警信息",
             nextButtonProps:{children:"下一步"},
             prevButtonProps:{children:"上一步"},
             target: () => ref1.current,
         },
         {
-            title: "未读消息",
-            description: "展示所有未读消息，按照时间排列",
-            nextButtonProps:{children:"下一步"},
-            prevButtonProps:{children:"上一步"},
-            target: () => ref2.current,
-        },
-        {
-            title: "全部消息",
-            description: "展示所有消息，包括已读和未读，按照时间排列",
-            nextButtonProps:{children:"下一步"},
-            prevButtonProps:{children:"上一步"},
-            target: () => ref3.current,
-        },
-        {
-            title: "设为已读",
-            description: "标记已读消息",
-            nextButtonProps:{children:"下一步"},
-            prevButtonProps:{children:"上一步"},
-            target: () => ref4.current,
-        },
-        {
-            title: "设为未读",
-            description: "标记未读",
-            nextButtonProps:{children:"下一步"},
-            prevButtonProps:{children:"上一步"},
-            target: () => ref5.current,
-        },
-        {
-            title: "全部已读",
-            description: "一键实现所有消息已读",
+            title: "调整策略",
+            description: "点击可调整告警策略",
             nextButtonProps:{children:"结束导览"},
             prevButtonProps:{children:"上一步"},
-            target: () => ref6.current,
+            target: () => ref2.current,
         }
     ];
     const {
@@ -144,7 +110,7 @@ const App = () => {
                             <Breadcrumb.Item>资产告警</Breadcrumb.Item>
                         </Breadcrumb>
                         <div  style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
-                            <AssetWarnList refList={[ref1,ref2,ref3,ref4,ref5,ref6]} setTourOpen={setTourOpen} TourOpen={TourOpen}/>
+                            <AssetWarnList refList={[ref2]} setTourOpen={setTourOpen} TourOpen={TourOpen}/>
                         </div>
                         <Tour open={TourOpen} onClose={() => setTourOpen(false)} steps={steps} />
                     </Content>
