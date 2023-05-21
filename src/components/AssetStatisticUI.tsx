@@ -12,9 +12,9 @@ interface  AssetStatisticData {
 }
 interface ValueData {
     Date: string;
-    NumValue: number;
-    ItemValue: number;
-    TotalValue: number;
+    数量型价值: number;
+    条目型价值: number;
+    总价值: number;
 }
 const data1 = [
     { name: "维保中", Value: 400, color: "#E91E63" },
@@ -81,6 +81,7 @@ const AssetStatistic= () => {
             </text>
         );
     };
+    
     return (
         <div className="Div">
             <Breadcrumb style={{ marginLeft: "6px", marginBottom:"20px", fontSize:"26px"}}>
@@ -155,11 +156,18 @@ const AssetStatistic= () => {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="Date" />
                 <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="ItemValue" stroke="#8884d8" />
-                <Line type="monotone" dataKey="NumValue" stroke="#82ca9d" />
-                <Line type="monotone" dataKey="TotalValue" stroke="#1890ff" />
+                <Tooltip
+                />
+                <Legend
+                    payload={[
+                        { value: "条目型价值", type: "line", color: "#8884d8" },
+                        { value: "数量型价值", type: "line", color: "#82ca9d" },
+                        { value: "总价值", type: "line", color: "#1890ff" },
+                    ]}
+                />
+                <Line type="monotone" dataKey="ItemValue" name="条目型价值" stroke="#8884d8" />
+                <Line type="monotone" dataKey="NumValue" name="数量型价值" stroke="#82ca9d" />
+                <Line type="monotone" dataKey="TotalValue" name="总价值" stroke="#1890ff" />
             </LineChart>
         </div>
     );

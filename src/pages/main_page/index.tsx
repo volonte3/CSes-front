@@ -178,7 +178,7 @@ const App = () => {
     const handle_cancel = () => {
         setModal(false);
     };
-    const data = AppList ? AppList.map((item) => ({
+    const data = AppList ? AppList.filter((item) => (item.IsInternal)).map((item) => ({
         content: (
             <div style={{ display: "flex", marginBottom: "-20px" }} onClick={() => {
                 if (item.IsLock) setModal(true);
@@ -403,7 +403,7 @@ const App = () => {
                         <UserInfo Name={UserName} Authority={UserAuthority} Entity={Entity} Department={Department} TODO={TODO} TOREAD={TOREAD} Profile={Profileprop} ID={UserID}></UserInfo>
                     </Header>
                     <div style={{ display: "flex" }}>
-                        <Content style={{ width: "450px", minHeight: "80vh" }}>
+                        <Content style={{ width: "450px", minHeight: "120vh" }}>
                             <h1 className="main_page_headword">应用导航</h1>
                             <ProList<any>
                                 ghost={ghost}
@@ -418,7 +418,7 @@ const App = () => {
                                             console.log(record);
                                         },
                                         onClick: () => {
-                                            console.log(record.AppUrl);
+                                            console.log(record);
                                         },
                                     };
                                 }}
@@ -427,6 +427,7 @@ const App = () => {
                                 }}
                                 dataSource={data}
                             />
+                            <h1 className="main_page_headword">外部应用</h1>
                         </Content>
                         {/* <Content style={{ width: "10px" }}>
                             <div style={{ display: "flex" }}>
