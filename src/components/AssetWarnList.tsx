@@ -80,6 +80,19 @@ const AssetWarnList = (props:MessageProps) => {
             title: "资产名称",
             dataIndex: "Name",
             key: "Name",
+            render: (_: any, record) => {
+                return (
+                    <div ref={props.refList[2]}>
+                        <Tooltip title="点击查看详情">
+                            <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => {
+                                if (!props.TourOpen) {
+                                    props.setTourOpen(false);
+                                    router.push(`/user/asset_manager/asset_abstract_info?id=${record.ID}`);
+                                }
+                            }}>{record.Name}</a>
+                        </Tooltip>
+                    </div >);
+            },
         },
         {
             title: "类型",
