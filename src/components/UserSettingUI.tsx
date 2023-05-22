@@ -5,10 +5,7 @@ import { logout, LoadSessionID, IfCodeSessionWrong, CreateCookie } from "../util
 import { useRouter } from "next/router";
 import { request } from "../utils/network";
 import { useState, useEffect } from "react";
-import CardUI from "../components/CardUI";
-import { AppData } from "../utils/types";
 import { renderAuthority } from "../utils/transformer";
-import cookie from "react-cookies";
 const { Header, Content, Footer, Sider } = Layout;
 const { Panel } = Collapse;
 import { Image } from "antd-mobile";
