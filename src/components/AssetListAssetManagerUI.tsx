@@ -284,8 +284,7 @@ const AssetList = (props: AssetListProps) => {
     const hanleChange = (AssetIDList: number[], operation: number, MoveTo: string = "", Type = "") => {
         setLoading(true);
         setLoading2(true);
-        handleMySelectedRowKeys([]);
-        handleMySelectedRows([]);
+        
         request(`/api/Asset/Manage/${LoadSessionID()}`, "POST",
             {
                 "operation": operation,
@@ -295,6 +294,8 @@ const AssetList = (props: AssetListProps) => {
             }
         )
             .then(() => {
+                handleMySelectedRowKeys([]);
+                handleMySelectedRows([]);
                 setLoading(false);
                 setLoading2(false);
                 setOpen2(false);
@@ -309,6 +310,8 @@ const AssetList = (props: AssetListProps) => {
                     setLoading(false);
                     setLoading2(false);
                     if (IfCodeSessionWrong(err, router)) {
+                        handleMySelectedRowKeys([]);
+                        handleMySelectedRows([]);
                         Modal.error({
                             title: "申请失败",
                             content: err.toString().substring(5),
