@@ -561,15 +561,6 @@ const App = () => {
                                 >
                                     <StepsForm.StepForm name="base" title="资产基本信息">
                                         <ProForm.Group>
-                                            <ProFormText 
-                                                width="lg" 
-                                                name="name" 
-                                                label="资产名称" 
-                                                placeholder="请输入名称"
-                                                rules={[{ required: true, message: "这是必填项" }]} 
-                                            />
-                                        </ProForm.Group>
-                                        <ProForm.Group>
                                             <ProFormTreeSelect
                                                 label="资产分类"
                                                 name="class"
@@ -589,6 +580,16 @@ const App = () => {
                                                 }}
                                             />
                                         </ProForm.Group>
+                                        <ProForm.Group>
+                                            <ProFormText 
+                                                width="lg" 
+                                                name="name" 
+                                                label="资产名称" 
+                                                placeholder="请输入名称"
+                                                rules={[{ required: true, message: "这是必填项" }]} 
+                                            />
+                                        </ProForm.Group>
+                                        
                                         <div>
                                             <div style={{ marginBottom: "10px" }}>
                                                 <span style={{ marginRight: "5px" }}>选择主资产</span>
@@ -676,8 +677,11 @@ const App = () => {
                                             />
                                             <span id="selected-file-name"></span>
                                         </ProForm.Group>
-                                        <MyForm inputCount={ProperList.length} />
+                                        
                                     </StepsForm.StepForm>
+                                    {ProperList.length > 0 && <StepsForm.StepForm name="proper" title="自定义属性">
+                                        <MyForm inputCount={ProperList.length} />
+                                    </StepsForm.StepForm>}
                                 </StepsForm>
                             </Col>
                             <Col offset={17}>
@@ -687,7 +691,7 @@ const App = () => {
                             </Col>
                         </Row>
                         <Row>
-                            <Col style={{ margin: "30px" }}>
+                            <Col style={{ margin: "30px", marginLeft:"28px" }}>
                                 <AssetAddFromExcelUI refList={[ref2]} TourOpen={TourOpen}/>
                             </Col>
                         </Row>
