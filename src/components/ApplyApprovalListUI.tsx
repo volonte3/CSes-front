@@ -1,5 +1,5 @@
 import React from "react";
-import { theme, Space, Table, Button, Modal, Empty } from "antd";
+import {Space, Table, Button, Modal, Empty } from "antd";
 import { useRouter } from "next/router";
 import { useState, useEffect, useRef } from "react";
 import { request } from "../utils/network";
@@ -109,7 +109,7 @@ const ApplyApprovalList = (props:ApplyApprovalListProps) => {
                     </Space>
                 );
             },
-            width:"200px"
+            width:"400px"
         }
     ];
     const router = useRouter();

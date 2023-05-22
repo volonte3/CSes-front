@@ -28,7 +28,7 @@ const DepartmentTree: React.FC<MyTreeChartComponentProps> = ({ data }) => {
                 top: "5%",
                 left: "10%",
                 bottom: "5%",
-                right: "10%",
+                right: "15%",
                 symbolSize: 9,
                 label: {
                     position: "top",

@@ -8,11 +8,9 @@ const { Header, Content, Footer, Sider } = Layout;
 import { useState, useEffect } from "react";
 import { request } from "../../../../utils/network";
 import { logout, LoadSessionID } from "../../../../utils/CookieOperation";
-import MemberList from "../../../../components/MemberList";
 import UserInfo from "../../../../components/UserInfoUI";
 import {IfCodeSessionWrong} from "../../../../utils/CookieOperation";
 import SiderMenu from "../../../../components/SiderUI";
-import LogList from "../../../../components/LogListUI";
 import AssetWarnList from "../../../../components/AssetWarnList";
 interface MemberData {
     Name: string;

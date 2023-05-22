@@ -1,11 +1,9 @@
 import React from "react";
-import {
-    FileOutlined, PlusSquareOutlined
-} from "@ant-design/icons";
-import { Layout, Menu, theme, Switch, Space, Table, Modal, Button, Input, Form, Drawer, Breadcrumb } from "antd";
+import {PlusSquareOutlined} from "@ant-design/icons";
+import { Layout,theme, Switch, Space, Table, Modal, Button, Input, Form, Drawer, Breadcrumb } from "antd";
 const { Column } = Table;
 import { useRouter } from "next/router";
-const { Header, Content, Footer, Sider } = Layout;
+const {Content} = Layout;
 import { useState, useEffect } from "react";
 import { request } from "../utils/network";
 import { IfCodeSessionWrong, LoadSessionID } from "../utils/CookieOperation";

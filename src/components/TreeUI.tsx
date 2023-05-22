@@ -32,9 +32,9 @@ const MyTreeChartComponent: React.FC<MyTreeChartComponentProps> = ({ data, onDat
                 type: "tree",
                 data: data, // 使用传入的数据
                 top: "5%",
-                left: "17%",
-                bottom: "0%",
-                right: "20%",
+                left: "10%",
+                bottom: "10%",
+                right: "36%",
                 symbolSize: 10,
                 label: {
                     position: "top",

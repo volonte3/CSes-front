@@ -94,8 +94,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
     };
     const handleChange = (AssetIDList: number[], MoveTo: string = "", Type: string = "") => {
         setloading(true);
-        handleMySelectedRowKeys([]);
-        handleMySelectedRows([]);
+       
         request(`/api/Asset/Apply/${LoadSessionID()}`, "POST",
             {
                 "operation": renderApplyType2Apply(ApplyType),
@@ -108,6 +107,8 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
             }
         )
             .then(() => {
+                handleMySelectedRowKeys([]);
+                handleMySelectedRows([]);
                 setloading(false);
                 setOpen2(false);
                 setOpenApplyCondition(false);
@@ -119,10 +120,13 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                     title: "申请成功",
                     content: "成功提交请求",
                 });
+                console.log(mySelectedRowKeys);
             })
             .catch(
                 (err: string) => {
                     if (IfCodeSessionWrong(err, router)) {
+                        handleMySelectedRowKeys([]);
+                        handleMySelectedRows([]);
                         setloading(false);
                         setOpen2(false);
                         setOpenApplyCondition(false);
@@ -227,7 +231,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                                     领用
                                 </Button>}
                             {MyAsset == true &&
-                                <Button loading={loading} key="receive" title="退库" disabled={!IsReturn}
+                                <Button loading={loading} key="return" title="退库" disabled={!IsReturn}
                                     onClick={() => {if(!props.TourOpen){
                                         setNowAssetID([record.ID]);
                                         setOpenApplyCondition(true);
@@ -236,7 +240,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                                     退库
                                 </Button>}
                             {MyAsset == true &&
-                                <Button loading={loading} key="receive" title="维保" disabled={!IsMaintenance}
+                                <Button loading={loading} key="dispatch" title="维保" disabled={!IsMaintenance}
                                     onClick={() => {if(!props.TourOpen){
                                         setNowAssetID([record.ID]);
                                         setOpenApplyCondition(true);
@@ -246,7 +250,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                                     维保
                                 </Button>}
                             {MyAsset == true &&
-                                <Button loading={loading} key="receive" title="转移" disabled={!IsTransfers}
+                                <Button loading={loading} key="transfer" title="转移" disabled={!IsTransfers}
                                     onClick={() => {if(!props.TourOpen){
                                         setNowAssetID([record.ID]);
                                         setOpenApplyCondition(true);
