@@ -74,55 +74,8 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
     const [NowAssetID, setNowAssetID] = useState<number[]>([]);  //当前操作资产的ID
     const [ApplyMaxVolumn, setApplyMaxVolumn] = useState(0); //允许的最大领用量，即该资产的数量
     const [ApplyAssetType, setApplyAssetType] = useState(0); //获取资产的类型0就是条目型，1就是数量型
-    const [DetailInfo, setDetailInfo] = useState<AssetDetailInfo>(TestDetailInfo);
     const [showSkeleton, setShowSkeleton] = useState(false); //从资产列表跳到资产详细页面时的占位骨架
-    const [Detail, setDetail] = useState<boolean>(false);
-    const [VisibleDetail,setVisibleDetail] = useState<boolean>(false);
 
-    // const fetchList = (myasset: number) => { // 传入1代表显示个人资产，传入0代表显示闲置资产
-    //     setMyAsset(myasset==1 ? true : false);
-    //     request(`/api/Asset/Info/${LoadSessionID()}`, "GET")
-    //         .then(response => {
-    //             if (myasset == 1) {
-    //                 const newlist = response.Asset.filter((item: AssetData) => (
-    //                     item.Owner == props.EmployeeName
-    //                 ));
-    //                 console.log("fetchlist 1");
-    //                 setAssetList(newlist);
-    //             }
-    //             if (myasset == 0) {
-    //                 const newlist = response.Asset.filter((item: AssetData) => (
-    //                     item.Owner != props.EmployeeName && item.Status == 0
-    //                 ));
-    //                 console.log("fetchlist 1");
-    //                 setAssetList(newlist);
-    //             }
-    //         });
-    //     console.log("fetchlist");
-    // };
-    const FetchDetail = (AssetID: number) => {
-        request(`/api/User/Asset_Detail/${LoadSessionID()}/${AssetID}`, "GET")
-            .then(
-                (res) => {
-                    setDetailInfo(res.Asset_Detail);
-                    console.log(res.Asset_Detail);
-                    console.log(DetailInfo);
-                    setDetail(true);
-                }
-            )
-            .catch(
-                (err: string) => {
-                    setDetailInfo(TestDetailInfo);
-                    setDetail(true);
-                    // if (IfCodeSessionWrong(err, router)) {
-                    //     Modal.error({
-                    //         title: "获取详情信息失败",
-                    //         content: err.toString().substring(5),
-                    //     });
-                    // }
-                }
-            );
-    };
     const router = useRouter();
     const query = router.query;
     useEffect(() => {
@@ -204,7 +157,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                             <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => {
                                 if (!props.TourOpen) {
                                     props.setTourOpen(false);
-                                    FetchDetail(record.ID);
+                                    router.push(`/user/employee/asset_info?id=${record.ID}`);
                                     setShowSkeleton(true);
                                     setTimeout(() => {
                                         setShowSkeleton(false);
@@ -731,6 +684,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                 onOk={handleOk1}
                 okButtonProps={{ disabled: !selectedEmployee }}
                 okText="下一步"
+                style={{marginTop:"-100px"}}
             >
                 <Input placeholder="搜索员工名称" value={searchText} onChange={handleSearch} />
                 <ProList
@@ -794,9 +748,8 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                 </ProForm.Group>
 
             </ModalForm>
-            <Modal width="1000px" open={Detail} onCancel={()=>setDetail(false)} onOk={()=>setDetail(false)}>
-                <AssetDetailCard setVisibleDetail={setVisibleDetail} DetailInfo={DetailInfo} ShowFullDetail={false}></AssetDetailCard>
-            </Modal>
+            {/* <Modal width="1000px" open={Detail} onCancel={()=>setDetail(false)} onOk={()=>setDetail(false)}> */}
+            {/* {Detail && <AssetDetailCard setVisibleDetail={setVisibleDetail} DetailInfo={DetailInfo} ShowFullDetail={false}/>} */}
         </div>
     );
 };

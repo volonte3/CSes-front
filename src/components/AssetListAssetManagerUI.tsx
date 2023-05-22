@@ -296,6 +296,7 @@ const AssetList = (props: AssetListProps) => {
         )
             .then(() => {
                 setLoading(false);
+                setLoading2(false);
                 setOpen2(false);
                 Modal.success({
                     title: "操作成功",
@@ -306,6 +307,7 @@ const AssetList = (props: AssetListProps) => {
             .catch(
                 (err: string) => {
                     setLoading(false);
+                    setLoading2(false);
                     if (IfCodeSessionWrong(err, router)) {
                         Modal.error({
                             title: "申请失败",
@@ -552,6 +554,7 @@ const AssetList = (props: AssetListProps) => {
                     onOk={handleOk1}
                     okButtonProps={{ disabled: !selectedEmployee }}
                     okText="下一步"
+                    style={{marginTop:"-100px"}}
                 >
                     <Input placeholder="搜索管理员名称" value={searchText} onChange={handleSearch} />
                     <ProList

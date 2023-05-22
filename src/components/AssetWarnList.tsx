@@ -80,6 +80,19 @@ const AssetWarnList = (props:MessageProps) => {
             title: "资产名称",
             dataIndex: "Name",
             key: "Name",
+            render: (_: any, record) => {
+                return (
+                    <div ref={props.refList[2]}>
+                        <Tooltip title="点击查看详情">
+                            <a style={{ marginInlineStart: 8, color: "#007AFF" }} onClick={() => {
+                                if (!props.TourOpen) {
+                                    props.setTourOpen(false);
+                                    router.push(`/user/asset_manager/asset_abstract_info?id=${record.ID}`);
+                                }
+                            }}>{record.Name}</a>
+                        </Tooltip>
+                    </div >);
+            },
         },
         {
             title: "类型",
@@ -180,7 +193,9 @@ const AssetWarnList = (props:MessageProps) => {
         if (WarnType == 0) {setModal1open(false);setModal2open(true);}
         else if (WarnType == 1) {setModal1open(false);setModal3open(true);}
     };
+    const [Loading, setLoading] = useState(false);
     const handleOk2 = (num:number) => {
+        setLoading(true);
         request(
             `/api/Asset/Warn/${LoadSessionID()}`,
             "POST",
@@ -193,10 +208,11 @@ const AssetWarnList = (props:MessageProps) => {
             .then((res) => {
                 setModal2open(false);
                 setModal3open(false);
+                setVisible(false);
+                setLoading(false);
                 let answer: string = `成功修改资产 ${ChangeAsset?.Name}的告警策略`;
                 Modal.success({ title: "修改成功", content: answer });
                 tableRef?.current?.reload();
-                setVisible(false);
                 formRef.current?.resetFields();
             })
             .catch((err: string) => {
@@ -204,6 +220,7 @@ const AssetWarnList = (props:MessageProps) => {
                     setModal2open(false);
                     setModal3open(false);
                     setVisible(false);
+                    setLoading(false);
                     formRef.current?.resetFields();
                     Modal.error({
                         title: "修改失败",
@@ -213,6 +230,7 @@ const AssetWarnList = (props:MessageProps) => {
             });
     };
     const handleOk3 = (year:number, month:number, date: number) => {
+        setLoading(true);
         request(
             `/api/Asset/Warn/${LoadSessionID()}`,
             "POST",
@@ -226,6 +244,7 @@ const AssetWarnList = (props:MessageProps) => {
                 setModal2open(false);
                 setModal3open(false);
                 setVisible(false);
+                setLoading(false);
                 formRef.current?.resetFields();
                 let answer: string = `成功修改资产 ${ChangeAsset?.Name}的告警策略`;
                 Modal.success({ title: "修改成功", content: answer });
@@ -236,6 +255,7 @@ const AssetWarnList = (props:MessageProps) => {
                     setModal2open(false);
                     setModal3open(false);
                     setVisible(false);
+                    setLoading(false);
                     formRef.current?.resetFields();
                     Modal.error({
                         title: "修改失败",
