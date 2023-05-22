@@ -52,7 +52,7 @@ const App = () => {
     const [UserID, setUserID]= useState(0);
     const [TourOpen, setTourOpen] = useState(false);
     const [nowname, setnowname] = useState("");
-
+    const [loading, setLoading] = useState(false);
     const ref1 = useRef(null);
     const ref2 = useRef(null);
     const ref3 = useRef(null);
@@ -111,7 +111,8 @@ const App = () => {
 
     const submit = () => {
         if (AssetName && LossStyle != -1) {
-            onClose(); 
+            
+            setLoading(true);
             request(
                 "/api/Asset/AddAssetClass",
                 "POST",
@@ -123,10 +124,14 @@ const App = () => {
                 }
             )
                 .then(() => {
+                    onClose(); 
                     success_add();
                     setChange((e) => !e);
+                    setLoading(false);
                 })
                 .catch((err) => {
+                    onClose(); 
+                    setLoading(false);
                     Modal.error({
                         title: "错误",
                         content: err.message.substring(5),
@@ -140,7 +145,8 @@ const App = () => {
 
     const modify = () => {
         if (AssetName && LossStyle != -1) {
-            onClose(); 
+            
+            setLoading(true);
             request(
                 "/api/Asset/ModifyAssetClass",
                 "POST",
@@ -152,12 +158,16 @@ const App = () => {
                 }
             )
                 .then(() => {
+                    onClose(); 
+                    setLoading(false);
                     success_modify();
                     setChange((e) => !e);
                     setnowname(AssetName);
                     setValue(value);
                 })
                 .catch((err) => {
+                    onClose(); 
+                    setLoading(false);
                     Modal.error({
                         title: "错误",
                         content: err.message.substring(5),
@@ -170,12 +180,14 @@ const App = () => {
     };
     
     const delete_asset = () => {
-        onClose(); 
+        onClose();
+        setLoading(true);
         request(
             `/api/Asset/DeleteAssetClass/${LoadSessionID()}/${value}`,
             "DELETE",
         )
             .then(() => {
+                setLoading(false);
                 success_delete();
                 setChange((e) => !e);
                 setValue("");
@@ -183,6 +195,7 @@ const App = () => {
                 setButtonDisable(true);
             })
             .catch((err) => {
+                setLoading(false);
                 console.log(err.name);
                 console.log(err.message);
                 Modal.error({
@@ -328,10 +341,10 @@ const App = () => {
                                 <Col>
                                 当前选择项：
                                     {value ? (
-                                        <Tag>{nowname}</Tag>
+                                        <Tag style={{fontSize:"15px"}}>{nowname}</Tag>
                                     
                                     ) : (
-                                        <Tag>无</Tag>
+                                        <Tag style={{fontSize:"15px"}}>无</Tag>
                                     )}
                                 </Col>
                             </Row>
@@ -372,6 +385,7 @@ const App = () => {
                                         block 
                                         onClick={() => {if(!TourOpen){delete_asset();}}}
                                         ref={ref4}
+                                        loading={loading}
                                     >
                                     删除
                                     </Button>
@@ -393,11 +407,13 @@ const App = () => {
                                             destroyOnClose: true,
                                             onCancel: () => console.log("run"),
                                         }}
-                                        submitTimeout={1000}
+                                        submitTimeout={1500}
+                                        // loading={loading}
                                         onFinish={async (values) => {
-                                            await waitTime(1000);
+                                            await waitTime(1500);
                                             console.log(values.property);
                                             console.log(value);
+                                            // setLoading(true);
                                             request(
                                                 `/api/Asset/DefineProp/${LoadSessionID()}`,
                                                 "POST",
@@ -408,8 +424,10 @@ const App = () => {
                                             )
                                                 .then((res) => {
                                                     message.success("添加成功");
+                                                    // setLoading(false);
                                                 })
                                                 .catch((err) => {
+                                                    // setLoading(false);
                                                     Modal.error({
                                                         title: "错误",
                                                         content: err.message.substring(5),
@@ -436,7 +454,7 @@ const App = () => {
                                 </Col>
                             </Row>      
                             <Drawer
-                                title="增加资产"
+                                title="增加资产分类"
                                 width={420}
                                 onClose={onClose}
                                 destroyOnClose={true}
@@ -445,7 +463,7 @@ const App = () => {
                                 extra={
                                     <Space>
                                         <Button onClick={onClose}>取消</Button>
-                                        <Button onClick={() => {submit();}} type="primary" >
+                                        <Button onClick={() => {submit();}} type="primary" loading={loading}>
                                             提交
                                         </Button>
                                     </Space>
@@ -455,10 +473,10 @@ const App = () => {
                                     <Row>
                                         <Form.Item
                                             name="assetname"
-                                            label="资产名称"
+                                            label="资产类型名称"
                                             rules={[{ required: true, message: "必填项" }]}
                                         >
-                                            <Input placeholder="请输入要增加的资产名称" onChange={(e) => setAssetName(e.target.value)}/>
+                                            <Input placeholder="请输入要增加的资产类型名称" onChange={(e) => setAssetName(e.target.value)}/>
                                         </Form.Item>
                                     </Row>
                                     <Row>
@@ -467,7 +485,7 @@ const App = () => {
                                             label="折旧策略"
                                             rules={[{ required: true, message: "必选项" }]}
                                         >
-                                            <Select placeholder="请选择该资产是否为品类" onChange={handlechange1}>
+                                            <Select placeholder="请选择该类型资产的折旧策略" onChange={handlechange1}>
                                                 <Option value="l">线性折旧</Option>
                                                 <Option value="e">指数折旧</Option>
                                             </Select>
@@ -476,7 +494,7 @@ const App = () => {
                                 </Form>
                             </Drawer>
                             <Drawer
-                                title="修改资产"
+                                title="修改资产类型"
                                 width={420}
                                 onClose={onClose}
                                 destroyOnClose={true}
@@ -485,7 +503,7 @@ const App = () => {
                                 extra={
                                     <Space>
                                         <Button onClick={onClose}>取消</Button>
-                                        <Button onClick={() => {modify();}} type="primary" >
+                                        <Button onClick={() => {modify();}} type="primary" loading={loading} >
                                             提交
                                         </Button>
                                     </Space>
@@ -495,10 +513,10 @@ const App = () => {
                                     <Row>
                                         <Form.Item
                                             name="assetname"
-                                            label="资产名称"
+                                            label="新的资产类型名称"
                                             rules={[{ required: true, message: "必填项" }]}
                                         >
-                                            <Input placeholder="请输入要修改的资产名称" onChange={(e) => setAssetName(e.target.value)}/>
+                                            <Input placeholder="请输入要修改的资产类型名称" onChange={(e) => setAssetName(e.target.value)}/>
                                         </Form.Item>
                                     </Row>
                                     <Row>
@@ -507,7 +525,7 @@ const App = () => {
                                             label="折旧策略"
                                             rules={[{ required: true, message: "必选项" }]}
                                         >
-                                            <Select placeholder="请选择该资产是否为品类" onChange={handlechange1}>
+                                            <Select placeholder="请选择该类型资产的折旧策略" onChange={handlechange1}>
                                                 <Option value="l">线性折旧</Option>
                                                 <Option value="e">指数折旧</Option>
                                             </Select>
