@@ -109,7 +109,7 @@ const ApplyApprovalList = (props:ApplyApprovalListProps) => {
                     </Space>
                 );
             },
-            width:"200px"
+            width:"350px"
         }
     ];
     const router = useRouter();
