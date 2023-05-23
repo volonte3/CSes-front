@@ -113,6 +113,11 @@ const AssetChange = () => {
         console.log("上传的文件:", files);
     };
     
+    const [current, setCurrent] = useState(0);
+    const onChange = (value: number) => {
+        setCurrent(value);
+    };
+
     const handleUpload = async () => {
     // 创建 OSS 客户端实例
         const client = new OSS({
@@ -326,11 +331,13 @@ const AssetChange = () => {
                     //     money: record.AssetValue,
                     // },                             
                 }}
+                current={current}
+                onCurrentChange={onChange}
                 stepsFormRender={(dom, submitter) => {
                     return (
                         <Modal
                             width={800}
-                            onCancel={() => setVisible(false)}
+                            onCancel={() => {setVisible(false);setCurrent(0);}}
                             open={visible}
                             footer={submitter}
                             style={{background:"transparent"}}
@@ -341,7 +348,8 @@ const AssetChange = () => {
                         </Modal>
                     );
                 }}
-                onFinish={async (values) => { 
+                onFinish={async (values) => {
+                    setCurrent(0); 
                     setVisible(false); 
                     request(
                         `/api/Asset/Change/${LoadSessionID()}`,
