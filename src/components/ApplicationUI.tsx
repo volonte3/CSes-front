@@ -57,6 +57,7 @@ const ApplicationUI = (props: ApplicationProps) => {
     };
     // 向后端发送创建新应用的请求
     const CreateNewApp = async (AppName: string, AppUrl: string, NowAuthority: number) => {
+        setLoading(true);
         const client = new OSS({
             region: "oss-cn-beijing",
             accessKeyId: "LTAI5tNdCBrFK5BGXqTiMhwG",
@@ -78,8 +79,9 @@ const ApplicationUI = (props: ApplicationProps) => {
             "x-oss-tagging": "Tag1=1&Tag2=2",
             "x-oss-forbid-overwrite": "true",
         };
-        try {
-            if (File) {
+        let fileurl = "";
+        if (File) {
+            try {
                 if (File.size > MAX_FILE_SIZE) {
                     Modal.error({
                         title: "头像" + File.name + "无法上传",
@@ -87,44 +89,45 @@ const ApplicationUI = (props: ApplicationProps) => {
                     });
                     return;
                 }
-            }
+                const nowtime = Date.now();
+                const fileExtension = File?.name.split(".").pop();
+                const path = "/AppPhotos/" + nowtime + "." + fileExtension;
+                const result = await client.put(path, File, { headers });
+                fileurl = "https://cs-company.oss-cn-beijing.aliyuncs.com" + path;
+                const selectedFileName = document.getElementById("selected-file-name");
+                if(selectedFileName) selectedFileName.textContent = "";
             //更新头像
-            const nowtime = Date.now();
-            const fileExtension = File?.name.split(".").pop();
-            const path = "/AppPhotos/" + nowtime + "." + fileExtension;
-            const result = await client.put(path, File, { headers });
-            const fileurl = "https://cs-company.oss-cn-beijing.aliyuncs.com" + path;
-            const selectedFileName = document.getElementById("selected-file-name");
-            if(selectedFileName) selectedFileName.textContent = "";
-            request(
-                `/api/User/App/${LoadSessionID()}/${NowAuthority}`,
-                "POST",
-                {
-                    "AppName": AppName,
-                    "AppUrl": AppUrl,
-                    "AppImage": fileurl
-                }
-            )
-                .then((res) => {
-                    setOpen(false);
-                    let answer: string = `成功创建应用 ${AppName}`;
-                    Modal.success({ title: "创建成功", content: answer });
-                    fetchList(NowAuthority);
-                })
-                .catch((err: string) => {
-                    if (IfCodeSessionWrong(err, router)) {
-                        setOpen(false);
-                        Modal.error({
-                            title: "创建失败",
-                            content: err.toString().substring(5),
-                        });
-                    }
-                });
-        } catch (e) {
-            console.error("上传失败", e);
+            } catch (e) {
+                console.error("上传失败", e);
+            }
         }
-        console.log("上传的文件:", File);
-        
+        request(
+            `/api/User/App/${LoadSessionID()}/${NowAuthority}`,
+            "POST",
+            {
+                "AppName": AppName,
+                "AppUrl": AppUrl,
+                "AppImage": fileurl,
+            }
+        )
+            .then((res) => {
+                setOpen(false);
+                let answer: string = `成功创建应用 ${AppName}`;
+                Modal.success({ title: "创建成功", content: answer });
+                fetchList(NowAuthority);
+                setLoading(false);
+            })
+            .catch((err: string) => {
+                if (IfCodeSessionWrong(err, router)) {
+                    setOpen(false);
+                    Modal.error({
+                        title: "创建失败",
+                        content: err.toString().substring(5),
+                    });
+                    setLoading(false);
+                }
+            });
+        setFile(undefined);
     };
 
     const RemoveApp = (Authority: number, AppName: string) => {
