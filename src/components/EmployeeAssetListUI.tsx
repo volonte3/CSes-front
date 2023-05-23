@@ -1,6 +1,6 @@
 import { ProTable, ProColumns, ProFormDateTimePicker, ModalForm, ProForm, ProFormTreeSelect, ActionType, ProList } from "@ant-design/pro-components";
 import React from "react";
-import { Form, Input, List, Slider, InputNumber, Select, Tooltip } from "antd";
+import { Form, Input, List, Slider, InputNumber, Select, Tooltip,message } from "antd";
 import { AssetData} from "../utils/types"; //对列表中数据的定义在 utils/types 中
 import { Breadcrumb, Layout, Menu, Col, Space, Table, Row, DatePicker, Modal, Button, TimePicker } from "antd";
 const { Column } = Table;
@@ -11,6 +11,7 @@ import { LoadSessionID, IfCodeSessionWrong } from "../utils/CookieOperation";
 import { MemberData,AssetDetailInfo,TestDetailInfo } from "../utils/types";
 import { AssetDetailCard } from "./AssetDetailInfoUI";
 import dayjs from "dayjs";
+import moment from "moment";
 
 interface EmployeeAssetListProps {
     EmployeeName: string;
@@ -75,6 +76,8 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
     const [ApplyMaxVolumn, setApplyMaxVolumn] = useState(0); //允许的最大领用量，即该资产的数量
     const [ApplyAssetType, setApplyAssetType] = useState(0); //获取资产的类型0就是条目型，1就是数量型
     const [showSkeleton, setShowSkeleton] = useState(false); //从资产列表跳到资产详细页面时的占位骨架
+    const [AllowSubmit1,setAllowSubmit1] = useState(false);   //是否允许提交申请，用于排除一些键为空的情况
+    const [AllowSubmit2,setAllowSubmit2] = useState(false);   //是否允许提交申请，用于排除一些键为空的情况
 
     const router = useRouter();
     const query = router.query;
@@ -94,7 +97,21 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
     };
     const handleChange = (AssetIDList: number[], MoveTo: string = "", Type: string = "") => {
         setloading(true);
-       
+        handleMySelectedRowKeys([]);
+        handleMySelectedRows([]);
+        let FinalMessage = "";
+        if(ApplyReason){
+            FinalMessage+=`[申请理由]:${ApplyReason} `;
+        }
+        if(ApplyDate){
+            FinalMessage+=`[修改截止时间至]:${ApplyDate} ${ApplyTime} `;
+        }
+        if(ApplyType==0){
+            FinalMessage+=`[申请数量]:${ApplyVolumn} `;
+        }
+        else if (ApplyType == -1){
+            FinalMessage+="[申请数量]:所有 ";
+        }
         request(`/api/Asset/Apply/${LoadSessionID()}`, "POST",
             {
                 "operation": renderApplyType2Apply(ApplyType),
@@ -103,12 +120,10 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                 "Type": Type,
                 "number": ApplyVolumn,
                 "Time": `${ApplyDate} ${ApplyTime}`,
-                "Message": ApplyReason
+                "Message": FinalMessage
             }
         )
             .then(() => {
-                handleMySelectedRowKeys([]);
-                handleMySelectedRows([]);
                 setloading(false);
                 setOpen2(false);
                 setOpenApplyCondition(false);
@@ -116,17 +131,18 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                 setApplyTime("");
                 setApplyReason("");
                 setApplyMaxVolumn(0);
+                setAllowSubmit1(false);
+                setAllowSubmit2(false);
+                setSelectedDate(null); // 清空选择的日期
+                setSelectedTime(null); // 清空选择的时间
                 Modal.success({
                     title: "申请成功",
                     content: "成功提交请求",
                 });
-                console.log(mySelectedRowKeys);
             })
             .catch(
                 (err: string) => {
                     if (IfCodeSessionWrong(err, router)) {
-                        handleMySelectedRowKeys([]);
-                        handleMySelectedRows([]);
                         setloading(false);
                         setOpen2(false);
                         setOpenApplyCondition(false);
@@ -134,6 +150,10 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                         setApplyTime("");
                         setApplyReason("");
                         setApplyMaxVolumn(0);
+                        setAllowSubmit1(false);
+                        setAllowSubmit2(false);
+                        setSelectedDate(null); // 清空选择的日期
+                        setSelectedTime(null); // 清空选择的时间
                         Modal.error({
                             title: "申请失败",
                             content: err.toString().substring(5),
@@ -231,7 +251,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                                     领用
                                 </Button>}
                             {MyAsset == true &&
-                                <Button loading={loading} key="return" title="退库" disabled={!IsReturn}
+                                <Button loading={loading} key="receive" title="退库" disabled={!IsReturn}
                                     onClick={() => {if(!props.TourOpen){
                                         setNowAssetID([record.ID]);
                                         setOpenApplyCondition(true);
@@ -240,7 +260,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                                     退库
                                 </Button>}
                             {MyAsset == true &&
-                                <Button loading={loading} key="dispatch" title="维保" disabled={!IsMaintenance}
+                                <Button loading={loading} key="receive" title="维保" disabled={!IsMaintenance}
                                     onClick={() => {if(!props.TourOpen){
                                         setNowAssetID([record.ID]);
                                         setOpenApplyCondition(true);
@@ -250,7 +270,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                                     维保
                                 </Button>}
                             {MyAsset == true &&
-                                <Button loading={loading} key="transfer" title="转移" disabled={!IsTransfers}
+                                <Button loading={loading} key="receive" title="转移" disabled={!IsTransfers}
                                     onClick={() => {if(!props.TourOpen){
                                         setNowAssetID([record.ID]);
                                         setOpenApplyCondition(true);
@@ -269,6 +289,9 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
     // 分页多选相关
     const [mySelectedRowKeys, handleMySelectedRowKeys] = useState<number[]>([]);  // 选中的项目
     const [mySelectedRows, handleMySelectedRows] = useState<AssetData[]>([]);
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [selectedTime, setSelectedTime] = useState(null);
+    
     // 由于cancleRowKeys不影响dom，所以不使用useState定义
     let cancleRowKeys: number[] = []; // 取消选择的项目
 
@@ -394,14 +417,28 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
         console.log("ApplyReason", e.target.value);
     };
     const handleChangeDate = (value: any) => {
-        const formattedValue = value.format("YYYY-MM-DD");
-        console.log("ApplyDate", formattedValue);
-        setApplyDate(formattedValue);
+        if (value){
+            setSelectedDate(value);
+            const formattedValue = value.format("YYYY-MM-DD");
+            console.log("ApplyDate", formattedValue);
+            setApplyDate(formattedValue);
+            setAllowSubmit1(true);
+        }
+        else{
+            setAllowSubmit1(false);
+        }
     };
     const handleChangeTime = (value: any) => {
-        const formattedValue = value.format("HH:mm:ss");
-        console.log("ApplyTime", formattedValue);
-        setApplyTime(formattedValue);
+        if(value){
+            setSelectedTime(value);
+            const formattedValue = value.format("HH:mm:ss");
+            console.log("ApplyTime", formattedValue);
+            setApplyTime(formattedValue);
+            setAllowSubmit2(true);
+        }
+        else{
+            setAllowSubmit2(false);
+        }
     };
     const handleChangeVolumn = (newValue: any) => {
         console.log("ApplyVolumn", newValue);
@@ -595,18 +632,27 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                     setApplyTime("");
                     setApplyReason("");
                     setApplyMaxVolumn(0);
-
+                    setAllowSubmit1(false);
+                    setAllowSubmit2(false);
+                    setSelectedDate(null); // 清空选择的日期
+                    setSelectedTime(null); // 清空选择的时间
                 }}
                 open={OpenApplyCondition}
                 onOk={
                     () => {
-                        if (ApplyType === 3 || ApplyType === 4) {
-                            setOpenApplyCondition(false);
-                            console.log("NowAssetID!!!!!!!!!!!!", NowAssetID);
-                            setOpen1(true);
+                        console.log(AllowSubmit1,AllowSubmit2);
+                        if((AllowSubmit1&&AllowSubmit2)||ApplyType!=2){
+                            if (ApplyType === 3 || ApplyType === 4) {
+                                setOpenApplyCondition(false);
+                                console.log("NowAssetID!!!!!!!!!!!!", NowAssetID);
+                                setOpen1(true);
+                            }
+                            else {
+                                handleChange(NowAssetID);
+                            }
                         }
-                        else {
-                            handleChange(NowAssetID);
+                        else{
+                            message.error("截止日期不能为空");
                         }
                     }
                 }
@@ -630,14 +676,14 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
 
                         <div style={{ "display": "flex", "alignItems": "center" }}>
                             <Col span={6}>
-                                <h4>资产截止时间</h4>
+                                <h4>修改资产到期时间</h4>
                             </Col>
                             <Col span={9}>
                                 {ApplyType === 2 && <DatePicker
                                     onChange={handleChangeDate}
                                     format="YYYY-MM-DD"
                                     placeholder="年-月-日"
-                                    // defaultOpenValue={dayjs(ApplyTime.split(" ")[0], "YYYY-MM-DD")}
+                                    value={selectedDate}
                                 />}
                             </Col>
                             <Col span={9}>
@@ -645,7 +691,7 @@ const EmployeeAssetList = (props: EmployeeAssetListProps) => {
                                     onChange={handleChangeTime}
                                     format="HH:mm:ss"
                                     placeholder="时-分-秒"
-                                    // defaultOpenValue={dayjs(ApplyTime.split(" ")[1], "HH:mm:ss")}
+                                    value={selectedTime}
                                 />}
                             </Col>
                         </div>

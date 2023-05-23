@@ -105,7 +105,7 @@ const ApplyApprovalList = (props:ApplyApprovalListProps) => {
                     <Space>
                         <Button ref={props.refList[0]} loading={Loading} type="primary" disabled={!record.Valid} onClick={() => { handleApproval(true, record.ApplyID); }}>同意申请</Button>
                         <Button ref={props.refList[1]} loading={Loading} danger onClick={() => { handleApproval(false, record.ApplyID); }}>驳回申请</Button>
-                        <Button ref={props.refList[2]} type="link" onClick={() => { setApplyReason(record.Message); setShowApplyReason(true); }}> 查看申请理由</Button>
+                        <Button ref={props.refList[2]} type="link" onClick={() => { setApplyReason(record.Message); setShowApplyReason(true); }}> 查看申请详情</Button>
                     </Space>
                 );
             },
@@ -162,7 +162,7 @@ const ApplyApprovalList = (props:ApplyApprovalListProps) => {
             // /* </div> */ 
             />
 
-            <Modal title="申请理由" open={ShowApplyReason} onOk={() => setShowApplyReason(false)} onCancel={() => setShowApplyReason(false)}>
+            <Modal title="申请详情" open={ShowApplyReason} onOk={() => setShowApplyReason(false)} onCancel={() => setShowApplyReason(false)}>
                 <div style={{ maxHeight: "400px", minHeight: "50px", overflowY: "auto" }}>
                     {ApplyReason != ""
                         ?
